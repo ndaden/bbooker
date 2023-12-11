@@ -2,7 +2,31 @@
 version: '3.1'
 
 services:
-
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    depends_on:
+      - mongo
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./api:/usr/src/app
+    environment:
+      MONGODB_USERNAME: ${MONGODB_USERNAME}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+      MONGODB_URL: ${MONGODB_URL}
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+    volumes:
+      - ./:/usr/src/app
+      - ./conf/nginx.conf:/etc/nginx/conf.d/default.conf
   mongo:
     image: mongo:7.0.0
     restart: always

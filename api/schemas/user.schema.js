@@ -1,7 +1,7 @@
 const mongoose = require("mongoose"),
   Schema = mongoose.Schema,
   uniqueValidator = require("mongoose-unique-validator"),
-  bcrypt = require("bcrypt"),
+  bcrypt = require("bcryptjs"),
   SALT_WORK_FACTOR = 10;
 
 const Point = require("./point.schema");
