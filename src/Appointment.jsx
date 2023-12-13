@@ -8,15 +8,21 @@ import {
   SelectItem,
 } from "@nextui-org/react";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Appointment = () => {
   const { state } = useLocation();
-  const { business, services } = state;
-  console.log("business:", business);
-  console.log("services: ", services);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!state) {
+      navigate(-1);
+    }
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -65,91 +71,93 @@ const Appointment = () => {
   };
 
   return (
-    <main className="container mx-auto max-w-6xl px-6 flex-grow">
-      <Card className="my-3">
-        <CardBody>
-          <div className="font-bold text-large">
-            Votre rendez-vous chez <a href="">{business.name}</a>
-          </div>
-        </CardBody>
-      </Card>
-      <Card className="my-3">
-        <CardBody>
-          <div>
-            <Select
-              label="Choisissez une prestation"
-              onSelectionChange={onSelectService}
-              defaultSelectedKey={[]}
-              selectedKeys={chosenService}
-            >
-              {services.map((service) => (
-                <SelectItem
-                  key={service._id}
-                  value={service._id}
-                  textValue={` ${service.serviceName} - ${service.duration} minutes`}
-                >
-                  {service.serviceName} - {service.duration} minutes
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-        </CardBody>
-      </Card>
-
-      {chosenService.size === 1 && (
-        <Card className="my-3">
-          <CardBody className="">
-            <form
-              name="appointmentForm"
-              onSubmit={handleSubmit(submitDateAppointment)}
-            >
-              <Input
-                {...register("appointmentDate", {
-                  required: {
-                    value: true,
-                    message: "Vous devez selectionner une date",
-                  },
-                })}
-                labelPlacement="outside"
-                label="Choisissez une date"
-                type="date"
-              />
-            </form>
-          </CardBody>
-        </Card>
-      )}
-
-      {chosenDateAndTime && (
+    state && (
+      <main className="container mx-auto max-w-6xl px-6 flex-grow">
         <Card className="my-3">
           <CardBody>
-            <div>
-              <label>Voici les créneaux disponibles pour le </label>
-              <div>
-                {creneaux.map((creneau, idx) => (
-                  <Tooltip
-                    key={idx}
-                    content={
-                      creneau.free
-                        ? "Ce créneau est disponible"
-                        : "Ce créneau n'est pas disponible"
-                    }
-                  >
-                    <Button
-                      className="m-3"
-                      disabled={!creneau.free}
-                      color={creneau.free ? "primary" : "default"}
-                    >
-                      {dayjs(creneau.debut).format("HH:mm")}-
-                      {dayjs(creneau.fin).format("HH:mm")}
-                    </Button>
-                  </Tooltip>
-                ))}
-              </div>
+            <div className="font-bold text-large">
+              Votre rendez-vous chez <a href="">{state.business.name}</a>
             </div>
           </CardBody>
         </Card>
-      )}
-    </main>
+        <Card className="my-3">
+          <CardBody>
+            <div>
+              <Select
+                label="Choisissez une prestation"
+                onSelectionChange={onSelectService}
+                defaultSelectedKey={[]}
+                selectedKeys={chosenService}
+              >
+                {state.services.map((service) => (
+                  <SelectItem
+                    key={service._id}
+                    value={service._id}
+                    textValue={` ${service.serviceName} - ${service.duration} minutes`}
+                  >
+                    {service.serviceName} - {service.duration} minutes
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+          </CardBody>
+        </Card>
+
+        {chosenService.size === 1 && (
+          <Card className="my-3">
+            <CardBody className="">
+              <form
+                name="appointmentForm"
+                onSubmit={handleSubmit(submitDateAppointment)}
+              >
+                <Input
+                  {...register("appointmentDate", {
+                    required: {
+                      value: true,
+                      message: "Vous devez selectionner une date",
+                    },
+                  })}
+                  labelPlacement="outside"
+                  label="Choisissez une date"
+                  type="date"
+                />
+              </form>
+            </CardBody>
+          </Card>
+        )}
+
+        {chosenDateAndTime && (
+          <Card className="my-3">
+            <CardBody>
+              <div>
+                <label>Voici les créneaux disponibles pour le </label>
+                <div>
+                  {creneaux.map((creneau, idx) => (
+                    <Tooltip
+                      key={idx}
+                      content={
+                        creneau.free
+                          ? "Ce créneau est disponible"
+                          : "Ce créneau n'est pas disponible"
+                      }
+                    >
+                      <Button
+                        className="m-3"
+                        disabled={!creneau.free}
+                        color={creneau.free ? "primary" : "default"}
+                      >
+                        {dayjs(creneau.debut).format("HH:mm")}-
+                        {dayjs(creneau.fin).format("HH:mm")}
+                      </Button>
+                    </Tooltip>
+                  ))}
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+      </main>
+    )
   );
 };
 
