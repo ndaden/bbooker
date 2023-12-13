@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@nextui-org/react": "^2.0.22",
+    "@nextui-org/react": "^2.2.9",
     "@tanstack/react-query": "^4.33.0",
     "@tanstack/react-query-devtools": "^4.33.0",
     "@testing-library/jest-dom": "^5.14.1",
@@ -23,7 +23,7 @@
   },
   "scripts": {
     "frontend": "react-scripts start",
-    "backend": "cd ./api && yarn start",
+    "backend": "cd ./api && set NODE_ENV=development && yarn start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

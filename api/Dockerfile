@@ -10,9 +10,6 @@ COPY package*.json ./
 # Install app dependencies
 RUN npm install
 
-RUN npm uninstall bcrypt
-RUN npm i bcrypt
-
 # Bundle app source
 COPY . .
 

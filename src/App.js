@@ -14,10 +14,10 @@ import Appointment from "./Appointment";
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 function App() {
   return (
-    <div className="relative flex flex-col h-screen dark text-foreground bg-background">
-      <QNavbar brandLabel={"QUESTIONS"} />
+    <div className="relative min-h-[100vh] flex flex-col dark text-foreground bg-background">
+      <QNavbar brandLabel={"Beauty BOOKER"} />
       <RouterProvider router={router} />
-      <footer className="w-full flex items-center justify-center py-3">
+      <footer className="w-screen flex items-center justify-center py-3">
         <QLink
           isExternal
           className="flex items-center gap-1 text-current"

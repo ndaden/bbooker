@@ -14,9 +14,12 @@ import {
 import useFetchBusinesses from "./hooks/useFetchBusinesses";
 import { useParams } from "react-router-dom";
 import useFetchServices from "./hooks/useFetchServices";
+import { useNavigate } from "react-router-dom";
 
 const Business = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   let businessToDisplay;
 
   const { businesses, isLoading: isLoadingBusiness } = useFetchBusinesses(id);
@@ -28,6 +31,12 @@ const Business = () => {
   if (!isLoadingBusiness) {
     businessToDisplay = businesses[0];
   }
+
+  const onClickTakeAppointment = () => {
+    navigate("/appointment", {
+      state: { business: businessToDisplay, services: services },
+    });
+  };
   return (
     !isLoadingBusiness &&
     !isLoadingServices && (
@@ -54,6 +63,7 @@ const Business = () => {
                 type="button"
                 color="primary"
                 className="font-bold"
+                onClick={onClickTakeAppointment}
               >
                 Prendre un rendez-vous
               </Button>

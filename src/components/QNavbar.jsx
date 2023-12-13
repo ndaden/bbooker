@@ -7,14 +7,13 @@ import {
   Button,
 } from "@nextui-org/react";
 
-const QNavbar = ({
-  brandLabel,
-  links = [{ label: "Features" }, { label: "Customers", isActive: true }],
-}) => {
+const QNavbar = ({ brandLabel, links = [] }) => {
   return (
     <Navbar>
       <NavbarBrand>
-        <p className="font-bold text-inherit">{brandLabel}</p>
+        <a className="font-bold text-inherit" href="/">
+          {brandLabel}
+        </a>
       </NavbarBrand>
       <NavbarContent className="sm:flex gap-4" justify="center">
         {links.map((link) => (
