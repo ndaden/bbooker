@@ -12,12 +12,6 @@ services:
       - "3001:3001"
     volumes:
       - ./api:/usr/src/app
-    environment:
-      MONGODB_USERNAME: ${MONGODB_USERNAME}
-      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
-      MONGODB_URL: ${MONGODB_URL}
-    env_file:
-      - dev.env
   front:
     build:
       context: .
@@ -39,5 +33,3 @@ services:
       - 27017:27017
     volumes:
       - ./db:/data/db
-    env_file:
-      - dev.env
