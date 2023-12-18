@@ -126,7 +126,7 @@ const Appointment = () => {
           </Card>
         )}
 
-        {chosenDateAndTime && (
+         
           <Card className="my-3">
             <CardBody>
               <div>
@@ -155,7 +155,7 @@ const Appointment = () => {
               </div>
             </CardBody>
           </Card>
-        )}
+      
       </main>
     )
   );

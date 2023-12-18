@@ -1,5 +1,6 @@
 const express = require("express");
 const UserModel = require("../schemas/user.schema");
+const bcryptjs = require("bcryptjs");
 const app = express();
 
 app.get("/", async (req, resp) => {
@@ -31,6 +32,35 @@ app.post("/create", async (req, resp) => {
         });
     }
     return resp.status(500).send({ error: "cannot create user" });
+  }
+});
+
+app.post("/authenticate", async (req, resp) => {
+  try {
+    const { email, password } = req.body
+
+    const user = await UserModel.findOne({
+      email: email
+    })
+
+    if (!user) {
+      //if user does not exist responding Authentication Failed
+      return resp.status(401).json({
+        message: "Authentication Failed",
+      })
+    }
+
+    const correctPassword = bcryptjs.compare(password, user.password)
+    if (correctPassword) {
+      return resp.status(200).send({ message: "authentication success" })
+    } else {
+      return resp.status(401).json({
+        message: "Authentication Failed",
+      })
+    }
+  } catch (e) {
+
+    return resp.status(500).send({ error: "cannot authenticate user" });
   }
 });
 
