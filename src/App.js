@@ -12,6 +12,7 @@ import Business from "./Business";
 import Appointment from "./Appointment";
 import Login from "./Login";
 import CreateAccount from "./CreateAccount";
+import Profile from "./Profile";
 
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 function App() {
@@ -43,7 +44,7 @@ function Root() {
         <Route path="/appointment" element={<Appointment />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<CreateAccount />} />
-
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );

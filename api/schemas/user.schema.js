@@ -1,8 +1,7 @@
+const passportLocalMongoose = require("passport-local-mongoose");
 const mongoose = require("mongoose"),
   Schema = mongoose.Schema,
-  uniqueValidator = require("mongoose-unique-validator"),
-  bcrypt = require("bcryptjs"),
-  SALT_WORK_FACTOR = 10;
+  uniqueValidator = require("mongoose-unique-validator");
 
 const Point = require("./point.schema");
 const Email = new Schema({
@@ -27,8 +26,6 @@ const UserSchema = new Schema(
       match: [/^[a-zA-Z0-9]+$/, "is invalid"],
       index: true,
     },
-    //Our password is hashed with bcrypt
-    password: { type: String, required: true },
     email: { type: Email, required: true },
     roles: [
       {
@@ -62,17 +59,6 @@ const UserSchema = new Schema(
 );
 
 UserSchema.plugin(uniqueValidator, { message: "is already taken." });
-
-UserSchema.pre("save", function (next) {
-  if (!this.isModified("password")) {
-    return next();
-  }
-  this.password = bcrypt.hashSync(this.password, 10);
-  next();
-});
-
-UserSchema.methods.comparePassword = function (plaintext, callback) {
-  return callback(null, bcrypt.compareSync(plaintext, this.password));
-};
+UserSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model("User", UserSchema);

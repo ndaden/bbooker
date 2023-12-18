@@ -4,15 +4,22 @@ import BusinessCard from "./components/BusinessCard";
 import useFetchBusinesses from "./hooks/useFetchBusinesses";
 
 function Home() {
-  const { businesses, isLoading } = useFetchBusinesses();
+  const { businesses, isLoading, isError } = useFetchBusinesses();
   return (
     <main className="container mx-auto max-w-6xl px-6 flex-grow">
       <div className="my-3">
         <QAutoComplete />
       </div>
       <div className="flex flex-col gap-6">
+        {isError && (
+          <div>
+            Impossible de récupérer les données. Veuillez réessayer
+            ultérieurement
+          </div>
+        )}
         {isLoading && <div>loading</div>}
         {!isLoading &&
+          !isError &&
           businesses.map((business) => (
             <BusinessCard
               key={business._id}

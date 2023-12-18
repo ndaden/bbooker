@@ -1,7 +1,9 @@
 const express = require("express");
 const UserModel = require("../schemas/user.schema");
-const bcryptjs = require("bcryptjs");
+const passport = require("passport");
 const app = express();
+const jwt = require("jsonwebtoken");
+const config = require("../config");
 
 app.get("/", async (req, resp) => {
   try {
@@ -17,50 +19,14 @@ app.get("/", async (req, resp) => {
 
 app.post("/create", async (req, resp) => {
   try {
-    const user = new UserModel(req.body);
-    let result = await user.save();
-    result = result.toObject();
-
-    delete result.password;
-    resp.send(req.body);
+    const { password, ...userInfos } = req.body;
+    const user = new UserModel(userInfos);
+    const document = await UserModel.register(user, password);
+    delete document.hash;
+    delete document.salt;
+    resp.send(document);
   } catch (e) {
-    if (e.errors.username && e.errors.username.kind === "unique") {
-      return resp
-        .status(500)
-        .send({
-          error: { username: { message: "username is already taken" } },
-        });
-    }
-    return resp.status(500).send({ error: "cannot create user" });
-  }
-});
-
-app.post("/authenticate", async (req, resp) => {
-  try {
-    const { email, password } = req.body
-
-    const user = await UserModel.findOne({
-      email: email
-    })
-
-    if (!user) {
-      //if user does not exist responding Authentication Failed
-      return resp.status(401).json({
-        message: "Authentication Failed",
-      })
-    }
-
-    const correctPassword = bcryptjs.compare(password, user.password)
-    if (correctPassword) {
-      return resp.status(200).send({ message: "authentication success" })
-    } else {
-      return resp.status(401).json({
-        message: "Authentication Failed",
-      })
-    }
-  } catch (e) {
-
-    return resp.status(500).send({ error: "cannot authenticate user" });
+    return resp.status(500).send({ error: e });
   }
 });
 
@@ -72,5 +38,38 @@ app.delete("/:id", async (req, resp) => {
     resp.status(500).send({ message: "user cannot be deleted" });
   }
 });
+
+// authentication
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    session: false,
+  }),
+  async (req, resp) => {
+    const user = await UserModel.findOne({ username: req.body.username });
+
+    if (user) {
+      const payload = {
+        id: user.id,
+      };
+
+      const token = jwt.sign(payload, config.jwtSecret, { expiresIn: 30 * 60 }); //expires in 30 minutes
+      resp.json({ token: token });
+    } else {
+      resp.json({ error: { message: "user not found" } });
+    }
+  }
+);
+
+app.use(
+  "/authenticated",
+  passport.authenticate("jwt", { session: false }),
+  (req, resp) => {
+    resp.json({
+      user: req.user,
+      token: req.query.secret_token,
+    });
+  }
+);
 
 module.exports = app;

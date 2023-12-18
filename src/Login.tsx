@@ -1,6 +1,8 @@
 import { Button, Card, CardBody, Input } from "@nextui-org/react"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import useAuthenticateUser from "./hooks/useAuthenticateUser";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const {
@@ -11,30 +13,40 @@ const Login = () => {
         reset,
     } = useForm();
 
-    const [isLoading, setIsLoading] = useState();
-    const [serverResponse, setServerResponse] = useState();
+    const {authenticate, data, isLoading, isError, error } = useAuthenticateUser();
+    const navigate = useNavigate();
 
     const submitLoginForm = async (data) => {
         if (isValid) {
-            console.log('login...')
+            sessionStorage.removeItem("auth_token")
+            authenticate(data)
         }
     }
 
+
+    useEffect(() => {
+        if(!isLoading && data) {
+            sessionStorage.setItem("auth_token", data.token)
+            navigate('/profile')
+        }
+    }
+    , [isLoading, data]
+    )
+
     return <div className="grid grid-cols-10 m-auto">
-    <Card className="col col-span-6 ">
+        {isLoading && <div>Loading...</div>}
+        {isError && (error as Error).message !== "Unauthorized" ? <div>Une erreur s'est produite</div> :
+    <>{!isLoading && <Card className="col col-span-6 ">
         <CardBody>
         <form name="loginForm" onSubmit={handleSubmit(submitLoginForm)}>
         <div className="flex gap-4 mb-6">
             <Input
-                type="email"
-                {...register("email", {
-                    required: { value: true, message: "Email is mandatory." },
-                    pattern: { value: /\S+@\S+\.\S+/, message: "Email is invalid." },
-                })}
-                label="Email"
+                type="text"
+                {...register("username", {
+                    required: { value: true, message: "Username is mandatory." },
+                  })}
+                label="Username"
                 formNoValidate
-                validationState={errors?.email ? "invalid" : "valid"}
-                errorMessage={errors?.email?.message}
                 size="sm"
             />
         </div>
@@ -46,17 +58,16 @@ const Login = () => {
                     required: { value: true, message: "Password is mandatory" },
                 })}
                 validationState={errors?.password ? "invalid" : "valid"}
-                errorMessage={errors?.password?.message}
                 size="sm"
             />
 
         </div>
-
-        <Button color="primary" type="submit" disabled={isLoading} fullWidth>
+        {isError && <div>Login ou mot de passe invalides</div>}
+        <Button color="primary" type="submit" fullWidth>
             S'identifier
         </Button>
     </form>
-    </CardBody></Card>
+    </CardBody></Card>}</>}
     </div>
 }
 

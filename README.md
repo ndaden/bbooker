@@ -24,3 +24,4 @@ and define these variables :
 MONGODB_USERNAME : mongodb username<br/>
 MONGODB_PASSWORD : mongodb password<br/>
 MONGODB_URL : mongodb address<br/>
+JWT_SECRET : secret key for Json Web Token<br/>

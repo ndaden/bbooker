@@ -9,14 +9,17 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const QNavbar = ({ brandLabel, links = [] }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const goToLogin = () => {
-    navigate('login')
-  }
+    navigate("login");
+  };
   const goToSignup = () => {
-    navigate('signup')
-  }
+    navigate("signup");
+  };
+  const goToProfile = () => {
+    navigate("profile");
+  };
   return (
     <Navbar>
       <NavbarBrand>
@@ -39,10 +42,23 @@ const QNavbar = ({ brandLabel, links = [] }) => {
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem className="lg:flex">
-          <Link href="#" onClick={goToLogin}>S'identifier</Link>
+          <Link href="#" onClick={goToProfile}>
+            Profile
+          </Link>
+        </NavbarItem>
+        <NavbarItem className="lg:flex">
+          <Link href="#" onClick={goToLogin}>
+            S'identifier
+          </Link>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat" onClick={goToSignup}>
+          <Button
+            as={Link}
+            color="primary"
+            href="#"
+            variant="flat"
+            onClick={goToSignup}
+          >
             Créer un compte
           </Button>
         </NavbarItem>
