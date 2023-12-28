@@ -20,7 +20,8 @@ const connectToDatabase = async (
     }
   } catch (e) {
     console.log(
-      "Error while connecting to the Database. Please contact your system admin."
+      "Error while connecting to the Database. Please contact your system admin.",
+      process.env.MONGODB_URL
     );
   }
 };

@@ -1,8 +1,9 @@
-const getUsersQuery = async () =>
-  (await fetch("http://localhost:3001/user")).json();
+const publicApiUrl = process.env.PUBLIC_API_URL;
+
+const getUsersQuery = async () => (await fetch(`${publicApiUrl}/user`)).json();
 
 const createUserQuery = async (formData) =>
-  await fetch("http://localhost:3001/user/create", {
+  await fetch(`${publicApiUrl}/user/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -11,7 +12,7 @@ const createUserQuery = async (formData) =>
   });
 
 const deleteUserQuery = async (id) =>
-  await fetch(`http://localhost:3001/user/${id}`, {
+  await fetch(`${publicApiUrl}/user/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -19,7 +20,7 @@ const deleteUserQuery = async (id) =>
   });
 
 const authenticateUserQuery = async (credentials) => {
-  const response = await fetch("http://localhost:3001/user/login", {
+  const response = await fetch(`${publicApiUrl}/user/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -31,7 +32,7 @@ const authenticateUserQuery = async (credentials) => {
 };
 
 const isAuthenticatedQuery = async () => {
-  const response = await fetch("http://localhost:3001/user/authenticated", {
+  const response = await fetch(`${publicApiUrl}/user/authenticated`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -45,7 +46,7 @@ const isAuthenticatedQuery = async () => {
 
 const getBusinessesQuery = async (id) => {
   const response = await fetch(
-    `http://localhost:3001/business${id ? `?id=${id}` : `/`}`
+    `${publicApiUrl}/business${id ? `?id=${id}` : `/`}`
   );
   if (!response.ok) throw new Error(response.statusText);
   return await response.json();
@@ -54,17 +55,16 @@ const getBusinessesQuery = async (id) => {
 const getServicesQuery = async (id, businessId) =>
   (
     await fetch(
-      `http://localhost:3001/service${id ? `?id=${id}` : `/`}${
+      `${publicApiUrl}/service${id ? `?id=${id}` : `/`}${
         businessId ? `?businessId=${businessId}` : `/`
       }`
     )
   ).json();
 
 const getAppointmentsQuery = async () =>
-  (await fetch("http://localhost:3001/appointment")).json();
+  (await fetch(`${publicApiUrl}/appointment`)).json();
 
-const getRolesQuery = async () =>
-  (await fetch("http://localhost:3001/role")).json();
+const getRolesQuery = async () => (await fetch(`${publicApiUrl}/role`)).json();
 
 export {
   getUsersQuery,

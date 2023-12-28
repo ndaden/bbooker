@@ -1,4 +1,4 @@
-### Questions
+### BBooker
 
 ## API
 
@@ -21,7 +21,12 @@ dev.env : for running on host
 
 and define these variables :
 
+Api:
 MONGODB_USERNAME : mongodb username<br/>
 MONGODB_PASSWORD : mongodb password<br/>
 MONGODB_URL : mongodb address<br/>
+MONGODB_DBNAME: database name<br/>
 JWT_SECRET : secret key for Json Web Token<br/>
+
+Frontend :
+PUBLIC_API_URL : Api to be called by frontend (eg: http://localhost:8080)<br/>

@@ -15,6 +15,11 @@ export default defineConfig({
   html: {
     template: "./template/index.html",
   },
+  source: {
+    define: {
+      "process.env.PUBLIC_API_URL": JSON.stringify(process.env.PUBLIC_API_URL),
+    },
+  },
   output: {
     distPath: {
       root: "./build",
