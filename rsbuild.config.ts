@@ -17,7 +17,10 @@ export default defineConfig({
   },
   source: {
     define: {
-      "process.env.PUBLIC_API_URL": JSON.stringify(process.env.PUBLIC_API_URL),
+      "process.env.PUBLIC_API_URL":
+        process.env.NODE_ENV === "development"
+          ? JSON.stringify(process.env.PUBLIC_DEV_API_URL)
+          : JSON.stringify(process.env.PUBLIC_API_URL),
     },
   },
   output: {
