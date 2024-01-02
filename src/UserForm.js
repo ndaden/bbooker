@@ -81,7 +81,7 @@ const UserForm = () => {
             },
           })}
           type="text"
-          label="Username"
+          label="Nom d'utilisateur"
           validationState={
             errors?.username || serverResponse?.error?.username
               ? "invalid"
@@ -109,7 +109,7 @@ const UserForm = () => {
       <div className="flex gap-4 mb-6">
         <Input
           type="password"
-          label="Password"
+          label="Mot de passe"
           {...register("password", {
             required: { value: true, message: "Password is mandatory" },
           })}
@@ -119,7 +119,7 @@ const UserForm = () => {
         />
         <Input
           type="password"
-          label="Password (again)"
+          label="Re-saisir le mot de passe"
           {...register("passwordAgain", {
             required: {
               value: true,
@@ -136,7 +136,7 @@ const UserForm = () => {
       <div className="flex gap-4 mb-6">
         <Input
           type="text"
-          label="First name"
+          label="Prénom"
           {...register("firstName", {
             required: { value: true, message: "First name is mandatory" },
           })}
@@ -146,7 +146,7 @@ const UserForm = () => {
         />
         <Input
           type="text"
-          label="Last name"
+          label="Nom"
           {...register("lastName", {
             required: { value: true, message: "Last name is mandatory" },
           })}
@@ -158,7 +158,7 @@ const UserForm = () => {
       <div className="flex gap-4 mb-6">
         <Input
           type="text"
-          label="Address"
+          label="Adresse postale"
           {...register("address", {
             required: { value: true, message: "Address is mandatory" },
           })}
@@ -167,9 +167,11 @@ const UserForm = () => {
           size="sm"
         />
       </div>
-      <Button color="primary" type="submit" disabled={isLoading}>
-        Create account
-      </Button>
+      <div className="flex justify-center lg:max-w-[50%] m-auto">
+        <Button color="primary" type="submit" disabled={isLoading} fullWidth>
+          Créer mon compte
+        </Button>
+      </div>
       <QModal triggerOpenModal={serverResponse && !serverResponse.error} />
     </form>
   );

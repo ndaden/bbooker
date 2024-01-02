@@ -24,7 +24,7 @@ function App() {
           isExternal
           className="flex items-center gap-1 text-current"
           href="#"
-          title="Questions homepage"
+          title="Beauty booker homepage"
         >
           <span className="text-default-600">Made with ❤️ by Nabil</span>
         </QLink>

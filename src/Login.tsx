@@ -1,74 +1,14 @@
-import { Button, Card, CardBody, Input } from "@nextui-org/react"
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import useAuthenticateUser from "./hooks/useAuthenticateUser";
-import { useNavigate } from "react-router-dom";
+import React from "react"
+import LoginForm from "./LoginForm"
+import PageTitle from "./components/PageTitle"
 
 const Login = () => {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors = {}, isValid },
-        watch,
-        reset,
-    } = useForm();
-
-    const {authenticate, data, isLoading, isError, error } = useAuthenticateUser();
-    const navigate = useNavigate();
-
-    const submitLoginForm = async (data) => {
-        if (isValid) {
-            sessionStorage.removeItem("auth_token")
-            authenticate(data)
-        }
-    }
-
-
-    useEffect(() => {
-        if(!isLoading && data) {
-            sessionStorage.setItem("auth_token", data.token)
-            navigate('/profile')
-        }
-    }
-    , [isLoading, data]
-    )
-
-    return <div className="grid grid-cols-10 m-auto">
-        {isLoading && <div>Loading...</div>}
-        {isError && (error as Error).message !== "Unauthorized" ? <div>Une erreur s'est produite</div> :
-    <>{!isLoading && <Card className="col col-span-6 ">
-        <CardBody>
-        <form name="loginForm" onSubmit={handleSubmit(submitLoginForm)}>
-        <div className="flex gap-4 mb-6">
-            <Input
-                type="text"
-                {...register("username", {
-                    required: { value: true, message: "Username is mandatory." },
-                  })}
-                label="Username"
-                formNoValidate
-                size="sm"
-            />
-        </div>
-        <div className="flex gap-4 mb-6">
-            <Input
-                type="password"
-                label="Password"
-                {...register("password", {
-                    required: { value: true, message: "Password is mandatory" },
-                })}
-                validationState={errors?.password ? "invalid" : "valid"}
-                size="sm"
-            />
-
-        </div>
-        {isError && <div>Login ou mot de passe invalides</div>}
-        <Button color="primary" type="submit" fullWidth>
-            S'identifier
-        </Button>
-    </form>
-    </CardBody></Card>}</>}
-    </div>
+    return <main className="container mx-auto max-w-6xl px-6 flex-grow text-center">
+    <div className="my-4">
+        <PageTitle title="Accédez à votre compte" />
+        <p>Renseignez votre identifiant et votre mot de passe afin d'accéder à votre espace</p>
+    </div><LoginForm />
+    </main>
 }
 
 export default Login

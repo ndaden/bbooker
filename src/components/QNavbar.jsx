@@ -27,7 +27,7 @@ const QNavbar = ({ brandLabel, links = [] }) => {
           {brandLabel}
         </a>
       </NavbarBrand>
-      <NavbarContent className="sm:flex gap-4" justify="center">
+      <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {links.map((link) => (
           <NavbarItem isActive={!!link.isActive} key={link.label}>
             <Link
@@ -41,17 +41,17 @@ const QNavbar = ({ brandLabel, links = [] }) => {
         ))}
       </NavbarContent>
       <NavbarContent justify="end">
-        <NavbarItem className="lg:flex">
+        <NavbarItem className="hidden lg:flex">
           <Link href="#" onClick={goToProfile}>
             Profile
           </Link>
         </NavbarItem>
-        <NavbarItem className="lg:flex">
+        <NavbarItem className="hidden lg:flex">
           <Link href="#" onClick={goToLogin}>
             S'identifier
           </Link>
         </NavbarItem>
-        <NavbarItem>
+        <NavbarItem className="hidden lg:flex">
           <Button
             as={Link}
             color="primary"
