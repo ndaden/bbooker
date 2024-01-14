@@ -24,7 +24,8 @@
     "frontend": "rsbuild dev",
     "backend": "cd ./api && cross-env NODE_ENV=development yarn start",
     "build": "rsbuild build",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "css": "tailwindcss -i ./src/input.css -o ./public/output.css --watch"
   },
   "eslintConfig": {
     "extends": [

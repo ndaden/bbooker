@@ -2,15 +2,16 @@ import { Pagination } from "@nextui-org/react";
 import QAutoComplete from "./components/QAutocomplete";
 import BusinessCard from "./components/BusinessCard";
 import useFetchBusinesses from "./hooks/useFetchBusinesses";
+import Container from "./components/Container";
 
 function Home() {
   const { businesses, isLoading, isError } = useFetchBusinesses();
   return (
-    <main className="container mx-auto max-w-6xl px-6 flex-grow">
+    <Container>
       <div className="my-3">
         <QAutoComplete />
       </div>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col">
         {isError && (
           <div>
             Impossible de récupérer les données. Veuillez réessayer
@@ -29,14 +30,10 @@ function Home() {
             />
           ))}
       </div>
-      <div className="max-w-6xl my-4">
-        <Pagination
-          total={10}
-          initialPage={1}
-          className="mx-auto max-w-[50%]"
-        />
+      <div className="my-4 mx-auto">
+        <Pagination total={10} initialPage={1} />
       </div>
-    </main>
+    </Container>
   );
 }
 

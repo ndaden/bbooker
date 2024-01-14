@@ -11,10 +11,11 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import useFetchBusinesses from "./hooks/useFetchBusinesses";
+import useFetchBusinesses from "../../hooks/useFetchBusinesses";
 import { useParams } from "react-router-dom";
-import useFetchServices from "./hooks/useFetchServices";
+import useFetchServices from "../../hooks/useFetchServices";
 import { useNavigate } from "react-router-dom";
+import Container from "../../components/Container";
 
 const Business = () => {
   const { id } = useParams();
@@ -40,7 +41,7 @@ const Business = () => {
   return (
     !isLoadingBusiness &&
     !isLoadingServices && (
-      <main className="container mx-auto max-w-6xl px-6 flex-grow">
+      <Container>
         <div className="relative">
           <Card className="w-[90%] absolute z-50 -translate-x-1/2 -translate-y-1/2 left-[50%] top-[50%] text-center bg-opacity-90">
             <CardBody className="text-center">
@@ -91,7 +92,7 @@ const Business = () => {
             </TableBody>
           </Table>
         </div>
-      </main>
+      </Container>
     )
   );
 };

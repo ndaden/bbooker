@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import Container from "../../components/Container";
 
 const Appointment = () => {
   const { state } = useLocation();
@@ -72,7 +73,7 @@ const Appointment = () => {
 
   return (
     state && (
-      <main className="container mx-auto max-w-6xl px-6 flex-grow">
+      <Container>
         <Card className="my-3">
           <CardBody>
             <div className="font-bold text-large">
@@ -126,37 +127,35 @@ const Appointment = () => {
           </Card>
         )}
 
-         
-          <Card className="my-3">
-            <CardBody>
+        <Card className="my-3">
+          <CardBody>
+            <div>
+              <label>Voici les créneaux disponibles pour le </label>
               <div>
-                <label>Voici les créneaux disponibles pour le </label>
-                <div>
-                  {creneaux.map((creneau, idx) => (
-                    <Tooltip
-                      key={idx}
-                      content={
-                        creneau.free
-                          ? "Ce créneau est disponible"
-                          : "Ce créneau n'est pas disponible"
-                      }
+                {creneaux.map((creneau, idx) => (
+                  <Tooltip
+                    key={idx}
+                    content={
+                      creneau.free
+                        ? "Ce créneau est disponible"
+                        : "Ce créneau n'est pas disponible"
+                    }
+                  >
+                    <Button
+                      className="m-3"
+                      disabled={!creneau.free}
+                      color={creneau.free ? "primary" : "default"}
                     >
-                      <Button
-                        className="m-3"
-                        disabled={!creneau.free}
-                        color={creneau.free ? "primary" : "default"}
-                      >
-                        {dayjs(creneau.debut).format("HH:mm")}-
-                        {dayjs(creneau.fin).format("HH:mm")}
-                      </Button>
-                    </Tooltip>
-                  ))}
-                </div>
+                      {dayjs(creneau.debut).format("HH:mm")}-
+                      {dayjs(creneau.fin).format("HH:mm")}
+                    </Button>
+                  </Tooltip>
+                ))}
               </div>
-            </CardBody>
-          </Card>
-      
-      </main>
+            </div>
+          </CardBody>
+        </Card>
+      </Container>
     )
   );
 };

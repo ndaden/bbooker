@@ -1,9 +1,10 @@
 import React from "react";
-import useAuthentication from "./hooks/useAuthentication";
+import useAuthentication from "../../hooks/useAuthentication";
 import { Button, Card, CardBody } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import PageTitle from "./components/PageTitle";
+import PageTitle from "../../components/PageTitle";
+import Container from "../../components/Container";
 
 const Profile = () => {
   const { userData, isLoading, isError } = useAuthentication();
@@ -16,7 +17,7 @@ const Profile = () => {
     navigate("/");
   };
   return (
-    <main className="container mx-auto max-w-6xl px-6 flex-grow">
+    <Container>
       <Card>
         <CardBody>
           {isLoading && <div>isLoading</div>}
@@ -68,7 +69,7 @@ const Profile = () => {
           )}
         </CardBody>
       </Card>
-    </main>
+    </Container>
   );
 };
 

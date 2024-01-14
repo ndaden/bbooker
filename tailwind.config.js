@@ -6,8 +6,11 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    fontFamily: {
+      onest: ["Onest", "sans-serif"],
+    },
     extend: {},
   },
-  darkMode: "class",
+  variants: {},
   plugins: [nextui()],
 };

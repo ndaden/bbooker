@@ -20,6 +20,7 @@ import { BsTrash } from "react-icons/bs";
 import { deleteUserQuery } from "./hooks/queries";
 import { USERS_KEY } from "./hooks/queryKeys";
 import { useQueryClient } from "@tanstack/react-query";
+import Container from "./components/Container";
 
 const Admin = () => {
   const { isLoading: isLoadingUsers, users } = useFetchUsers();
@@ -41,11 +42,11 @@ const Admin = () => {
     isLoadingServices ||
     isLoadingAppointments;
   return isLoading ? (
-    <main className="container mx-auto max-w-6xl px-6 flex-grow">
+    <Container>
       <CircularProgress aria-label="loading" className="m-auto" />
-    </main>
+    </Container>
   ) : (
-    <main className="container mx-auto max-w-6xl px-6 flex-grow">
+    <Container>
       <h2>Users</h2>
       <UserForm />
       <Table aria-label="list of all the users">
@@ -139,7 +140,7 @@ const Admin = () => {
           ))}
         </TableBody>
       </Table>
-    </main>
+    </Container>
   );
 };
 

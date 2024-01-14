@@ -21,11 +21,9 @@ const QNavbar = ({ brandLabel, links = [] }) => {
     navigate("profile");
   };
   return (
-    <Navbar>
+    <Navbar maxWidth="full" className="2xl:max-w-[2000px] 2xl:mx-auto">
       <NavbarBrand>
-        <a className="font-bold text-inherit" href="/">
-          {brandLabel}
-        </a>
+        <a href="/">{brandLabel}</a>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {links.map((link) => (
