@@ -83,26 +83,39 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
         )}
       </NavbarContent>
       <NavbarMenu className="bg-dark">
-        <NavbarMenuItem>
-          <Link color="primary" className="w-full" href="/login" size="lg">
-            Se connecter
-          </Link>
-        </NavbarMenuItem>
-        <NavbarMenuItem>
-          <Link color="primary" className="w-full" href="/signup" size="lg">
-            Créer un compte
-          </Link>
-        </NavbarMenuItem>
-        <NavbarMenuItem>
-          <Link color="primary" className="w-full" href="/profile" size="lg">
-            Profile
-          </Link>
-        </NavbarMenuItem>
-        <NavbarMenuItem>
-          <Link color="danger" className="w-full" href="#" size="lg">
-            Se déconnecter
-          </Link>
-        </NavbarMenuItem>
+        {user && user.isError && (
+          <>
+            <NavbarMenuItem>
+              <Link color="primary" className="w-full" href="/login" size="lg">
+                Se connecter
+              </Link>
+            </NavbarMenuItem>
+            <NavbarMenuItem>
+              <Link color="primary" className="w-full" href="/signup" size="lg">
+                Créer un compte
+              </Link>
+            </NavbarMenuItem>
+          </>
+        )}
+        {user && !user.isLoading && !user.isError && (
+          <>
+            <NavbarMenuItem>
+              <Link
+                color="primary"
+                className="w-full"
+                href="/profile"
+                size="lg"
+              >
+                Profile
+              </Link>
+            </NavbarMenuItem>
+            <NavbarMenuItem>
+              <Link color="danger" className="w-full" href="#" size="lg">
+                Se déconnecter
+              </Link>
+            </NavbarMenuItem>
+          </>
+        )}
       </NavbarMenu>
     </Navbar>
   );
