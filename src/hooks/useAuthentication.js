@@ -12,6 +12,7 @@ const useAuthentication = () => {
     queryFn: isAuthenticatedQuery,
     queryKey: ["AUTHENTICATED_USER"],
     enabled: true,
+    retry: false,
   });
 
   return { getUserData, userData, error, isError, isLoading };

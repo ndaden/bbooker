@@ -52,6 +52,15 @@ const getBusinessesQuery = async (id) => {
   return await response.json();
 };
 
+const createBusinessQuery = async (formData) =>
+  await fetch(`${publicApiUrl}/business/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
 const getServicesQuery = async (id, businessId) =>
   (
     await fetch(
@@ -60,6 +69,15 @@ const getServicesQuery = async (id, businessId) =>
       }`
     )
   ).json();
+
+const createServiceQuery = async (formData) =>
+  await fetch(`${publicApiUrl}/service/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
 
 const getAppointmentsQuery = async () =>
   (await fetch(`${publicApiUrl}/appointment`)).json();
@@ -73,7 +91,9 @@ export {
   isAuthenticatedQuery,
   authenticateUserQuery,
   getBusinessesQuery,
+  createBusinessQuery,
   getServicesQuery,
+  createServiceQuery,
   getAppointmentsQuery,
   getRolesQuery,
 };

@@ -39,7 +39,7 @@ const LoginForm = () => {
       ) : (
         <>
           {!isLoading && (
-            <Card className="lg:w-[50%] m-auto">
+            <Card>
               <CardBody>
                 <form name="loginForm" onSubmit={handleSubmit(submitLoginForm)}>
                   <div className="flex gap-4 mb-6">

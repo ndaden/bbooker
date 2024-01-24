@@ -5,10 +5,15 @@ import {
   NavbarItem,
   Link,
   Button,
+  NavbarMenu,
+  NavbarMenuItem,
+  NavbarMenuToggle,
 } from "@nextui-org/react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const QNavbar = ({ brandLabel, links = [] }) => {
+const QNavbar = ({ brandLabel, user, links = [] }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const goToLogin = () => {
@@ -21,7 +26,17 @@ const QNavbar = ({ brandLabel, links = [] }) => {
     navigate("profile");
   };
   return (
-    <Navbar maxWidth="full" className="2xl:max-w-[2000px] 2xl:mx-auto">
+    <Navbar
+      maxWidth="full"
+      className="2xl:max-w-[2000px] 2xl:mx-auto"
+      onMenuOpenChange={setIsMenuOpen}
+    >
+      <NavbarContent>
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          className="sm:hidden"
+        />
+      </NavbarContent>
       <NavbarBrand>
         <a href="/">{brandLabel}</a>
       </NavbarBrand>
@@ -39,28 +54,56 @@ const QNavbar = ({ brandLabel, links = [] }) => {
         ))}
       </NavbarContent>
       <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          <Link href="#" onClick={goToProfile}>
+        {user && !user.isLoading && !user.isError && (
+          <NavbarItem className="hidden lg:flex">
+            <Link href="#" onClick={goToProfile}>
+              Profile
+            </Link>
+          </NavbarItem>
+        )}
+        {user && user.isError && (
+          <>
+            <NavbarItem className="hidden lg:flex">
+              <Link href="#" onClick={goToLogin}>
+                S'identifier
+              </Link>
+            </NavbarItem>
+            <NavbarItem className="hidden lg:flex">
+              <Button
+                as={Link}
+                color="primary"
+                href="#"
+                variant="flat"
+                onClick={goToSignup}
+              >
+                Créer un compte
+              </Button>
+            </NavbarItem>
+          </>
+        )}
+      </NavbarContent>
+      <NavbarMenu className="bg-dark">
+        <NavbarMenuItem>
+          <Link color="primary" className="w-full" href="/login" size="lg">
+            Se connecter
+          </Link>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link color="primary" className="w-full" href="/signup" size="lg">
+            Créer un compte
+          </Link>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link color="primary" className="w-full" href="/profile" size="lg">
             Profile
           </Link>
-        </NavbarItem>
-        <NavbarItem className="hidden lg:flex">
-          <Link href="#" onClick={goToLogin}>
-            S'identifier
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link color="danger" className="w-full" href="#" size="lg">
+            Se déconnecter
           </Link>
-        </NavbarItem>
-        <NavbarItem className="hidden lg:flex">
-          <Button
-            as={Link}
-            color="primary"
-            href="#"
-            variant="flat"
-            onClick={goToSignup}
-          >
-            Créer un compte
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
+        </NavbarMenuItem>
+      </NavbarMenu>
     </Navbar>
   );
 };

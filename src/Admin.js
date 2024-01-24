@@ -15,7 +15,6 @@ import useFetchUsers from "./hooks/useFetchUsers";
 import useFetchBusinesses from "./hooks/useFetchBusinesses";
 import useFetchServices from "./hooks/useFetchServices";
 import useFetchAppointments from "./hooks/useFetchAppointments";
-import UserForm from "./UserForm";
 import { BsTrash } from "react-icons/bs";
 import { deleteUserQuery } from "./hooks/queries";
 import { USERS_KEY } from "./hooks/queryKeys";
@@ -48,7 +47,6 @@ const Admin = () => {
   ) : (
     <Container>
       <h2>Users</h2>
-      <UserForm />
       <Table aria-label="list of all the users">
         <TableHeader>
           <TableColumn>#</TableColumn>

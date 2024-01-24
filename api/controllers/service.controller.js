@@ -31,7 +31,6 @@ app.post("/create", async (req, resp) => {
     result = result.toObject();
     if (result) {
       resp.send(req.body);
-      console.log(result);
     } else {
       console.log("Service already exists");
     }

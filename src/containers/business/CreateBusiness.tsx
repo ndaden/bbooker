@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import PageTitle from "../../components/PageTitle";
 import {
   Button,
@@ -11,6 +11,10 @@ import {
 import { useForm } from "react-hook-form";
 import Container from "../../components/Container";
 import { businessValidation } from "./businessValidation";
+import useMutateBusiness from "../../hooks/useMutateBusiness";
+import useMutateService from "../../hooks/useMutateService";
+import UserContext from "../../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 interface Business {
   name: string;
@@ -29,6 +33,14 @@ const CreateBusiness = () => {
   const [displayPrestationForm, setDisplayPrestationForm] = useState(false);
   const [prestations, setPrestations] = useState<Prestation[]>([]);
   const [business, setBusiness] = useState<Business>();
+  const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+
+  useEffect(() => {
+    if (user.isError) {
+      navigate("/login");
+    }
+  });
 
   const {
     register,
@@ -40,11 +52,17 @@ const CreateBusiness = () => {
     trigger,
   } = useForm();
 
+  const { mutateBusiness, data: businessCreated } = useMutateBusiness();
+  const { mutateService, data: serviceCreated } = useMutateService();
+
   const prestationFieldName = `prestations[${prestations.length}]`;
   const validation = businessValidation(prestations);
 
-  const submitBusinessForm = (values) => {
-    console.log(values);
+  const submitBusinessForm = async (values) => {
+    if (isValid) {
+      // création du business
+      // création des services
+    }
   };
 
   const addPrestationHandler = async () => {
@@ -77,7 +95,7 @@ const CreateBusiness = () => {
     setValue("prestations", newPrestations);
   };
 
-  return (
+  return !user.isLoading ? (
     <Container>
       <PageTitle title="Créer votre centre de prestations" />
       <form name="businessForm" onSubmit={handleSubmit(submitBusinessForm)}>
@@ -201,6 +219,8 @@ const CreateBusiness = () => {
         </Button>
       </form>
     </Container>
+  ) : (
+    <>Chargement...</>
   );
 };
 

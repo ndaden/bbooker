@@ -1,11 +1,11 @@
-import { Button, Checkbox, Input } from "@nextui-org/react";
-import useMutateUser from "./hooks/useMutateUser";
+import { Button, Input } from "@nextui-org/react";
+import useMutateUser from "../../hooks/useMutateUser";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import useFetchRoles from "./hooks/useFetchRoles";
+import useFetchRoles from "../../hooks/useFetchRoles";
 import { useQueryClient } from "@tanstack/react-query";
-import { USERS_KEY } from "./hooks/queryKeys";
-import QModal from "./components/QModal";
+import { USERS_KEY } from "../../hooks/queryKeys";
+import QModal from "../../components/QModal";
 
 const UserForm = () => {
   const queryCache = useQueryClient();
