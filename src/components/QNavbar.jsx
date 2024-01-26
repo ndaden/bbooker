@@ -8,6 +8,7 @@ import {
   NavbarMenu,
   NavbarMenuItem,
   NavbarMenuToggle,
+  Avatar,
 } from "@nextui-org/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +29,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
   return (
     <Navbar
       maxWidth="full"
-      className="2xl:max-w-[2000px] 2xl:mx-auto"
+      className="2xl:max-w-[2000px] 2xl:mx-auto sm:py-3"
       onMenuOpenChange={setIsMenuOpen}
     >
       <NavbarContent className="sm:hidden">
@@ -57,7 +58,13 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
         {user && !user.isLoading && !user.isError && (
           <NavbarItem className="hidden lg:flex">
             <Link href="#" onClick={goToProfile}>
-              Profile
+              <Avatar
+                isBordered
+                color="success"
+                title="Votre profile"
+                size="lg"
+                src="https://i.pravatar.cc/150?u=a04258114e29026302d"
+              />
             </Link>
           </NavbarItem>
         )}
@@ -77,6 +84,17 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
                 onClick={goToSignup}
               >
                 Créer un compte
+              </Button>
+            </NavbarItem>
+            <NavbarItem className="hidden lg:flex">
+              <Button
+                as={Link}
+                color="warning"
+                href="#"
+                variant="flat"
+                onClick={goToSignup}
+              >
+                Vous êtes un pro ?
               </Button>
             </NavbarItem>
           </>

@@ -64,7 +64,7 @@ const createBusinessQuery = async (formData) =>
 const getServicesQuery = async (id, businessId) =>
   (
     await fetch(
-      `${publicApiUrl}/service${id ? `?id=${id}` : `/`}${
+      `${publicApiUrl}/service${id ? `?id=${id}` : ``}${
         businessId ? `?businessId=${businessId}` : `/`
       }`
     )

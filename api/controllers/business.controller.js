@@ -35,16 +35,16 @@ app.get("/", async (req, resp) => {
 
 app.post("/create", async (req, resp) => {
   try {
-    const business = new Business(req.body);
+    const business = new BusinessModel(req.body);
     let result = await business.save();
     result = result.toObject();
     if (result) {
-      resp.send(req.body);
+      resp.send(result);
     } else {
       console.log("Business already exists");
     }
   } catch (e) {
-    resp.send("Something Went Wrong");
+    resp.send("Something Went Wrong : " + e.message);
   }
 });
 

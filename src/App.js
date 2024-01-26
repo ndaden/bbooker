@@ -18,6 +18,7 @@ import Business from "./containers/business/Business";
 import UserContext from "./contexts/UserContext";
 import useAuthentication from "./hooks/useAuthentication";
 import { useContext } from "react";
+import { IoShieldCheckmarkOutline } from "react-icons/io5";
 
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
@@ -42,13 +43,22 @@ function App() {
   );
 }
 
-const Brand = () => <div className="font-onest text-3xl">BeautyBooker</div>;
+const Brand = ({ pro }) => (
+  <div className="font-onest text-3xl">
+    BeautyBooker
+    {pro && (
+      <span className="text-medium text-orange-600 font-bold align-text-top capitalize">
+        &nbsp;pro <IoShieldCheckmarkOutline className="inline" />
+      </span>
+    )}
+  </div>
+);
 
 function Root() {
   const { user } = useContext(UserContext);
   return (
     <>
-      <QNavbar brandLabel={<Brand />} user={user} />
+      <QNavbar brandLabel={<Brand pro />} user={user} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<Admin />} />
