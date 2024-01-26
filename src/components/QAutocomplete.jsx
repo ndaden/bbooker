@@ -10,6 +10,7 @@ import {
 } from "@nextui-org/react";
 import QInput from "./QInput";
 import { useState } from "react";
+import { IoLocationOutline } from "react-icons/io5";
 
 const rows = [
   { key: "1", label: "What is my birthday ?" },
@@ -30,7 +31,17 @@ const QAutoComplete = () => {
           setShowResults(true);
         }}
         className={"my-1"}
-        placeholder={"Search a question to find the answer..."}
+        placeholder={"Rechercher un centre ou un service"}
+        endContent={
+          <button
+            className="focus:outline-none hover:scale-125"
+            type="button"
+            onClick={() => undefined}
+            title="localisez-moi"
+          >
+            <IoLocationOutline fontSize={"30"} />
+          </button>
+        }
       />
       {showResults && (
         <Table selectionMode="single">

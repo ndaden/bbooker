@@ -8,6 +8,7 @@ const QInput = ({
   color,
   className,
   onChange,
+  endContent,
 }) => {
   return (
     <Input
@@ -18,6 +19,7 @@ const QInput = ({
       color={color}
       className={className}
       onChange={onChange}
+      endContent={endContent}
     />
   );
 };

@@ -31,7 +31,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
       className="2xl:max-w-[2000px] 2xl:mx-auto"
       onMenuOpenChange={setIsMenuOpen}
     >
-      <NavbarContent>
+      <NavbarContent className="sm:hidden">
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="sm:hidden"

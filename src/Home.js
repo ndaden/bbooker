@@ -22,12 +22,20 @@ function Home() {
         {!isLoading &&
           !isError &&
           businesses.map((business) => (
-            <BusinessCard
-              key={business._id}
-              id={business._id}
-              name={business.name}
-              description={business.description}
-            />
+            <>
+              <BusinessCard
+                key={business._id}
+                id={business._id}
+                name={business.name}
+                description={business.description}
+              />
+              <BusinessCard
+                key={"0"}
+                id={business._id}
+                name={business.name}
+                description={business.description}
+              />
+            </>
           ))}
       </div>
       <div className="my-4 mx-auto">

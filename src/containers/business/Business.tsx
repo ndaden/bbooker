@@ -16,6 +16,7 @@ import { useParams } from "react-router-dom";
 import useFetchServices from "../../hooks/useFetchServices";
 import { useNavigate } from "react-router-dom";
 import Container from "../../components/Container";
+import React from "react";
 
 const Business = () => {
   const { id } = useParams();
@@ -43,34 +44,42 @@ const Business = () => {
     !isLoadingServices && (
       <Container>
         <div className="relative">
-          <Card className="w-[90%] absolute z-50 -translate-x-1/2 -translate-y-1/2 left-[50%] top-[50%] text-center bg-opacity-90">
-            <CardBody className="text-center">
-              <p className="font-bold text-large">{businessToDisplay.name}</p>
-              <p className="text-md my-3">
-                {businessToDisplay.description}. Machin vous accueille dans son
-                salon situé au centre ville de Niort et réalise toutes vos
-                coupes et prestations favorites Bla Bla
-                BlaBlaBlaBlaBlaBlaBlaBlaBla.
-              </p>
-              <p className="text-tiny font-bold">
-                Ouvert du Lundi au Samedi - de 10h à 18h
-              </p>
+          <Card className="border-none ">
+            <CardBody className="text-center p-0 m-0">
+              <Image
+                removeWrapper
+                src="/images/topform_banner.jpg"
+                className="object-cover max-h-[500px] "
+              />
             </CardBody>
-            <CardFooter className="text-center">
-              <Button
-                size="lg"
-                fullWidth
-                variant="solid"
-                type="button"
-                color="primary"
-                className="font-bold"
-                onClick={onClickTakeAppointment}
-              >
-                Prendre un rendez-vous
-              </Button>
+            <CardFooter className=" flex-col bg-black/70 before:bg-white/20 border-white/20 border-1 overflow-hidden absolute bottom-0 w-full shadow-small z-10">
+              <div>
+                <p className="font-bold text-large">{businessToDisplay.name}</p>
+                <p className="text-tiny font-bold">
+                  Ouvert du Lundi au Samedi - de 10h à 18h
+                </p>
+                <p className="text-md my-3 hidden sm:block">
+                  {businessToDisplay.description}. Machin vous accueille dans
+                  son salon situé au centre ville de Niort et réalise toutes vos
+                  coupes et prestations favorites Bla Bla
+                  BlaBlaBlaBlaBlaBlaBlaBlaBla.
+                </p>
+              </div>
+              <div className="my-3">
+                <Button
+                  size="lg"
+                  variant="solid"
+                  type="button"
+                  color="danger"
+                  variant="shadow"
+                  className="font-bold"
+                  onClick={onClickTakeAppointment}
+                >
+                  Prendre un rendez-vous
+                </Button>
+              </div>
             </CardFooter>
           </Card>
-          <Image src="/images/topform_banner.jpg" />
         </div>
         <div className="mt-4">
           <Table>
