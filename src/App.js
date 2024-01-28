@@ -35,7 +35,16 @@ function App() {
             href="#"
             title="Beauty booker homepage"
           >
-            <span className="text-default-600">Made with ❤️ by Nabil</span>
+            <span className="text-default-600">BeautyBooker &copy; 2024</span>
+          </QLink>
+          <span>&nbsp;-&nbsp;</span>
+          <QLink
+            isExternal
+            className="flex items-center gap-1 text-current"
+            href="#"
+            title="Beauty booker homepage"
+          >
+            <span className="text-default-600">Conditions d'utilisation</span>
           </QLink>
         </footer>
       </div>
