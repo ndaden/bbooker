@@ -29,12 +29,6 @@ function Home() {
                 name={business.name}
                 description={business.description}
               />
-              <BusinessCard
-                key={"0"}
-                id={business._id}
-                name={business.name}
-                description={business.description}
-              />
             </>
           ))}
       </div>

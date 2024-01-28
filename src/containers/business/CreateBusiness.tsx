@@ -1,38 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import PageTitle from "../../components/PageTitle";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-  Textarea,
-} from "@nextui-org/react";
+import { Button, Card, CardBody, Input, Textarea } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import Container from "../../components/Container";
-import { businessValidation } from "./businessValidation";
-import useMutateBusiness from "../../hooks/useMutateBusiness";
-import useMutateService from "../../hooks/useMutateService";
 import UserContext from "../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
-
-interface Business {
-  name: string;
-  description: string;
-  owner: string;
-}
-
-interface Prestation {
-  name: string;
-  description: string;
-  durationInMinutes: number;
-  price: number;
-}
+import useCreateBusinessAndService from "./useCreateBusinessAndServices";
 
 const CreateBusiness = () => {
-  const [displayPrestationForm, setDisplayPrestationForm] = useState(false);
-  const [prestations, setPrestations] = useState<Prestation[]>([]);
-  const [business, setBusiness] = useState<Business>();
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
@@ -52,47 +27,30 @@ const CreateBusiness = () => {
     trigger,
   } = useForm();
 
-  const { mutateBusiness, data: businessCreated } = useMutateBusiness();
-  const { mutateService, data: serviceCreated } = useMutateService();
-
-  const prestationFieldName = `prestations[${prestations.length}]`;
-  const validation = businessValidation(prestations);
+  const {
+    validation,
+    prestationFieldName,
+    prestations,
+    displayPrestationForm,
+    addPrestationHandler,
+    cancelAddPrestationHandler,
+    deletePrestationHandler,
+    createBusiness,
+  } = useCreateBusinessAndService(
+    {
+      getValues,
+      unregister,
+      setValue,
+      trigger,
+    },
+    user
+  );
 
   const submitBusinessForm = async (values) => {
     if (isValid) {
       // création du business
-      // création des services
+      await createBusiness(values);
     }
-  };
-
-  const addPrestationHandler = async () => {
-    if (displayPrestationForm) {
-      const isPrestationValid = await trigger([
-        `${prestationFieldName}.name`,
-        `${prestationFieldName}.description`,
-        `${prestationFieldName}.durationInMinutes`,
-        `${prestationFieldName}.price`,
-      ]);
-
-      if (isPrestationValid) {
-        const formValues = getValues();
-        setPrestations([...(formValues.prestations as Prestation[])]);
-        setDisplayPrestationForm(false);
-      }
-    } else {
-      setDisplayPrestationForm(true);
-    }
-  };
-
-  const cancelAddPrestationHandler = () => {
-    unregister(prestationFieldName);
-    setDisplayPrestationForm(false);
-  };
-
-  const deletePrestationHandler = (index) => {
-    const newPrestations = prestations.filter((prest, idx) => idx !== index);
-    setPrestations((prev) => [...prev.filter((prest, idx) => idx !== index)]);
-    setValue("prestations", newPrestations);
   };
 
   return !user.isLoading ? (

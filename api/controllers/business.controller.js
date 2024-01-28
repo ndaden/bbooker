@@ -1,6 +1,8 @@
 const express = require("express");
 const { Business } = require("../schemas/business.schema");
+const { Service } = require("../schemas/service.schema");
 const BusinessModel = require("../schemas/business.schema");
+const ServiceModel = require("../schemas/service.schema");
 const { ObjectId } = require("mongodb");
 const app = express();
 
@@ -35,17 +37,42 @@ app.get("/", async (req, resp) => {
 
 app.post("/create", async (req, resp) => {
   try {
-    const business = new BusinessModel(req.body);
-    let result = await business.save();
-    result = result.toObject();
-    if (result) {
-      resp.send(result);
+    const businessAndServices = req.body;
+
+    const business = new BusinessModel({
+      name: businessAndServices.name,
+      description: businessAndServices.description,
+      owner: businessAndServices.owner,
+    });
+
+    let businessCreated = (await business.save()).toObject();
+
+    if (businessCreated) {
+      await Promise.all(
+        businessAndServices.prestations.map(async (prestation) =>
+          createPrestation(prestation, businessCreated._id)
+        )
+      );
+
+      resp.send(businessCreated);
     } else {
       console.log("Business already exists");
     }
   } catch (e) {
-    resp.send("Something Went Wrong : " + e.message);
+    resp.send(
+      "Something Went Wrong when creating Business and/or Services : " +
+        e.message
+    );
   }
 });
+
+const createPrestation = async (prestation, businessId) => {
+  const prestationCreate = new ServiceModel({
+    ...prestation,
+    business: businessId,
+  });
+
+  return await prestationCreate.save();
+};
 
 module.exports = app;
