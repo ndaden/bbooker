@@ -23,9 +23,11 @@ import { IoShieldCheckmarkOutline } from "react-icons/io5";
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
 function App() {
-  const { userData, isLoading, isError } = useAuthentication();
+  const { userData, isLoading, isError, logout } = useAuthentication();
   return (
-    <UserContext.Provider value={{ user: { ...userData, isLoading, isError } }}>
+    <UserContext.Provider
+      value={{ user: { ...userData, isLoading, isError, logout } }}
+    >
       <div className="dark min-h-[100vh] text-foreground bg-background">
         <RouterProvider router={router} />
         <footer className="w-screen flex items-center justify-center py-3">

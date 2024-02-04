@@ -1,11 +1,13 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import PageTitle from "../../components/PageTitle";
-import { Button, Card, CardBody, Input, Textarea } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import Container from "../../components/Container";
 import UserContext from "../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import useCreateBusinessAndService from "./useCreateBusinessAndServices";
+import GeneralInfoSection from "./GeneralInfoSection";
+import PrestationsSection from "./PrestationsSection";
 
 const CreateBusiness = () => {
   const navigate = useNavigate();
@@ -16,16 +18,20 @@ const CreateBusiness = () => {
       navigate("/login");
     }
   });
+  const [nbPrestations, setNbPrestations] = useState(1);
+  const [finalizedCreation, setFinalizedCreation] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors = {}, isValid },
+    formState: { errors = {}, isValid, isSubmitSuccessful, defaultValues },
     getValues,
     unregister,
     setValue,
     trigger,
-  } = useForm();
+    reset,
+    control,
+  } = useForm({ mode: "onChange" });
 
   const {
     validation,
@@ -35,6 +41,7 @@ const CreateBusiness = () => {
     addPrestationHandler,
     cancelAddPrestationHandler,
     deletePrestationHandler,
+    goToPrestationsStep,
     createBusiness,
   } = useCreateBusinessAndService(
     {
@@ -42,8 +49,11 @@ const CreateBusiness = () => {
       unregister,
       setValue,
       trigger,
+      reset,
+      isSubmitSuccessful,
     },
-    user
+    user,
+    setNbPrestations
   );
 
   const submitBusinessForm = async (values) => {
@@ -55,126 +65,71 @@ const CreateBusiness = () => {
 
   return !user.isLoading ? (
     <Container>
-      <PageTitle title="Créer votre centre de prestations" />
-      <form name="businessForm" onSubmit={handleSubmit(submitBusinessForm)}>
-        <div className="my-5">
-          <div className="text-2xl">Informations générales</div>
-          <Input
-            {...register("businessName", validation.businessName)}
-            type="text"
-            label="Raison sociale"
-            className="my-4"
-            errorMessage={errors["businessName"]?.message as string}
-          />
+      <PageTitle title="Créez votre centre" />
+      <form
+        name="businessForm"
+        onSubmit={handleSubmit(submitBusinessForm)}
+        className="sm:w-[50%]"
+      >
+        <GeneralInfoSection
+          control={control}
+          hidden={displayPrestationForm}
+          validation={validation}
+        />
 
-          <Textarea
-            {...register("businessDescription", validation.businessDescription)}
-            label="Description"
-            placeholder="Présentation de votre activité"
-            className="my-4"
-            errorMessage={errors["businessDescription"]?.message as string}
+        {!finalizedCreation && (
+          <PrestationsSection
+            control={control}
+            hidden={!displayPrestationForm}
+            addPrestationHandler={addPrestationHandler}
+            deletePrestationHandler={deletePrestationHandler}
+            prestationFieldName={prestationFieldName}
+            prestations={prestations}
+            validation={validation}
           />
-        </div>
-        <div className="my-5">
-          <div className="text-2xl">Prestations</div>
-
-          {displayPrestationForm && (
-            <div>
-              <fieldset name={`${prestationFieldName}`}>
-                <Input
-                  {...register(
-                    `${prestationFieldName}.name`,
-                    validation[`${prestationFieldName}.name`]
-                  )}
-                  type="text"
-                  label="Libellé de prestation"
-                  errorMessage={
-                    errors.prestations &&
-                    (errors.prestations[prestations.length].name
-                      ?.message as string)
-                  }
-                  className="my-4"
-                />
-                <Input
-                  {...register(
-                    `${prestationFieldName}.description`,
-                    validation[`${prestationFieldName}.description`]
-                  )}
-                  type="text"
-                  label="Description"
-                  errorMessage={
-                    errors.prestations &&
-                    (errors.prestations[prestations.length].description
-                      ?.message as string)
-                  }
-                  className="my-4"
-                />
-                <Input
-                  {...register(
-                    `${prestationFieldName}.durationInMinutes`,
-                    validation[`${prestationFieldName}.durationInMinutes`]
-                  )}
-                  type="text"
-                  label="Durée"
-                  errorMessage={
-                    errors.prestations &&
-                    (errors.prestations[prestations.length].durationInMinutes
-                      ?.message as string)
-                  }
-                  minLength={2}
-                  maxLength={3}
-                  className="my-4"
-                />
-                <Input
-                  {...register(
-                    `${prestationFieldName}.price`,
-                    validation[`${prestationFieldName}.price`]
-                  )}
-                  type="text"
-                  label="Prix"
-                  minLength={1}
-                  maxLength={5}
-                  errorMessage={
-                    errors.prestations &&
-                    (errors.prestations[prestations.length].price
-                      ?.message as string)
-                  }
-                  className="my-4"
-                />
-              </fieldset>
-            </div>
-          )}
-          <div className="flex justify-around">
-            <Button color="secondary" onClick={addPrestationHandler}>
-              Ajouter une prestation
+        )}
+        <div className="flex justify-between">
+          <Button
+            color="secondary"
+            size="lg"
+            variant="ghost"
+            type="button"
+            className=""
+          >
+            Retour à l'accueil
+          </Button>
+          {!displayPrestationForm && !finalizedCreation && (
+            <Button
+              color="primary"
+              size="lg"
+              variant="ghost"
+              type="button"
+              className=""
+              onClick={goToPrestationsStep}
+            >
+              Etape suivante
             </Button>
-            {displayPrestationForm && (
-              <Button color="secondary" onClick={cancelAddPrestationHandler}>
-                Annuler
-              </Button>
-            )}
-          </div>
-          {prestations.map((prestation, idx) => (
-            <Card key={prestation.name} className="my-3">
-              <CardBody>
-                <div className="text-xl font-bold">{prestation.name}</div>
-                <div>{prestation.description}</div>
-                <div>Durée: {prestation.durationInMinutes} minutes</div>
-                <div>Prix: {prestation.price} €</div>
-                <Button
-                  color="danger"
-                  className="w-50"
-                  onClick={() => deletePrestationHandler(idx)}
-                >
-                  Supprimer
-                </Button>
-              </CardBody>
-            </Card>
-          ))}
+          )}
+          {displayPrestationForm && !finalizedCreation && (
+            <Button
+              color="primary"
+              size="lg"
+              variant="ghost"
+              disabled={prestations.length === 0}
+              onClick={() => {
+                cancelAddPrestationHandler();
+                setFinalizedCreation(true);
+              }}
+            >
+              Continuer
+            </Button>
+          )}
+          {finalizedCreation && (
+            <Button color="primary" size="lg" type="submit">
+              Finaliser et créer
+            </Button>
+          )}
         </div>
-        <Button color="primary" type="submit">
-          Valider
-        </Button>
       </form>
     </Container>
   ) : (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { businessValidation } from "./businessValidation";
 import useMutateBusiness from "../../hooks/useMutateBusiness";
 
@@ -15,14 +15,36 @@ interface Prestation {
   price: number;
 }
 
-const useCreateBusinessAndService = (form, user) => {
-  const { getValues, unregister, setValue, trigger } = form;
+const useCreateBusinessAndService = (form, user, setNbPrestations) => {
+  const { getValues, unregister, setValue, trigger, reset } = form;
   const [displayPrestationForm, setDisplayPrestationForm] = useState(false);
   const [prestations, setPrestations] = useState<Prestation[]>([]);
+  const [isPrestationValid, setIsPrestationValid] = useState(false);
   const { mutateBusiness, data: businessCreated } = useMutateBusiness();
-  // const { mutateService, data: serviceCreated } = useMutateService();
+  const [prestationFieldName, setPrestationFieldName] = useState(
+    `prestations[${prestations.length}]`
+  );
 
-  const prestationFieldName = `prestations[${prestations.length}]`;
+  useEffect(() => {
+    if (isPrestationValid) {
+      // reset
+      reset({
+        prestations: [
+          ...prestations,
+          {
+            name: "",
+            description: "",
+            durationInMinutes: "",
+            price: "",
+          },
+        ],
+      });
+      setValue(`${prestationFieldName}.name`, "");
+    } else {
+      setIsPrestationValid(false);
+    }
+  }, [prestationFieldName]);
+
   const validation = businessValidation(prestations);
 
   const toDatabasePrestation = (values) => {
@@ -49,45 +71,57 @@ const useCreateBusinessAndService = (form, user) => {
     return businessWithPrestations;
   };
 
+  const goToPrestationsStep = async () => {
+    const isBusinessValid = await trigger([
+      `businessName`,
+      `businessDescription`,
+    ]);
+
+    if (isBusinessValid) {
+      setDisplayPrestationForm(true);
+    }
+  };
+
   const addPrestationHandler = async () => {
     if (displayPrestationForm) {
-      const isPrestationValid = await trigger([
+      const prestationValid = await trigger([
         `${prestationFieldName}.name`,
         `${prestationFieldName}.description`,
         `${prestationFieldName}.durationInMinutes`,
         `${prestationFieldName}.price`,
       ]);
 
-      if (isPrestationValid) {
-        const formValues = getValues();
+      if (prestationValid) {
+        setPrestationFieldName(`prestations[${prestations.length + 1}]`);
+        setIsPrestationValid(true);
+        const formValues = Object.assign({}, getValues());
         setPrestations([...(formValues.prestations as Prestation[])]);
-        setDisplayPrestationForm(false);
       }
-    } else {
-      setDisplayPrestationForm(true);
     }
   };
 
   const cancelAddPrestationHandler = () => {
-    unregister(prestationFieldName);
-    setDisplayPrestationForm(false);
+    unregister(`prestations[${prestations.length}]`);
   };
 
   const deletePrestationHandler = (index) => {
     const newPrestations = prestations.filter((prest, idx) => idx !== index);
     setPrestations((prev) => [...prev.filter((prest, idx) => idx !== index)]);
     setValue("prestations", newPrestations);
+    setPrestationFieldName(`prestations[${prestations.length - 1}]`);
   };
 
   const createBusiness = async (values) => {
+    console.log(values);
     // création du business
-    mutateBusiness(toDatabaseBusinessWithPrestations(values));
+    // mutateBusiness(toDatabaseBusinessWithPrestations(values));
   };
 
   return {
     deletePrestationHandler,
     cancelAddPrestationHandler,
     addPrestationHandler,
+    goToPrestationsStep,
     createBusiness,
     validation,
     prestationFieldName,

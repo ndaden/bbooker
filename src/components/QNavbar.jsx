@@ -26,6 +26,11 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
   const goToProfile = () => {
     navigate("profile");
   };
+
+  const logoutHandler = () => {
+    user.logout();
+    navigate("/");
+  };
   return (
     <Navbar
       maxWidth="full"
@@ -128,7 +133,23 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
               </Link>
             </NavbarMenuItem>
             <NavbarMenuItem>
-              <Link color="danger" className="w-full" href="#" size="lg">
+              <Link
+                color="primary"
+                className="w-full"
+                href="/new-business"
+                size="lg"
+              >
+                Créer mon centre
+              </Link>
+            </NavbarMenuItem>
+            <NavbarMenuItem>
+              <Link
+                color="danger"
+                className="w-full"
+                href="#"
+                size="lg"
+                onClick={logoutHandler}
+              >
                 Se déconnecter
               </Link>
             </NavbarMenuItem>
