@@ -91,17 +91,6 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
                 Créer un compte
               </Button>
             </NavbarItem>
-            <NavbarItem className="hidden lg:flex">
-              <Button
-                as={Link}
-                color="warning"
-                href="#"
-                variant="flat"
-                onClick={goToSignup}
-              >
-                Vous êtes un pro ?
-              </Button>
-            </NavbarItem>
           </>
         )}
       </NavbarContent>
@@ -132,16 +121,18 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
                 Profile
               </Link>
             </NavbarMenuItem>
-            <NavbarMenuItem>
-              <Link
-                color="primary"
-                className="w-full"
-                href="/new-business"
-                size="lg"
-              >
-                Créer mon centre
-              </Link>
-            </NavbarMenuItem>
+            {user?.user?.isProfessional && (
+              <NavbarMenuItem>
+                <Link
+                  color="primary"
+                  className="w-full"
+                  href="/new-business"
+                  size="lg"
+                >
+                  Créer mon centre
+                </Link>
+              </NavbarMenuItem>
+            )}
             <NavbarMenuItem>
               <Link
                 color="danger"

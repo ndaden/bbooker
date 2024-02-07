@@ -1,4 +1,4 @@
-import { Button, Input } from "@nextui-org/react";
+import { Button, Checkbox, Input } from "@nextui-org/react";
 import useMutateUser from "../../hooks/useMutateUser";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -6,6 +6,7 @@ import useFetchRoles from "../../hooks/useFetchRoles";
 import { useQueryClient } from "@tanstack/react-query";
 import { USERS_KEY } from "../../hooks/queryKeys";
 import QModal from "../../components/QModal";
+import ControlledCheckbox from "../../components/ControlledCheckbox";
 
 const UserForm = () => {
   const queryCache = useQueryClient();
@@ -15,6 +16,7 @@ const UserForm = () => {
     formState: { errors = {}, isValid },
     watch,
     reset,
+    control,
   } = useForm();
   const { roles } = useFetchRoles();
   const { mutateUser, isLoading, data: mutateUserResult } = useMutateUser();
@@ -44,10 +46,13 @@ const UserForm = () => {
   const toDatabaseUser = (formData) => {
     const standardRole =
       roles.length > 0 ? roles.find((role) => role.name === "standard") : {};
+
+    const proRole =
+      roles.length > 0 ? roles.find((role) => role.name === "owner") : {};
     return {
       username: formData.username,
       password: formData.password,
-      roles: [standardRole._id],
+      roles: [formData.isProfessional ? proRole._id : standardRole._id],
       email: {
         address: formData.email,
       },
@@ -167,7 +172,26 @@ const UserForm = () => {
           size="sm"
         />
       </div>
-      <div className="flex justify-center lg:max-w-[50%] m-auto">
+      <div>
+        <ControlledCheckbox control={control} name="isProfessional">
+          Je suis un professionnel
+        </ControlledCheckbox>
+      </div>
+      <div>
+        <ControlledCheckbox
+          control={control}
+          name="isAcceptConditionChecked"
+          rules={{
+            required: {
+              value: true,
+            },
+          }}
+        >
+          J'accepte les conditions d'utilisation de BeautyBooker et je souhaite
+          créer un compte.
+        </ControlledCheckbox>
+      </div>
+      <div className="flex justify-center lg:max-w-[50%] m-auto my-4">
         <Button color="primary" type="submit" disabled={isLoading} fullWidth>
           Créer mon compte
         </Button>

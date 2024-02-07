@@ -23,7 +23,14 @@ const useAuthentication = () => {
     await getUserData();
   };
 
-  return { getUserData, userData, error, isError, isLoading, logout };
+  return {
+    getUserData,
+    userData,
+    error,
+    isError,
+    isLoading,
+    logout,
+  };
 };
 
 export default useAuthentication;

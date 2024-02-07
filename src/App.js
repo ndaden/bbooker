@@ -69,7 +69,10 @@ function Root() {
   const { user } = useContext(UserContext);
   return (
     <>
-      <QNavbar brandLabel={<Brand pro />} user={user} />
+      <QNavbar
+        brandLabel={<Brand pro={user?.user?.isProfessional} />}
+        user={user}
+      />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<Admin />} />
