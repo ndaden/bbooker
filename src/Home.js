@@ -27,6 +27,7 @@ function Home() {
               id={business._id}
               name={business.name}
               description={business.description}
+              image={business.imageUrl ?? "/images/topform_banner.jpg"}
             />
           ))}
       </div>

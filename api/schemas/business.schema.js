@@ -11,6 +11,9 @@ const BusinessSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    imageUrl: {
+      type: String,
+    },
     address: {
       street1: String,
       street2: String,

@@ -8,6 +8,13 @@ export const businessValidation = (prestations) => ({
       message: "Veuillez saisir la description de votre centre.",
     },
   },
+  businessImage: {
+    required: {
+      value: true,
+      message:
+        "Ajoutez une photo de votre centre afin d'améliorer sa visibilité sur Beauty Booker",
+    },
+  },
   [`prestations[${prestations.length}].name`]: {
     required: {
       value: true,

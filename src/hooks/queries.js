@@ -46,19 +46,24 @@ const isAuthenticatedQuery = async () => {
 
 const getBusinessesQuery = async (id) => {
   const response = await fetch(
-    `${publicApiUrl}/business${id ? `?id=${id}` : `/`}`
+    `${publicApiUrl}/business${id ? `?id=${id}` : `/`}`,
+    {
+      method: "GET",
+    }
   );
   if (!response.ok) throw new Error(response.statusText);
   return await response.json();
 };
 
 const createBusinessQuery = async (formData) =>
+  // WARNING : don't add Content-Type multipart/form-data header because it'll not work corretly
+  // let the browser generate it.
   await fetch(`${publicApiUrl}/business/create`, {
     method: "POST",
+    body: formData,
     headers: {
-      "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionStorage.getItem("auth_token")}`,
     },
-    body: JSON.stringify(formData),
   });
 
 const getServicesQuery = async (id, businessId) =>

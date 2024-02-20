@@ -1,6 +1,7 @@
 import React from "react";
 import ControlledInput from "../../components/ControlledInput";
 import ControlledTextArea from "../../components/ControlledTextArea";
+import ControlledFileInput from "../../components/ControlledFileInput";
 
 const GeneralInfoSection = ({ control, validation, hidden }) => {
   return (
@@ -21,6 +22,12 @@ const GeneralInfoSection = ({ control, validation, hidden }) => {
         label="Description"
         placeholder="Présentation de votre activité"
         className="my-4"
+      />
+      <ControlledFileInput
+        type="file"
+        control={control}
+        name="businessImage"
+        rules={validation.businessImage}
       />
     </div>
   );

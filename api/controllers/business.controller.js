@@ -1,14 +1,27 @@
 const express = require("express");
-const { Business } = require("../schemas/business.schema");
-const { Service } = require("../schemas/service.schema");
+const passport = require("passport");
 const BusinessModel = require("../schemas/business.schema");
 const ServiceModel = require("../schemas/service.schema");
+const { storage } = require("../firebase");
+const { ref, getDownloadURL, uploadBytes } = require("firebase/storage");
+
 const { ObjectId } = require("mongodb");
+const multer = require("multer");
+
 const app = express();
+
+const multerStorage = multer.memoryStorage();
+const upload = multer({ storage: multerStorage });
 
 // get business by ownerId or all businesses
 app.get("/", async (req, resp) => {
   try {
+    /* passport.authenticate("jwt", { session: false }, (err, account) => {
+      req.logIn(account, () => {
+        console.log(account);
+      });
+    })(req, resp); */
+
     const ownerid = req.query.ownerid;
     const id = req.query.id;
 
@@ -35,36 +48,51 @@ app.get("/", async (req, resp) => {
   }
 });
 
-app.post("/create", async (req, resp) => {
-  try {
-    const businessAndServices = req.body;
+app.post(
+  "/create",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  async (req, resp) => {
+    try {
+      const businessAndServices = req.body;
+      let businessImageUrl = "";
 
-    const business = new BusinessModel({
-      name: businessAndServices.name,
-      description: businessAndServices.description,
-      owner: businessAndServices.owner,
-    });
+      if (req.file && req.file.buffer) {
+        const storageRef = ref(storage, `${req.file.originalname}`);
 
-    let businessCreated = (await business.save()).toObject();
+        const snapshot = await uploadBytes(storageRef, req.file.buffer);
+        businessImageUrl = await getDownloadURL(snapshot.ref);
+      }
 
-    if (businessCreated) {
-      await Promise.all(
-        businessAndServices.prestations.map(async (prestation) =>
-          createPrestation(prestation, businessCreated._id)
-        )
+      const business = new BusinessModel({
+        name: businessAndServices.name,
+        description: businessAndServices.description,
+        imageUrl: businessImageUrl,
+        owner: businessAndServices.owner,
+      });
+
+      let businessCreated = (await business.save()).toObject();
+
+      if (businessCreated) {
+        const prestations = JSON.parse(req.body.prestations);
+        await Promise.all(
+          prestations.map(async (prestation) =>
+            createPrestation(prestation, businessCreated._id)
+          )
+        );
+
+        resp.send(businessCreated);
+      } else {
+        console.log("Business already exists");
+      }
+    } catch (e) {
+      resp.send(
+        "Something Went Wrong when creating Business and/or Services : " +
+          e.message
       );
-
-      resp.send(businessCreated);
-    } else {
-      console.log("Business already exists");
     }
-  } catch (e) {
-    resp.send(
-      "Something Went Wrong when creating Business and/or Services : " +
-        e.message
-    );
   }
-});
+);
 
 const createPrestation = async (prestation, businessId) => {
   const prestationCreate = new ServiceModel({

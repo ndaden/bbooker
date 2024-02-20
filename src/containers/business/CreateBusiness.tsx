@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import useCreateBusinessAndService from "./useCreateBusinessAndServices";
 import GeneralInfoSection from "./GeneralInfoSection";
 import PrestationsSection from "./PrestationsSection";
+import BusinessOverview from "./BusinessOverview";
 
 const CreateBusiness = () => {
   const navigate = useNavigate();
@@ -69,6 +70,7 @@ const CreateBusiness = () => {
       <form
         name="businessForm"
         onSubmit={handleSubmit(submitBusinessForm)}
+        encType="multipart/form-data"
         className="sm:w-[50%]"
       >
         <GeneralInfoSection
@@ -88,6 +90,7 @@ const CreateBusiness = () => {
             validation={validation}
           />
         )}
+        {finalizedCreation && <BusinessOverview data={getValues()} />}
         <div className="flex justify-between">
           <Button
             color="secondary"

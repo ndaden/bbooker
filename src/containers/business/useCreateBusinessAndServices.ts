@@ -29,6 +29,7 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
     if (isPrestationValid) {
       // reset
       reset({
+        ...getValues(),
         prestations: [
           ...prestations,
           {
@@ -39,7 +40,6 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
           },
         ],
       });
-      setValue(`${prestationFieldName}.name`, "");
     } else {
       setIsPrestationValid(false);
     }
@@ -59,22 +59,40 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
   };
 
   const toDatabaseBusinessWithPrestations = (values) => {
-    const businessWithPrestations = {
-      name: values.businessName,
-      description: values.businessDescription,
-      owner: user ? user.user["_id"] : "",
-      prestations: values.prestations.map((presta) =>
-        toDatabasePrestation(presta)
-      ),
-    };
+    const formData = new FormData();
+    formData.append("name", values.businessName);
+    formData.append("description", values.businessDescription);
+    formData.append("owner", user ? user.user["_id"] : "");
+    formData.append("image", values.businessImage);
 
-    return businessWithPrestations;
+    const prestationsToCreate = values.prestations.map((presta, idx) => {
+      return toDatabasePrestation(presta);
+
+      /* formData.append(
+        `prestations[${idx}].description`,
+        toDatabasePrestation(presta).description
+      );
+
+      formData.append(
+        `prestations[${idx}].duration`,
+        toDatabasePrestation(presta).duration
+      );
+      formData.append(
+        `prestations[${idx}].price`,
+        toDatabasePrestation(presta).price
+      );*/
+    });
+
+    formData.append(`prestations`, JSON.stringify(prestationsToCreate));
+
+    return formData;
   };
 
   const goToPrestationsStep = async () => {
     const isBusinessValid = await trigger([
       `businessName`,
       `businessDescription`,
+      `businessImage`,
     ]);
 
     if (isBusinessValid) {
@@ -112,9 +130,9 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
   };
 
   const createBusiness = async (values) => {
-    console.log(values);
+    console.log(toDatabaseBusinessWithPrestations(values));
     // création du business
-    // mutateBusiness(toDatabaseBusinessWithPrestations(values));
+    mutateBusiness(toDatabaseBusinessWithPrestations(values));
   };
 
   return {

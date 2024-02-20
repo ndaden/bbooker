@@ -48,7 +48,7 @@ const Business = () => {
             <CardBody className="text-center p-0 m-0">
               <Image
                 removeWrapper
-                src="/images/topform_banner.jpg"
+                src={businessToDisplay.imageUrl ?? "/images/topform_banner.jpg"}
                 className="object-cover max-h-[500px] "
               />
             </CardBody>
@@ -94,8 +94,8 @@ const Business = () => {
                 <TableRow key={service._id}>
                   <TableCell>{service.serviceName}</TableCell>
                   <TableCell>{service.description}</TableCell>
-                  <TableCell>{service.price / 100} €</TableCell>
-                  <TableCell>{service.duration} minutes</TableCell>
+                  <TableCell width="70">{service.price / 100} €</TableCell>
+                  <TableCell width="70">{service.duration} min</TableCell>
                 </TableRow>
               ))}
             </TableBody>

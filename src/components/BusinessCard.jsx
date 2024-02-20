@@ -2,7 +2,7 @@ import { Button, Card, CardBody, Chip, Image, Spacer } from "@nextui-org/react";
 import { BsClock } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 
-const BusinessCard = ({ id, name, description }) => {
+const BusinessCard = ({ id, name, description, image }) => {
   const navigate = useNavigate();
   const goToBusiness = () => {
     navigate(`/business/${id}`);
@@ -24,7 +24,7 @@ const BusinessCard = ({ id, name, description }) => {
               alt={name}
               className="object-cover z-0 w-full h-full"
               shadow="md"
-              src="/images/topform_banner.jpg"
+              src={image}
             />
           </div>
 
