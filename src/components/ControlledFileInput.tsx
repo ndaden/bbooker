@@ -11,7 +11,6 @@ const ControlledFileInput = ({ name, control, rules, ...props }) => {
       rules={rules}
       render={({ field, fieldState, formState }) => {
         const result = get(formState.errors, name)?.message;
-        console.log(formState.errors);
         return (
           <div>
             <div className="rounded-md bg-zinc-800 p-3">

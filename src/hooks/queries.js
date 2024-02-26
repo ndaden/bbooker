@@ -19,6 +19,14 @@ const deleteUserQuery = async (id) =>
     },
   });
 
+const deleteRoleQuery = async (id) =>
+  await fetch(`${publicApiUrl}/role/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
 const authenticateUserQuery = async (credentials) => {
   const response = await fetch(`${publicApiUrl}/user/login`, {
     method: "POST",
@@ -92,6 +100,15 @@ const getAppointmentsQuery = async () =>
 
 const getRolesQuery = async () => (await fetch(`${publicApiUrl}/role`)).json();
 
+const createRoleQuery = async (formData) =>
+  await fetch(`${publicApiUrl}/role/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
 export {
   getUsersQuery,
   createUserQuery,
@@ -104,4 +121,6 @@ export {
   createServiceQuery,
   getAppointmentsQuery,
   getRolesQuery,
+  createRoleQuery,
+  deleteRoleQuery,
 };

@@ -2,8 +2,11 @@ import {
   Accordion,
   AccordionItem,
   Button,
+  Card,
+  CardBody,
   Chip,
   CircularProgress,
+  Input,
   Table,
   TableBody,
   TableCell,
@@ -15,20 +18,46 @@ import useFetchUsers from "./hooks/useFetchUsers";
 import useFetchBusinesses from "./hooks/useFetchBusinesses";
 import useFetchServices from "./hooks/useFetchServices";
 import useFetchAppointments from "./hooks/useFetchAppointments";
+import useFetchRoles from "./hooks/useFetchRoles";
 import { BsTrash } from "react-icons/bs";
-import { deleteUserQuery } from "./hooks/queries";
-import { USERS_KEY } from "./hooks/queryKeys";
+import { deleteRoleQuery, deleteUserQuery } from "./hooks/queries";
+import { ROLES_KEY, USERS_KEY } from "./hooks/queryKeys";
 import { useQueryClient } from "@tanstack/react-query";
 import Container from "./components/Container";
+import { useForm } from "react-hook-form";
+import useMutateRole from "./hooks/useMutateRole";
 
 const Admin = () => {
+  // Fetch queries
   const { isLoading: isLoadingUsers, users } = useFetchUsers();
+  const { isLoading: isLoadingRoles, roles, refetchRoles } = useFetchRoles();
   const { isLoading: isLoadingBusinesses, businesses } = useFetchBusinesses();
   const { isLoading: isLoadingServices, services } = useFetchServices();
   const { isLoading: isLoadingAppointments, appointments } =
     useFetchAppointments();
 
+  // Mutate queries
+  const { mutateRole } = useMutateRole();
   const queryCache = useQueryClient();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors = {}, isValid },
+    watch,
+    reset,
+  } = useForm();
+
+  const onSubmitRole = async (values) => {
+    await mutateRole(values);
+    await queryCache.invalidateQueries({ queryKey: [ROLES_KEY] });
+    await refetchRoles();
+  };
+
+  const deleteRoleHandler = async (id) => {
+    await deleteRoleQuery(id);
+    await queryCache.invalidateQueries({ queryKey: [ROLES_KEY] });
+  };
 
   const deleteUserHandler = async (id) => {
     await deleteUserQuery(id);
@@ -39,7 +68,9 @@ const Admin = () => {
     isLoadingUsers ||
     isLoadingBusinesses ||
     isLoadingServices ||
-    isLoadingAppointments;
+    isLoadingAppointments ||
+    isLoadingRoles;
+
   return isLoading ? (
     <Container>
       <CircularProgress aria-label="loading" className="m-auto" />
@@ -80,6 +111,7 @@ const Admin = () => {
       {businesses.map((business) => (
         <Accordion key={business._id} variant="splitted">
           <AccordionItem
+            textValue={business._id}
             title={
               <>
                 {business.name} <Chip>ID: {business._id}</Chip>{" "}
@@ -138,6 +170,55 @@ const Admin = () => {
           ))}
         </TableBody>
       </Table>
+
+      <h2>Roles</h2>
+      <Table aria-label="list of all the roles">
+        <TableHeader>
+          <TableColumn>#</TableColumn>
+          <TableColumn>Name</TableColumn>
+          <TableColumn>Description</TableColumn>
+          <TableColumn></TableColumn>
+        </TableHeader>
+        <TableBody>
+          {roles.map((role) => (
+            <TableRow key={role._id}>
+              <TableCell width={"50px"}>{role._id}</TableCell>
+              <TableCell>{role.name}</TableCell>
+              <TableCell>{role.description}</TableCell>
+              <TableCell>
+                <Button isIconOnly onClick={() => deleteRoleHandler(role._id)}>
+                  <BsTrash />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <div>Ajout rôle</div>
+      <Card className="md:w-[50%]">
+        <CardBody>
+          <form onSubmit={handleSubmit(onSubmitRole)}>
+            <Input
+              type="text"
+              size="sm"
+              label="Name"
+              className="my-3"
+              {...register("name", { required: true })}
+            />
+            <Input
+              type="text"
+              size="sm"
+              label="Description"
+              className="my-3"
+              {...register("description", { required: true })}
+            />
+
+            <Button type="submit" color="primary">
+              Ajout rôle
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
     </Container>
   );
 };

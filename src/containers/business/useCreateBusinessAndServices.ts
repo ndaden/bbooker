@@ -130,7 +130,6 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
   };
 
   const createBusiness = async (values) => {
-    console.log(toDatabaseBusinessWithPrestations(values));
     // création du business
     mutateBusiness(toDatabaseBusinessWithPrestations(values));
   };

@@ -1261,6 +1261,10 @@ video {
   width: var(--nextui-spacing-unit-8);
 }
 
+.w-\[50\%\] {
+  width: 50%;
+}
+
 .min-w-\[200px\] {
   min-width: 200px;
 }
@@ -7229,6 +7233,10 @@ video {
 
   .md\:w-1\/4 {
     width: 25%;
+  }
+
+  .md\:w-\[50\%\] {
+    width: 50%;
   }
 
   .md\:grid-cols-12 {

@@ -5,7 +5,6 @@ import BusinessCard from "../../components/BusinessCard";
 import PageTitle from "../../components/PageTitle";
 
 const AccountBusinesses = ({ user }) => {
-  console.log(user);
   const { businesses, isLoading, isError } = useFetchBusinesses({
     ownerid: user?._id,
   });
