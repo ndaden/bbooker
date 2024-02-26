@@ -2,7 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getBusinessesQuery } from "./queries";
 import { BUSINESSES_KEY } from "./queryKeys";
 
-const useFetchBusinesses = (id) => {
+type BusinessRequest = {
+  id?: string;
+  ownerid?: string;
+};
+
+const useFetchBusinesses = (request: BusinessRequest) => {
   const {
     data,
     isLoading,
@@ -10,8 +15,13 @@ const useFetchBusinesses = (id) => {
     error,
     isError,
   } = useQuery({
-    queryKey: id ? [BUSINESSES_KEY, id] : [BUSINESSES_KEY],
-    queryFn: () => getBusinessesQuery(id),
+    queryKey: !!request?.id
+      ? [BUSINESSES_KEY, request?.id]
+      : !!request?.ownerid
+      ? [BUSINESSES_KEY, "OWNER", request?.ownerid]
+      : [BUSINESSES_KEY],
+    queryFn: () =>
+      getBusinessesQuery({ id: request?.id, ownerid: request?.ownerid }),
     enabled: true,
   });
 

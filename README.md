@@ -30,3 +30,9 @@ JWT_SECRET : secret key for Json Web Token<br/>
 
 Frontend :
 PUBLIC_API_URL : Api to be called by frontend (eg: http://localhost:8080)<br/>
+
+## Docker
+
+docker login
+docker build --platform linux/arm64 -t <account>/bbooker-front:<tag> .
+docker push <account>/bbooker-front:<tag>

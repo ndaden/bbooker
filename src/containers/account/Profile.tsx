@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 import PageTitle from "../../components/PageTitle";
 import Container from "../../components/Container";
 import UserContext from "../../contexts/UserContext";
+import AccountBusinesses from "./AccountBusinesses";
 
 const Profile = () => {
   const {
-    user: { user: userData, isLoading, isError, logout },
+    user: { user: userData, isLoading: isLoadingUser, isError, logout },
   } = useContext(UserContext);
 
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Profile = () => {
               Mes informations
             </ListboxItem>
             <ListboxItem key="confidentialite">
-              Sécurité - Confidentialité
+              Mes centres de services
             </ListboxItem>
             <ListboxItem key="options">Options</ListboxItem>
             <ListboxItem
@@ -46,10 +47,10 @@ const Profile = () => {
         <div className="w-full m-4">
           <Card>
             <CardBody>
-              {isLoading && <div>isLoading</div>}
+              {isLoadingUser && <div>Loading...</div>}
 
               <>
-                {!isLoading && (
+                {!isLoadingUser && (
                   <>
                     <div className="my-2">
                       <PageTitle
@@ -84,6 +85,8 @@ const Profile = () => {
               </>
             </CardBody>
           </Card>
+
+          <AccountBusinesses user={userData} />
         </div>
       </div>
     </Container>

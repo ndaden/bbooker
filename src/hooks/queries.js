@@ -44,13 +44,16 @@ const isAuthenticatedQuery = async () => {
   return await response.json();
 };
 
-const getBusinessesQuery = async (id) => {
-  const response = await fetch(
-    `${publicApiUrl}/business${id ? `?id=${id}` : `/`}`,
-    {
-      method: "GET",
-    }
-  );
+const getBusinessesQuery = async ({ id, ownerid }) => {
+  const businessUrl = !!id
+    ? `${publicApiUrl}/business?id=${id}`
+    : !!ownerid
+    ? `${publicApiUrl}/business?ownerid=${ownerid}`
+    : `${publicApiUrl}/business`;
+
+  const response = await fetch(businessUrl, {
+    method: "GET",
+  });
   if (!response.ok) throw new Error(response.statusText);
   return await response.json();
 };

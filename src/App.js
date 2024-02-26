@@ -19,6 +19,7 @@ import UserContext from "./contexts/UserContext";
 import useAuthentication from "./hooks/useAuthentication";
 import { useContext } from "react";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
+import BusinessCalendar from "./containers/business/BusinessCalendar";
 
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
@@ -78,6 +79,7 @@ function Root() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/new-business" element={<CreateBusiness />} />
         <Route path="/business/:id" element={<Business />} />
+        <Route path="/business/:id/calendar" element={<BusinessCalendar />} />
         <Route path="/appointment" element={<Appointment />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<CreateAccount />} />

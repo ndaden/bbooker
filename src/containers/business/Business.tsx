@@ -24,7 +24,9 @@ const Business = () => {
 
   let businessToDisplay;
 
-  const { businesses, isLoading: isLoadingBusiness } = useFetchBusinesses(id);
+  const { businesses, isLoading: isLoadingBusiness } = useFetchBusinesses({
+    id,
+  });
   const { services, isLoading: isLoadingServices } = useFetchServices(
     undefined,
     id
@@ -71,7 +73,6 @@ const Business = () => {
                   variant="solid"
                   type="button"
                   color="danger"
-                  variant="shadow"
                   className="font-bold"
                   onClick={onClickTakeAppointment}
                 >
