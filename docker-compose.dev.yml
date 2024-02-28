@@ -23,15 +23,42 @@ services:
     volumes:
       - ./:/usr/src/app
   mongo:
-    image: mongo:7.0.0
-    restart: always
+    build:
+      context: ./mongo
+      args:
+        MONGO_VERSION: 7
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGODB_DBNAME}
+      MONGO_REPLICA_HOST: 127.0.0.1
+      MONGO_REPLICA_PORT: 27017
+      # Use "mongosh" instead of "mongo" for v5+
+      MONGO_COMMAND: "mongosh"
+      # added by me
+      MONGO_INITDB_DATABASE: admin
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_USERNAME: ${MONGODB_USERNAME}
+      MONGO_INITDB_PASSWORD: ${MONGODB_PASSWORD}
     env_file:
       - .env.development
-    ports:
-      - 27017:27017
     volumes:
       - ./db:/data/db
+      - ./mongodb.key:/data/mongodb.key
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    healthcheck:
+      # Use "mongosh" instead of "mongo" for v5+
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "admin",
+          "--port",
+          "27017",
+          "--eval",
+          "db.adminCommand('ping').ok",
+        ]
+      interval: 5s
+      timeout: 2s
+      retries: 20
