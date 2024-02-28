@@ -1,0 +1,15 @@
+  @import 'react-big-calendar/lib/sass/styles';
+  @import 'react-big-calendar/lib/addons/dragAndDrop/styles'; // if using DnD
+
+  .rbc-timeslot-group {
+    background-color: gray;
+  }
+
+ .rbc-month-view {
+  border: 1px solid pink;
+  border-radius: 5px;
+ }
+
+ .rbc-today {
+  background-color: red;
+ }

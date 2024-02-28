@@ -7,8 +7,10 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
+RUN npm install -g pnpm
+
 # Install app dependencies
-RUN npm install --no-optional --only=production
+RUN pnpm i
 
 # Bundle app source
 COPY . .

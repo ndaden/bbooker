@@ -7239,6 +7239,18 @@ video {
     width: 50%;
   }
 
+  .md\:w-\[70\%\] {
+    width: 70%;
+  }
+
+  .md\:w-\[1000px\] {
+    width: 1000px;
+  }
+
+  .md\:w-\[2000px\] {
+    width: 2000px;
+  }
+
   .md\:grid-cols-12 {
     grid-template-columns: repeat(12, minmax(0, 1fr));
   }
