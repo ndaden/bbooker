@@ -1,24 +1,29 @@
 import { Elysia, t } from "elysia";
 import { swagger } from "@elysiajs/swagger";
-import { PrismaClient } from '@prisma/client' 
+import { swaggerConfig } from "./configuration";
+import { ElysiaSwaggerConfig } from "@elysiajs/swagger/dist/types";
+import { cookie } from "@elysiajs/cookie";
+import { jwt } from "@elysiajs/jwt";
+import { authentification } from "./modules/authentication";
 
-const db = new PrismaClient()
 
 const app = new Elysia()
+  .onError(({ error }) => {
+    console.log(error)
+    return "something went wrong"
+  })
   .use(
-    swagger({
-      provider: "swagger-ui",
+    jwt({
+      name: "jwt",
+      secret: Bun.env.JWT_SECRET!,
     })
   )
-  .get("/", () => "Hello Elysia")
-  .post('/sign-up', async ({ body }) => db.user.create({ data: body })
-  , {
-    body: t.Object({
-      email: t.String(),
-      password: t.String(),
-      name: t.String()
-    })
-  })
+  .use(cookie())
+  .use(
+    swagger(swaggerConfig as ElysiaSwaggerConfig)
+  )
+  .use(authentification)
+  .get("/", () => "Welcome to BBooker.")
   .listen(3002);
 
 console.log(
