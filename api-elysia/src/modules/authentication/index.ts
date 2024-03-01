@@ -32,6 +32,7 @@ export const authentification = (app: Elysia) =>
         },
             {
                 body: accountBodyType,
+                detail: { tags: ['auth'] }
             })
         .post('/login', async ({ body, set, jwt, setCookie }) => {
             const { email, password } = body
@@ -69,18 +70,18 @@ export const authentification = (app: Elysia) =>
 
             return buildApiResponse(true, "login successful.");
 
-        }, { body: loginBodyType })
+        }, { body: loginBodyType, detail: { tags: ['auth'] } })
         .use(isAuthenticated)
         .get('/profile', ({ account, error }) => {
             if (account) {
                 return buildApiResponse(true, "profile", account)
             }
             return error
-        })
+        }, { detail: { tags: ['auth'] } })
         .get('/logout', ({ setCookie }) => {
             setCookie("access_token", undefined, {
                 maxAge: 0,
                 path: "/",
             });
             return buildApiResponse(true, "logged out.")
-        }))
+        }, { detail: { tags: ['auth'] } }))

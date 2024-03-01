@@ -5,9 +5,10 @@ import { ElysiaSwaggerConfig } from "@elysiajs/swagger/dist/types";
 import { cookie } from "@elysiajs/cookie";
 import { jwt } from "@elysiajs/jwt";
 import { authentification } from "./modules/authentication";
+import { business } from "./modules/business";
 
 
-const app = new Elysia()
+const app: Elysia = new Elysia()
   .onError(({ error }) => {
     console.log(error)
     return "something went wrong"
@@ -23,7 +24,8 @@ const app = new Elysia()
     swagger(swaggerConfig as ElysiaSwaggerConfig)
   )
   .use(authentification)
-  .get("/", () => "Welcome to BBooker.")
+  .use(business)
+  .get("/", () => "Welcome to BBooker.", { detail: { tags: ["app"]}})
   .listen(3002);
 
 console.log(

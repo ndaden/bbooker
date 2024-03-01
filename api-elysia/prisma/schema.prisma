@@ -24,6 +24,7 @@ model Account {
   createDate    DateTime    @default(now())
   updateDate    DateTime?
   profile       Profile?
+  business      Business?
 }
 
 model Profile {
@@ -43,5 +44,27 @@ enum Role {
   ADMIN
   OWNER
   STANDARD
+}
+
+model Business {
+  @@map("business")
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  account       Account   @relation(fields: [accountId], references: [id])
+  accountId     String    @unique @db.ObjectId
+  name          String
+  description   String?
+  image         String?
+  services      Service[] 
+}
+
+model Service {
+  @@map("service")
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String
+  duration      Int
+  price         Float
+  business      Business  @relation(fields: [businessId], references: [id])
+  businessId    String    @db.ObjectId
 }
 
