@@ -11,7 +11,8 @@
     "@elysiajs/jwt": "^0.8.0",
     "@elysiajs/swagger": "^0.8.5",
     "@prisma/client": "^5.10.2",
-    "elysia": "latest"
+    "elysia": "latest",
+    "firebase": "^10.8.1"
   },
   "devDependencies": {
     "bun-types": "latest",

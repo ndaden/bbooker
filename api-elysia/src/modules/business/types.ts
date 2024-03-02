@@ -10,7 +10,6 @@ const serviceBodyType = t.Object({
 const businessBodyType = t.Object({
     name: t.String(),
     description: t.String(),
-    image: t.File(),
     services: t.Array(serviceBodyType),
   })
 
@@ -18,7 +17,7 @@ const businessBodyType = t.Object({
     name: t.Optional(t.String()),
     description: t.Optional(t.String()),
     image: t.Optional(t.File()),
-    services: t.Optional(t.Array(serviceBodyType)),
+    services: t.Optional(t.Array(t.Optional(serviceBodyType))),
   })
 
 
