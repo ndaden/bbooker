@@ -21,10 +21,10 @@ model Account {
   hash          String
   salt          String
   active        Boolean     @default(true)
-  createDate    DateTime    @default(now())
-  updateDate    DateTime?
   profile       Profile?
   business      Business?
+  createDate    DateTime    @default(now())
+  updateDate    DateTime?
 }
 
 model Profile {
@@ -48,13 +48,15 @@ enum Role {
 
 model Business {
   @@map("business")
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  account       Account   @relation(fields: [accountId], references: [id])
-  accountId     String    @unique @db.ObjectId
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  account       Account     @relation(fields: [accountId], references: [id])
+  accountId     String      @unique @db.ObjectId
   name          String
   description   String?
   image         String?
-  services      Service[] 
+  services      Service[]
+  createDate    DateTime    @default(now())
+  updateDate    DateTime?
 }
 
 model Service {

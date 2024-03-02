@@ -10,7 +10,7 @@ import { sha256hash } from "../../utils/crypto";
 
 export const business = (app: Elysia) => app.group('/business', (app) =>
     app.get('/', async () => {
-        return buildApiResponse(true, "", await prisma.business.findMany({ include: { services: true }}))
+        return buildApiResponse(true, "", await prisma.business.findMany({ include: { services: true } }))
     }, { detail: { tags: ['business'] } })
         .get('/:id', async ({ params }) => {
             const { id } = params
@@ -40,7 +40,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             return buildApiResponse(true, "business and services created.", businessCreated)
 
         }, { body: businessBodyType, detail: { tags: ['business'] } })
-        .patch('/:id', async ({ params,set, body }) => {
+        .patch('/:id', async ({ params, set, body }) => {
             const { id } = params
             const { name, description, image, services } = body
             let imageUrl = 'dummy url'
@@ -48,24 +48,26 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             // upload image to firebase 
             if (image) {
                 const extension = image.name.split('.').pop()
-                if(!AUTHORIZED_FILE_TYPES.includes(image.type)){
+                if (!AUTHORIZED_FILE_TYPES.includes(image.type)) {
                     set.status = 400
                     return buildApiResponse(false, "unauthorized file type.")
                 }
-                if(image.size > MAX_FILE_SIZE) {
+                if (image.size > MAX_FILE_SIZE) {
                     set.status = 400
                     return buildApiResponse(false, "file is too big.")
-                }            
-                const storageRef = ref(storage,  `${sha256hash(image.name)}.${extension}`);
+                }
+                const storageRef = ref(storage, `${sha256hash(image.name)}.${extension}`);
                 const snapshot = await uploadBytes(storageRef, await image.arrayBuffer());
                 imageUrl = await getDownloadURL(snapshot.ref);
-            } 
+            }
 
             const updatedBusiness = await prisma.business.update({
                 where: {
                     id: id
                 }, data: {
-                    name, description, image: imageUrl, services: services && { createMany: { data: services } }
+                    name, description, image: imageUrl,
+                    services: services && { createMany: { data: services } },
+                    updateDate: new Date()
                 }
             })
             return buildApiResponse(true, "business updated", updatedBusiness)
@@ -73,11 +75,22 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
         }, { body: businessUpdateBodyType, detail: { tags: ['business'] } })
         .delete('/:id', async ({ params }) => {
             const { id } = params
+
+            await prisma.service.deleteMany({
+                where: {
+                    businessId: id
+                }
+            })
             await prisma.business.delete({
                 where: {
                     id: id
                 },
-                include: { services: true }
+                select: {
+                    id: true,
+                    createDate: false
+                }
             })
             // must also delete image from firebase
+
+            return buildApiResponse(true, "deleted successfully.")
         }, { detail: { tags: ['business'] } }))

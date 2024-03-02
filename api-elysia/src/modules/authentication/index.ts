@@ -1,9 +1,10 @@
 import { Elysia, t } from "elysia";
 import { comparePassword, hashPassword } from "../../utils/crypto";
 import { prisma } from "../../libs/prisma";
-import { accountBodyType, loginBodyType } from "./types";
+import { accountBodyType, loginBodyType, patchAccountBodyType } from "./types";
 import { buildApiResponse } from "../../utils/api";
 import { isAuthenticated } from "../../middlewares/authentication";
+import { Account, Profile } from "@prisma/client";
 
 export const authentification = (app: Elysia) =>
     app.group('/auth', (app) => app
@@ -78,6 +79,60 @@ export const authentification = (app: Elysia) =>
             }
             return error
         }, { detail: { tags: ['auth'] } })
+        .patch('/profile', async ({ account, error, body, set }) => {
+            if (!account) {
+                return error
+            }
+
+            const { profile, email, password, newPassword, newPasswordAgain, active, role } = body
+
+            let profileToUpdateOrCreate
+
+            if (profile) {
+                const { firstName, lastName, address, phoneNumber, profileImage } = profile
+                let profileImageUrl = 'dummy url'
+                if (profileImage) {
+                    // upload profile image and get url
+                }
+
+                profileToUpdateOrCreate = {
+                    firstName, lastName, address, phoneNumber, profileImage: profileImageUrl
+                }
+            }
+
+            if (password && newPassword && newPasswordAgain) {
+                // check password
+
+                // update password
+                if (newPassword !== newPasswordAgain) {
+                    set.status = 400
+                    return buildApiResponse(false, "passwords don't match")
+                }
+            }
+
+            let fieldsToUpdateByAdmin
+            if (account.role === "ADMIN") {
+                fieldsToUpdateByAdmin = {
+                    active,
+                    role
+                }
+            }
+
+            const updatedAccount = await prisma.account.update({
+                where: {
+                    id: account.id,
+                },
+                data: {
+                    email,
+                    ...fieldsToUpdateByAdmin,
+                    profile: account.profile ? { update: profileToUpdateOrCreate } : { create: profileToUpdateOrCreate },
+                    updateDate: new Date(),
+                }, include: { profile: true }
+            })
+
+            return buildApiResponse(true, "account updated", updatedAccount)
+
+        }, { body: patchAccountBodyType, detail: { tags: ['auth'] } })
         .get('/logout', ({ setCookie }) => {
             setCookie("access_token", undefined, {
                 maxAge: 0,
