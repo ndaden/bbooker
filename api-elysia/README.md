@@ -13,3 +13,14 @@ bun run dev
 ```
 
 Open http://localhost:3000/ with your browser to see the result.
+
+## Prisma
+
+When creating new model or update a model, run:
+
+```bash
+rm -rf node_modules/
+bun install
+bunx prisma generate
+bunx prisma migrate dev
+```

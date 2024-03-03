@@ -4,7 +4,6 @@ import { prisma } from "../../libs/prisma";
 import { accountBodyType, loginBodyType, patchAccountBodyType } from "./types";
 import { buildApiResponse } from "../../utils/api";
 import { isAuthenticated } from "../../middlewares/authentication";
-import { Account, Profile } from "@prisma/client";
 
 export const authentification = (app: Elysia) =>
     app.group('/auth', (app) => app
@@ -87,12 +86,21 @@ export const authentification = (app: Elysia) =>
             const { profile, email, password, newPassword, newPasswordAgain, active, role } = body
 
             let profileToUpdateOrCreate
+            let accountToUpdateByUser = { email }
 
             if (profile) {
                 const { firstName, lastName, address, phoneNumber, profileImage } = profile
                 let profileImageUrl = 'dummy url'
                 if (profileImage) {
                     // upload profile image and get url
+                    const uploadResult = await uploadImageToFirebase(profileImage)
+
+                    if (!uploadResult.success) {
+                        set.status = "Bad Request"
+                        return buildApiResponse(false, uploadResult.error ?? '')
+                    }
+
+                    profileImageUrl = uploadResult.url ?? ''
                 }
 
                 profileToUpdateOrCreate = {
@@ -101,13 +109,23 @@ export const authentification = (app: Elysia) =>
             }
 
             if (password && newPassword && newPasswordAgain) {
-                // check password
-
-                // update password
                 if (newPassword !== newPasswordAgain) {
                     set.status = 400
                     return buildApiResponse(false, "passwords don't match")
                 }
+
+                // check password
+                const match = await comparePassword(password, account.salt, account.hash)
+
+                if (!match) {
+                    set.status = 400
+                    return buildApiResponse(false, "wrong password")
+                }
+
+                const { hash, salt } = await hashPassword(newPassword)
+
+                // update password in database
+                accountToUpdateByUser = {...accountToUpdateByUser, hash, salt}
             }
 
             let fieldsToUpdateByAdmin
@@ -123,7 +141,7 @@ export const authentification = (app: Elysia) =>
                     id: account.id,
                 },
                 data: {
-                    email,
+                    ...accountToUpdateByUser,
                     ...fieldsToUpdateByAdmin,
                     profile: account.profile ? { update: profileToUpdateOrCreate } : { create: profileToUpdateOrCreate },
                     updateDate: new Date(),

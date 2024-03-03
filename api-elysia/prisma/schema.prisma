@@ -25,6 +25,7 @@ model Account {
   business      Business?
   createDate    DateTime    @default(now())
   updateDate    DateTime?
+  appointment   Appointment[]
 }
 
 model Profile {
@@ -68,5 +69,19 @@ model Service {
   price         Float
   business      Business  @relation(fields: [businessId], references: [id])
   businessId    String    @db.ObjectId
+  appointment   Appointment[]
+}
+
+model Appointment {
+  @@map("appointment")
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  service       Service   @relation(fields: [serviceId], references: [id])
+  serviceId     String    @db.ObjectId
+  account       Account   @relation(fields: [accountId], references: [id])
+  accountId     String    @db.ObjectId
+  startTime     DateTime
+  endTime       DateTime
+  createDate    DateTime  @default(now())
+  updateDate    DateTime?  
 }
 

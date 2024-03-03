@@ -3,9 +3,7 @@ import { isAuthenticated } from "../../middlewares/authentication";
 import { businessBodyType, businessUpdateBodyType } from "./types";
 import { prisma } from "../../libs/prisma";
 import { buildApiResponse } from "../../utils/api";
-import { AUTHORIZED_FILE_TYPES, MAX_FILE_SIZE, storage } from "../../utils/upload"
-import { ref, getDownloadURL, uploadBytes } from "firebase/storage"
-import { sha256hash } from "../../utils/crypto";
+import { uploadImageToFirebase } from "../../utils/upload";
 
 
 export const business = (app: Elysia) => app.group('/business', (app) =>
@@ -45,20 +43,16 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             const { name, description, image, services } = body
             let imageUrl = 'dummy url'
 
-            // upload image to firebase 
             if (image) {
-                const extension = image.name.split('.').pop()
-                if (!AUTHORIZED_FILE_TYPES.includes(image.type)) {
-                    set.status = 400
-                    return buildApiResponse(false, "unauthorized file type.")
+                // upload profile image and get url
+                const uploadResult = await uploadImageToFirebase(image)
+
+                if(!uploadResult.success) {
+                    set.status = "Bad Request"
+                    return buildApiResponse(false, uploadResult.error ?? '')
                 }
-                if (image.size > MAX_FILE_SIZE) {
-                    set.status = 400
-                    return buildApiResponse(false, "file is too big.")
-                }
-                const storageRef = ref(storage, `${sha256hash(image.name)}.${extension}`);
-                const snapshot = await uploadBytes(storageRef, await image.arrayBuffer());
-                imageUrl = await getDownloadURL(snapshot.ref);
+
+                imageUrl = uploadResult.url ?? ''
             }
 
             const updatedBusiness = await prisma.business.update({
