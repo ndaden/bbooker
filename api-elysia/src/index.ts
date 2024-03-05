@@ -6,6 +6,7 @@ import { cookie } from "@elysiajs/cookie";
 import { jwt } from "@elysiajs/jwt";
 import { authentification } from "./modules/authentication";
 import { business } from "./modules/business";
+import { appointment } from "./modules/appointment";
 
 
 const app: Elysia = new Elysia()
@@ -25,6 +26,7 @@ const app: Elysia = new Elysia()
   )
   .use(authentification)
   .use(business)
+  .use(appointment)
   .get("/", () => "Welcome to BBooker.", { detail: { tags: ["app"]}})
   .listen(3002);
 
