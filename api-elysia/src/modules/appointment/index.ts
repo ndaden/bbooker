@@ -58,8 +58,18 @@ export const appointment = (app: Elysia) =>
           }
           const { serviceId, startTime, endTime } = body;
 
-          if (dayjs(startTime).isAfter(endTime)) {
+          if (dayjs(startTime).isAfter(dayjs(endTime))) {
             return buildApiResponse(false, "startTime must be before endTime");
+          }
+
+          const service = await prisma.service.findFirst({
+            where: {
+              id: serviceId
+            }
+          })
+
+          if(!service) {
+            return buildApiResponse(false, "service does not exist.")
           }
 
           const appointmentsByService = await prisma.appointment.findMany({
@@ -71,10 +81,10 @@ export const appointment = (app: Elysia) =>
           const conflictingAppointments = appointmentsByService.filter(
             (appt) => {
               return (
-                (dayjs(startTime).isAfter(appt.startTime) &&
-                  dayjs(startTime).isBefore(appt.endTime)) ||
-                (dayjs(endTime).isAfter(appt.startTime) &&
-                  dayjs(endTime).isBefore(appt.endTime))
+                (dayjs(startTime).isAfter(appt.startTime) || dayjs(startTime).isSame(appt.startTime)) &&
+                  dayjs(startTime).isBefore(appt.endTime) || dayjs(startTime).isSame(appt.endTime)) ||
+                ((dayjs(endTime).isAfter(appt.startTime) || dayjs(endTime).isSame(appt.startTime)) &&
+                  (dayjs(endTime).isBefore(appt.endTime)|| dayjs(endTime).isSame(appt.startTime))
               );
             }
           );
@@ -86,12 +96,12 @@ export const appointment = (app: Elysia) =>
             );
           }
 
-          const appt = prisma.appointment.create({
+          const appt = await prisma.appointment.create({
             data: {
               accountId: account.id,
               serviceId,
-              startTime,
-              endTime,
+              startTime: dayjs(startTime).toDate(),
+              endTime: dayjs(endTime).toDate(),
             },
           });
 
@@ -106,10 +116,10 @@ export const appointment = (app: Elysia) =>
           detail: { tags: ["appointment"] },
         }
       )
-      .patch("/:id", async ({ account, body, params }) => {}, {
+      .patch("/:id", async ({ account, body, params }) => { }, {
         detail: { tags: ["appointment"] },
       })
-      .delete("/:id", async ({ account, params }) => {}, {
+      .delete("/:id", async ({ account, params }) => { }, {
         detail: { tags: ["appointment"] },
       })
   );
