@@ -68,7 +68,7 @@ export const appointment = (app: Elysia) =>
             }
           })
 
-          if(!service) {
+          if (!service) {
             return buildApiResponse(false, "service does not exist.")
           }
 
@@ -82,10 +82,10 @@ export const appointment = (app: Elysia) =>
             (appt) => {
               return (
                 (dayjs(startTime).isAfter(appt.startTime) || dayjs(startTime).isSame(appt.startTime)) &&
-                  dayjs(startTime).isBefore(appt.endTime) || dayjs(startTime).isSame(appt.endTime)) ||
+                dayjs(startTime).isBefore(appt.endTime) || dayjs(startTime).isSame(appt.endTime)) ||
                 ((dayjs(endTime).isAfter(appt.startTime) || dayjs(endTime).isSame(appt.startTime)) &&
-                  (dayjs(endTime).isBefore(appt.endTime)|| dayjs(endTime).isSame(appt.startTime))
-              );
+                  (dayjs(endTime).isBefore(appt.endTime) || dayjs(endTime).isSame(appt.startTime))
+                );
             }
           );
 
