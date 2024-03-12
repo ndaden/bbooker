@@ -7,12 +7,17 @@ import { jwt } from "@elysiajs/jwt";
 import { authentification } from "./modules/authentication";
 import { business } from "./modules/business";
 import { appointment } from "./modules/appointment";
+import { isMaintenance } from "./middlewares/maintenance";
+import { buildApiResponse } from "./utils/api";
+import { cors } from "@elysiajs/cors"
 
 
 const app: Elysia = new Elysia()
+  .use(cors())
+  .use(isMaintenance)
   .onError(({ error }) => {
     console.log(error)
-    return "something went wrong"
+    return buildApiResponse(false, "An error occured, please contact admin.")
   })
   .use(
     jwt({

@@ -4,6 +4,9 @@ import { createAppointmentType } from "./types";
 import { prisma } from "../../libs/prisma";
 import { buildApiResponse } from "../../utils/api";
 import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween"
+
+dayjs.extend(isBetween)
 
 export const appointment = (app: Elysia) =>
   app.group("/appointment", (app) =>
@@ -12,6 +15,10 @@ export const appointment = (app: Elysia) =>
       .get(
         "/",
         async ({ account, query }) => {
+          // TODO
+          // 1 - standard user must be able to fetch only the list of his appointments
+          // 2 - owner must be able to fetch the list of appointment with services associated to his business
+
           if (!account) {
             return buildApiResponse(false, "unauthorized");
           }
@@ -50,6 +57,32 @@ export const appointment = (app: Elysia) =>
           detail: { tags: ["appointment"] },
         }
       )
+      .get("/slots/:serviceId", async ({ params, query }) => {
+        const { serviceId } = params
+        const { startTimeInterval, endTimeInterval, slotDurationInMinutes } = query
+
+        let slots = []
+        
+        if (serviceId) {
+          const foundAppointments = await prisma.appointment.findMany({
+            where: {
+              serviceId,
+            },
+          });
+
+          let time = dayjs(startTimeInterval);
+
+          while( time.isBefore(dayjs(endTimeInterval))) {
+            const slotFree = !foundAppointments.find(appt => time.isBetween(appt.startTime, appt.endTime))
+            slots.push({ free: slotFree, startTime: time, endTime: time.add(Number.parseInt(slotDurationInMinutes), 'minutes')})
+            time = time.add(Number.parseInt(slotDurationInMinutes), 'minutes')
+          }
+        }
+
+        return buildApiResponse(true, "slots for service", slots)
+      }, {
+        detail: { tags: ["appointment"] },
+      })
       .post(
         "/",
         async ({ account, body }) => {

@@ -57,6 +57,8 @@ model Business {
   description   String?
   image         String?
   services      Service[]
+  openingTime   String?
+  closingTime   String?
   createDate    DateTime    @default(now())
   updateDate    DateTime?
 }
