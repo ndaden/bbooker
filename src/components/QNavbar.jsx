@@ -60,7 +60,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
         ))}
       </NavbarContent>
       <NavbarContent justify="end">
-        {user && !user.isLoading && !user.isError && (
+        {user && user.success && (
           <NavbarItem className="hidden lg:flex">
             <Link href="#" onClick={goToProfile}>
               <Avatar
@@ -73,7 +73,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
             </Link>
           </NavbarItem>
         )}
-        {user && user.isError && (
+        {user && !user.success && (
           <>
             <NavbarItem className="hidden lg:flex">
               <Link href="#" onClick={goToLogin}>

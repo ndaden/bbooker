@@ -25,10 +25,9 @@ const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
 function App() {
   const { userData, isLoading, isError, logout } = useAuthentication();
+
   return (
-    <UserContext.Provider
-      value={{ user: { ...userData, isLoading, isError, logout } }}
-    >
+    <UserContext.Provider value={{ ...userData, isLoading, isError, logout }}>
       <div className="dark min-h-[100vh] text-foreground bg-background">
         <RouterProvider router={router} />
         <footer className="w-screen flex items-center justify-center py-3">
@@ -67,13 +66,10 @@ const Brand = ({ pro }) => (
 );
 
 function Root() {
-  const { user } = useContext(UserContext);
+  const user = useContext(UserContext);
   return (
     <>
-      <QNavbar
-        brandLabel={<Brand pro={user?.user?.isProfessional} />}
-        user={user}
-      />
+      <QNavbar brandLabel={<Brand />} user={user} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<Admin />} />

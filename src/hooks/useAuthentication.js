@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { isAuthenticatedQuery } from "./queries";
+import { getUserQuery } from "./queries";
 import { useQueryClient } from "@tanstack/react-query";
 
 const useAuthentication = () => {
@@ -11,7 +11,7 @@ const useAuthentication = () => {
     error,
     refetch: getUserData,
   } = useQuery({
-    queryFn: isAuthenticatedQuery,
+    queryFn: getUserQuery,
     queryKey: ["AUTHENTICATED_USER"],
     enabled: true,
     retry: false,

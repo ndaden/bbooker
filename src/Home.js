@@ -21,7 +21,7 @@ function Home() {
         {isLoading && <div>loading</div>}
         {!isLoading &&
           !isError &&
-          businesses.map((business) => (
+          businesses.payload.map((business) => (
             <BusinessCard
               key={business._id}
               id={business._id}

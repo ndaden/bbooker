@@ -1,9 +1,10 @@
 const publicApiUrl = process.env.PUBLIC_API_URL;
 
-const getUsersQuery = async () => (await fetch(`${publicApiUrl}/user`)).json();
+const getUserQuery = async () =>
+  (await fetch(`${publicApiUrl}/auth/profile`, { method: "GET", credentials: "include"})).json();
 
 const createUserQuery = async (formData) =>
-  await fetch(`${publicApiUrl}/user/create`, {
+  await fetch(`${publicApiUrl}/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -28,18 +29,19 @@ const deleteRoleQuery = async (id) =>
   });
 
 const authenticateUserQuery = async (credentials) => {
-  const response = await fetch(`${publicApiUrl}/user/login`, {
+  const response = await fetch(`${publicApiUrl}/auth/login`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
+    credentials: "include",
     body: JSON.stringify(credentials),
   });
   if (!response.ok) throw new Error(response.statusText);
   return await response.json();
 };
 
-const isAuthenticatedQuery = async () => {
+/* const isAuthenticatedQuery = async () => {
   const response = await fetch(`${publicApiUrl}/user/authenticated`, {
     method: "GET",
     headers: {
@@ -50,7 +52,7 @@ const isAuthenticatedQuery = async () => {
   if (!response.ok) throw new Error(response.statusText);
 
   return await response.json();
-};
+}; */
 
 const getBusinessesQuery = async ({ id, ownerid }) => {
   const businessUrl = !!id
@@ -69,7 +71,7 @@ const getBusinessesQuery = async ({ id, ownerid }) => {
 const createBusinessQuery = async (formData) =>
   // WARNING : don't add Content-Type multipart/form-data header because it'll not work corretly
   // let the browser generate it.
-  await fetch(`${publicApiUrl}/business/create`, {
+  await fetch(`${publicApiUrl}/business`, {
     method: "POST",
     body: formData,
     headers: {
@@ -110,10 +112,9 @@ const createRoleQuery = async (formData) =>
   });
 
 export {
-  getUsersQuery,
+  getUserQuery,
   createUserQuery,
   deleteUserQuery,
-  isAuthenticatedQuery,
   authenticateUserQuery,
   getBusinessesQuery,
   createBusinessQuery,

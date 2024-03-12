@@ -7,18 +7,16 @@ import UserContext from "../../contexts/UserContext";
 import AccountBusinesses from "./AccountBusinesses";
 
 const Profile = () => {
-  const {
-    user: { user: userData, isLoading: isLoadingUser, isError, logout },
-  } = useContext(UserContext);
+  const user = useContext(UserContext);
 
   const navigate = useNavigate();
 
   const logoutHandler = () => {
-    logout();
+    user.logout();
     navigate("/");
   };
 
-  if (isError) {
+  if (user.isError) {
     navigate("/login");
     return null;
   }
@@ -47,14 +45,14 @@ const Profile = () => {
         <div className="w-full m-4">
           <Card>
             <CardBody>
-              {isLoadingUser && <div>Loading...</div>}
+              {user.isLoading && <div>Loading...</div>}
 
               <>
-                {!isLoadingUser && (
+                {!user.isLoading && (
                   <>
                     <div className="my-2">
                       <PageTitle
-                        title={`Bienvenue ${userData.profile.firstName} ${userData.profile.lastName}`}
+                        title={`Bienvenue ${user.payload.profile.firstName} ${user.payload.profile.lastName}`}
                       ></PageTitle>
                     </div>
                     <div className="xl:w-1/2 bg-zinc-800 rounded-lg p-4 my-4">
@@ -63,21 +61,21 @@ const Profile = () => {
                       </h3>
                       <div className="m-4 ">
                         <span className="font-bold">Email :</span>{" "}
-                        {userData.email.address}
+                        {user.payload.email}
                       </div>
 
                       <div className="m-4">
                         <span className="font-bold">Nom :</span>{" "}
-                        {userData.profile.firstName}
+                        {user.payload.profile.firstName}
                       </div>
                       <div className=" m-4 ">
                         <span className="font-bold">Prénom :</span>{" "}
-                        {userData.profile.lastName}
+                        {user.payload.profile.lastName}
                       </div>
 
                       <div className=" m-4">
                         <span className="font-bold">Adresse postale :</span>{" "}
-                        {userData.profile.address.street1}
+                        {user.payload.profile.address}
                       </div>
                     </div>
                   </>
@@ -86,7 +84,7 @@ const Profile = () => {
             </CardBody>
           </Card>
 
-          <AccountBusinesses user={userData} />
+          <AccountBusinesses user={user.payload} />
         </div>
       </div>
     </Container>

@@ -19,14 +19,14 @@ const LoginForm = () => {
 
   const submitLoginForm = async (data) => {
     if (isValid) {
-      sessionStorage.removeItem("auth_token");
+      // sessionStorage.removeItem("auth_token");
       authenticate(data);
     }
   };
 
   useEffect(() => {
     if (!isLoading && data) {
-      sessionStorage.setItem("auth_token", data.token);
+      // sessionStorage.setItem("auth_token", data.token);
       navigate("/profile");
     }
   }, [isLoading, data]);
@@ -45,13 +45,13 @@ const LoginForm = () => {
                   <div className="flex gap-4 mb-6">
                     <Input
                       type="text"
-                      {...register("username", {
+                      {...register("email", {
                         required: {
                           value: true,
-                          message: "Username is mandatory.",
+                          message: "Veuillez saisir votre e-mail.",
                         },
                       })}
-                      label="Username"
+                      label="E-mail"
                       formNoValidate
                       size="sm"
                     />
@@ -59,18 +59,18 @@ const LoginForm = () => {
                   <div className="flex gap-4 mb-6">
                     <Input
                       type="password"
-                      label="Password"
+                      label="Mot de passe"
                       {...register("password", {
                         required: {
                           value: true,
-                          message: "Password is mandatory",
+                          message: "Veuillez saisir votre mot de passe.",
                         },
                       })}
                       validationState={errors?.password ? "invalid" : "valid"}
                       size="sm"
                     />
                   </div>
-                  {isError && <div>Login ou mot de passe invalides</div>}
+                  {isError && <div>Email ou mot de passe invalides</div>}
                   <Button color="primary" type="submit" fullWidth>
                     S'identifier
                   </Button>
