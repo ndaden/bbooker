@@ -10,10 +10,12 @@ import {
   NavbarMenuToggle,
   Avatar,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
 
-const QNavbar = ({ brandLabel, user, links = [] }) => {
+const QNavbar = ({ brandLabel, links = [] }) => {
+  const { user, error, isLoading, isError, logout } = useContext(UserContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -27,14 +29,16 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
     navigate("profile");
   };
 
-  const logoutHandler = () => {
-    user.logout();
+  const logoutHandler = async () => {
+    await logout();
     navigate("/");
   };
+
   return (
     <Navbar
       maxWidth="full"
       className="2xl:max-w-[2000px] 2xl:mx-auto sm:py-3"
+      isMenuOpen={isMenuOpen}
       onMenuOpenChange={setIsMenuOpen}
     >
       <NavbarContent className="sm:hidden">
@@ -60,7 +64,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
         ))}
       </NavbarContent>
       <NavbarContent justify="end">
-        {user && user.success && (
+        {user && (
           <NavbarItem className="hidden lg:flex">
             <Link href="#" onClick={goToProfile}>
               <Avatar
@@ -73,7 +77,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
             </Link>
           </NavbarItem>
         )}
-        {user && !user.success && (
+        {!user && (
           <>
             <NavbarItem className="hidden lg:flex">
               <Link href="#" onClick={goToLogin}>
@@ -95,7 +99,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
         )}
       </NavbarContent>
       <NavbarMenu className="bg-dark">
-        {user && user.isError && (
+        {(!user || isError) && (
           <>
             <NavbarMenuItem>
               <Link color="primary" className="w-full" href="/login" size="lg">
@@ -109,7 +113,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
             </NavbarMenuItem>
           </>
         )}
-        {user && !user.isLoading && !user.isError && (
+        {user && !isLoading && !isError && (
           <>
             <NavbarMenuItem>
               <Link
@@ -121,7 +125,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
                 Profile
               </Link>
             </NavbarMenuItem>
-            {user?.user?.isProfessional && (
+            {user?.isProfessional && (
               <NavbarMenuItem>
                 <Link
                   color="primary"

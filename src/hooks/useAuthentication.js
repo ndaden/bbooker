@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUserQuery } from "./queries";
+import { getUserQuery, logoutUserQuery } from "./queries";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 const useAuthentication = () => {
   const queryCache = useQueryClient();
   const {
-    data: userData,
+    data,
     isLoading,
     isError,
     error,
@@ -14,18 +15,26 @@ const useAuthentication = () => {
     queryFn: getUserQuery,
     queryKey: ["AUTHENTICATED_USER"],
     enabled: true,
-    retry: false,
+    staleTime: 100,
+    cacheTime: 100,
   });
 
   const logout = async () => {
     await queryCache.removeQueries({ queryKey: ["AUTHENTICATED_USER"] });
-    sessionStorage.removeItem("auth_token");
+    await logoutUserQuery();
     await getUserData();
   };
 
+  useEffect(() => {
+    const refetch = async () => {
+      await getUserData();
+    };
+    refetch();
+  }, [isLoading]);
+
   return {
     getUserData,
-    userData,
+    data,
     error,
     isError,
     isLoading,

@@ -1,7 +1,12 @@
 const publicApiUrl = process.env.PUBLIC_API_URL;
 
 const getUserQuery = async () =>
-  (await fetch(`${publicApiUrl}/auth/profile`, { method: "GET", credentials: "include"})).json();
+  (
+    await fetch(`${publicApiUrl}/auth/profile`, {
+      method: "GET",
+      credentials: "include",
+    })
+  ).json();
 
 const createUserQuery = async (formData) =>
   await fetch(`${publicApiUrl}/auth/signup`, {
@@ -32,7 +37,7 @@ const authenticateUserQuery = async (credentials) => {
   const response = await fetch(`${publicApiUrl}/auth/login`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     credentials: "include",
     body: JSON.stringify(credentials),
@@ -41,18 +46,17 @@ const authenticateUserQuery = async (credentials) => {
   return await response.json();
 };
 
-/* const isAuthenticatedQuery = async () => {
-  const response = await fetch(`${publicApiUrl}/user/authenticated`, {
+const logoutUserQuery = async () => {
+  const response = await fetch(`${publicApiUrl}/auth/logout`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${sessionStorage.getItem("auth_token")}`,
     },
+    credentials: "include",
   });
   if (!response.ok) throw new Error(response.statusText);
-
   return await response.json();
-}; */
+};
 
 const getBusinessesQuery = async ({ id, ownerid }) => {
   const businessUrl = !!id
@@ -116,6 +120,7 @@ export {
   createUserQuery,
   deleteUserQuery,
   authenticateUserQuery,
+  logoutUserQuery,
   getBusinessesQuery,
   createBusinessQuery,
   getServicesQuery,

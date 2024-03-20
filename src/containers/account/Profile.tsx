@@ -3,28 +3,28 @@ import { Card, CardBody, Listbox, ListboxItem } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 import PageTitle from "../../components/PageTitle";
 import Container from "../../components/Container";
-import UserContext from "../../contexts/UserContext";
 import AccountBusinesses from "./AccountBusinesses";
+import { UserContext } from "../../contexts/UserContext";
 
 const Profile = () => {
-  const user = useContext(UserContext);
-
   const navigate = useNavigate();
+  const { user, error, isLoading, isError, logout } = useContext(UserContext);
 
-  const logoutHandler = () => {
-    user.logout();
+  const logoutHandler = async () => {
+    await logout();
     navigate("/");
   };
 
-  if (user.isError) {
+  if (isError) {
     navigate("/login");
     return null;
   }
+
   return (
     <Container>
       <div className="md:flex mr-4">
         <div className="w-full md:w-1/4 m-4">
-          <Listbox className="rounded-lg">
+          <Listbox className="rounded-lg" label="Profile menu">
             <ListboxItem key="infos" className="bg-zinc-800">
               Mes informations
             </ListboxItem>
@@ -45,14 +45,14 @@ const Profile = () => {
         <div className="w-full m-4">
           <Card>
             <CardBody>
-              {user.isLoading && <div>Loading...</div>}
+              {isLoading && <div>Loading...</div>}
 
               <>
-                {!user.isLoading && (
+                {!isLoading && user && (
                   <>
                     <div className="my-2">
                       <PageTitle
-                        title={`Bienvenue ${user.payload.profile.firstName} ${user.payload.profile.lastName}`}
+                        title={`Bienvenue ${user.profile.firstName} ${user.profile.lastName}`}
                       ></PageTitle>
                     </div>
                     <div className="xl:w-1/2 bg-zinc-800 rounded-lg p-4 my-4">
@@ -60,22 +60,21 @@ const Profile = () => {
                         Vos informations
                       </h3>
                       <div className="m-4 ">
-                        <span className="font-bold">Email :</span>{" "}
-                        {user.payload.email}
+                        <span className="font-bold">Email :</span> {user.email}
                       </div>
 
                       <div className="m-4">
                         <span className="font-bold">Nom :</span>{" "}
-                        {user.payload.profile.firstName}
+                        {user.profile.firstName}
                       </div>
                       <div className=" m-4 ">
                         <span className="font-bold">Prénom :</span>{" "}
-                        {user.payload.profile.lastName}
+                        {user.profile.lastName}
                       </div>
 
                       <div className=" m-4">
                         <span className="font-bold">Adresse postale :</span>{" "}
-                        {user.payload.profile.address}
+                        {user.profile.address}
                       </div>
                     </div>
                   </>
@@ -84,7 +83,7 @@ const Profile = () => {
             </CardBody>
           </Card>
 
-          <AccountBusinesses user={user.payload} />
+          <AccountBusinesses user={user} />
         </div>
       </div>
     </Container>

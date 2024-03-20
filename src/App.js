@@ -15,42 +15,37 @@ import CreateAccount from "./containers/account/CreateAccount";
 import Profile from "./containers/account/Profile";
 import CreateBusiness from "./containers/business/CreateBusiness";
 import Business from "./containers/business/Business";
-import UserContext from "./contexts/UserContext";
+import UserContext, { UserContextProvider } from "./contexts/UserContext";
 import useAuthentication from "./hooks/useAuthentication";
-import { useContext } from "react";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import BusinessCalendar from "./containers/business/BusinessCalendar";
 
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
 function App() {
-  const { userData, isLoading, isError, logout } = useAuthentication();
-
   return (
-    <UserContext.Provider value={{ ...userData, isLoading, isError, logout }}>
-      <div className="dark min-h-[100vh] text-foreground bg-background">
-        <RouterProvider router={router} />
-        <footer className="w-screen flex items-center justify-center py-3">
-          <QLink
-            isExternal
-            className="flex items-center gap-1 text-current"
-            href="#"
-            title="Beauty booker homepage"
-          >
-            <span className="text-default-600">BeautyBooker &copy; 2024</span>
-          </QLink>
-          <span>&nbsp;-&nbsp;</span>
-          <QLink
-            isExternal
-            className="flex items-center gap-1 text-current"
-            href="#"
-            title="Beauty booker homepage"
-          >
-            <span className="text-default-600">Conditions d'utilisation</span>
-          </QLink>
-        </footer>
-      </div>
-    </UserContext.Provider>
+    <div className="dark min-h-[100vh] text-foreground bg-background">
+      <RouterProvider router={router} />
+      <footer className="w-screen flex items-center justify-center py-3">
+        <QLink
+          isExternal
+          className="flex items-center gap-1 text-current"
+          href="#"
+          title="Beauty booker homepage"
+        >
+          <span className="text-default-600">BeautyBooker &copy; 2024</span>
+        </QLink>
+        <span>&nbsp;-&nbsp;</span>
+        <QLink
+          isExternal
+          className="flex items-center gap-1 text-current"
+          href="#"
+          title="Beauty booker homepage"
+        >
+          <span className="text-default-600">Conditions d'utilisation</span>
+        </QLink>
+      </footer>
+    </div>
   );
 }
 
@@ -66,21 +61,22 @@ const Brand = ({ pro }) => (
 );
 
 function Root() {
-  const user = useContext(UserContext);
   return (
     <>
-      <QNavbar brandLabel={<Brand />} user={user} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/new-business" element={<CreateBusiness />} />
-        <Route path="/business/:id" element={<Business />} />
-        <Route path="/business/:id/calendar" element={<BusinessCalendar />} />
-        <Route path="/appointment" element={<Appointment />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<CreateAccount />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
+      <UserContextProvider>
+        <QNavbar brandLabel={<Brand />} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/new-business" element={<CreateBusiness />} />
+          <Route path="/business/:id" element={<Business />} />
+          <Route path="/business/:id/calendar" element={<BusinessCalendar />} />
+          <Route path="/appointment" element={<Appointment />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<CreateAccount />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </UserContextProvider>
     </>
   );
 }

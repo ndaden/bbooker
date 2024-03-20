@@ -11,7 +11,12 @@ const LoginForm = () => {
     formState: { errors = {}, isValid },
     watch,
     reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   const { authenticate, data, isLoading, isError, error } =
     useAuthenticateUser();
@@ -19,17 +24,12 @@ const LoginForm = () => {
 
   const submitLoginForm = async (data) => {
     if (isValid) {
-      // sessionStorage.removeItem("auth_token");
-      authenticate(data);
+      await authenticate(data);
+      setTimeout(() => {
+        navigate("/profile");
+      }, 3000);
     }
   };
-
-  useEffect(() => {
-    if (!isLoading && data) {
-      // sessionStorage.setItem("auth_token", data.token);
-      navigate("/profile");
-    }
-  }, [isLoading, data]);
 
   return (
     <div>
@@ -52,8 +52,12 @@ const LoginForm = () => {
                         },
                       })}
                       label="E-mail"
+                      validationBehavior="aria"
+                      validationState={errors?.email ? "invalid" : "valid"}
+                      errorMessage={errors?.email?.message}
                       formNoValidate
                       size="sm"
+                      defaultValue=""
                     />
                   </div>
                   <div className="flex gap-4 mb-6">
@@ -66,8 +70,10 @@ const LoginForm = () => {
                           message: "Veuillez saisir votre mot de passe.",
                         },
                       })}
-                      validationState={errors?.password ? "invalid" : "valid"}
+                      errorMessage={errors?.password?.message}
                       size="sm"
+                      autoComplete="off"
+                      defaultValue=""
                     />
                   </div>
                   {isError && <div>Email ou mot de passe invalides</div>}
