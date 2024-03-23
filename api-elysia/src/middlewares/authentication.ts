@@ -20,13 +20,21 @@ export const isAuthenticated = (app: Elysia) =>
       },
       include: {
         profile: true,
-      }
+      },
     });
+
     if (!account) {
       set.status = 401;
       return { error: buildApiResponse(false, "Unauthorized") };
+    } else {
+      const returnedAccount = Object.fromEntries(
+        Object.entries(account).filter(
+          ([key]) => !["hash", "salt"].includes(key)
+        )
+      );
+
+      return {
+        account: returnedAccount,
+      };
     }
-    return {
-      account,
-    };
   });

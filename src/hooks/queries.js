@@ -1,12 +1,19 @@
 const publicApiUrl = process.env.PUBLIC_API_URL;
 
-const getUserQuery = async () =>
-  (
-    await fetch(`${publicApiUrl}/auth/profile`, {
-      method: "GET",
-      credentials: "include",
-    })
-  ).json();
+const getUserQuery = async () => {
+  const fetchResult = await fetch(`${publicApiUrl}/auth/profile`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (fetchResult.ok) {
+    return await fetchResult.json();
+  }
+
+  const errorMessage = (await fetchResult.json()).message;
+
+  throw errorMessage;
+};
 
 const createUserQuery = async (formData) =>
   await fetch(`${publicApiUrl}/auth/signup`, {
@@ -42,7 +49,10 @@ const authenticateUserQuery = async (credentials) => {
     credentials: "include",
     body: JSON.stringify(credentials),
   });
-  if (!response.ok) throw new Error(response.statusText);
+  if (!response.ok && response.status !== 401) {
+    throw new Error(response.statusText);
+  }
+
   return await response.json();
 };
 

@@ -15,10 +15,10 @@ import CreateAccount from "./containers/account/CreateAccount";
 import Profile from "./containers/account/Profile";
 import CreateBusiness from "./containers/business/CreateBusiness";
 import Business from "./containers/business/Business";
-import UserContext, { UserContextProvider } from "./contexts/UserContext";
-import useAuthentication from "./hooks/useAuthentication";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import BusinessCalendar from "./containers/business/BusinessCalendar";
+import LoadingPage from "./components/LoadingPage";
+import ProtectedRoute from "./ProtectedRoute";
 
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
@@ -63,20 +63,23 @@ const Brand = ({ pro }) => (
 function Root() {
   return (
     <>
-      <UserContextProvider>
-        <QNavbar brandLabel={<Brand />} />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/new-business" element={<CreateBusiness />} />
-          <Route path="/business/:id" element={<Business />} />
-          <Route path="/business/:id/calendar" element={<BusinessCalendar />} />
-          <Route path="/appointment" element={<Appointment />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<CreateAccount />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </UserContextProvider>
+      <QNavbar brandLabel={<Brand />} />
+      <Routes>
+        <Route path="*" element={<LoadingPage />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/new-business" element={<CreateBusiness />} />
+        <Route path="/business/:id" element={<Business />} />
+        <Route path="/business/:id/calendar" element={<BusinessCalendar />} />
+        <Route path="/appointment" element={<Appointment />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<CreateAccount />} />
+        <Route path="/loading" element={<LoadingPage />} />
+        <Route
+          path="/profile"
+          element={<ProtectedRoute container={<Profile />} />}
+        />
+      </Routes>
     </>
   );
 }

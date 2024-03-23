@@ -1,26 +1,30 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Card, CardBody, Listbox, ListboxItem } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 import PageTitle from "../../components/PageTitle";
 import Container from "../../components/Container";
 import AccountBusinesses from "./AccountBusinesses";
 import { UserContext } from "../../contexts/UserContext";
+import LoadingPage from "../../components/LoadingPage";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, error, isLoading, isError, logout } = useContext(UserContext);
+  const userContext = useContext(UserContext);
+
+  const {
+    isLoading,
+    logout,
+    data: { payload: user } = { payload: { profile: {} } },
+  } = userContext;
 
   const logoutHandler = async () => {
     await logout();
     navigate("/");
   };
 
-  if (isError) {
-    navigate("/login");
-    return null;
-  }
-
-  return (
+  return isLoading ? (
+    <LoadingPage />
+  ) : (
     <Container>
       <div className="md:flex mr-4">
         <div className="w-full md:w-1/4 m-4">

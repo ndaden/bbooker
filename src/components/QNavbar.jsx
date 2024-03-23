@@ -15,7 +15,15 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 
 const QNavbar = ({ brandLabel, links = [] }) => {
-  const { user, error, isLoading, isError, logout } = useContext(UserContext);
+  const userContext = useContext(UserContext);
+
+  const {
+    isLoading,
+    isError,
+    logout,
+    data: { payload: user } = { payload: undefined },
+  } = userContext;
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 

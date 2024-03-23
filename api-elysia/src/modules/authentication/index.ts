@@ -57,7 +57,7 @@ export const authentification = (app: Elysia) =>
           });
 
           if (!account) {
-            set.status = 400;
+            set.status = 401;
             return buildApiResponse(false, "wrong email or password");
           }
           // check password
@@ -68,7 +68,7 @@ export const authentification = (app: Elysia) =>
           );
 
           if (!match) {
-            set.status = 400;
+            set.status = 401;
             return buildApiResponse(false, "wrong email or password");
           }
 
@@ -144,7 +144,7 @@ export const authentification = (app: Elysia) =>
 
           if (password && newPassword && newPasswordAgain) {
             if (newPassword !== newPasswordAgain) {
-              set.status = 400;
+              set.status = 401;
               return buildApiResponse(false, "passwords don't match");
             }
 
@@ -156,7 +156,7 @@ export const authentification = (app: Elysia) =>
             );
 
             if (!match) {
-              set.status = 400;
+              set.status = 401;
               return buildApiResponse(false, "wrong password");
             }
 

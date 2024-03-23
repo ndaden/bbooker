@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PageTitle from "../../components/PageTitle";
 import { Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import Container from "../../components/Container";
-import UserContext from "../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import useCreateBusinessAndService from "./useCreateBusinessAndServices";
 import GeneralInfoSection from "./GeneralInfoSection";
@@ -12,7 +11,7 @@ import BusinessOverview from "./BusinessOverview";
 
 const CreateBusiness = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const user = undefined;
 
   useEffect(() => {
     if (user.isError) {
