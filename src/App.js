@@ -16,7 +16,6 @@ import Profile from "./containers/account/Profile";
 import CreateBusiness from "./containers/business/CreateBusiness";
 import Business from "./containers/business/Business";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
-import BusinessCalendar from "./containers/business/BusinessCalendar";
 import LoadingPage from "./components/LoadingPage";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -70,7 +69,6 @@ function Root() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/new-business" element={<CreateBusiness />} />
         <Route path="/business/:id" element={<Business />} />
-        <Route path="/business/:id/calendar" element={<BusinessCalendar />} />
         <Route path="/appointment" element={<Appointment />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<CreateAccount />} />

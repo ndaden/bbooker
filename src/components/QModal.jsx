@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/react";
 import { useEffect } from "react";
 import { BsPatchCheckFill } from "react-icons/bs";
-const QModal = ({ triggerOpenModal = false }) => {
+const QModal = ({ triggerOpenModal = false, onCloseHandler }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   useEffect(() => {
@@ -17,6 +17,11 @@ const QModal = ({ triggerOpenModal = false }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [triggerOpenModal]);
+
+  const onCloseModal = (callback) => {
+    onCloseHandler();
+    callback();
+  };
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -27,11 +32,11 @@ const QModal = ({ triggerOpenModal = false }) => {
               <div className="m-auto">
                 <BsPatchCheckFill size={"45"} color=" green" />
               </div>
-              <p>Account created successfully.</p>
+              <p>Félicitations, vous avez créé votre compte Beauty Booker.</p>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onPress={onClose}>
-                Cool!
+              <Button color="primary" onPress={() => onCloseModal(onClose)}>
+                Se connecter
               </Button>
             </ModalFooter>
           </>

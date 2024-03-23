@@ -1,12 +1,12 @@
-import { Button, Checkbox, Input } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import useMutateUser from "../../hooks/useMutateUser";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import useFetchRoles from "../../hooks/useFetchRoles";
 import { useQueryClient } from "@tanstack/react-query";
 import { USERS_KEY } from "../../hooks/queryKeys";
 import QModal from "../../components/QModal";
 import ControlledCheckbox from "../../components/ControlledCheckbox";
+import { useNavigate } from "react-router-dom";
 
 const UserForm = () => {
   const queryCache = useQueryClient();
@@ -18,14 +18,15 @@ const UserForm = () => {
     reset,
     control,
   } = useForm();
-  const { roles } = useFetchRoles();
+
+  const navigate = useNavigate();
   const { mutateUser, isLoading, data: mutateUserResult } = useMutateUser();
   const [serverResponse, setServerResponse] = useState();
 
   useEffect(() => {
     const getResult = async () => {
       const result = await mutateUserResult?.json();
-      if (result && !result.error) {
+      if (result && result.success) {
         await queryCache.invalidateQueries({ queryKey: [USERS_KEY] });
         reset();
       }
@@ -38,75 +39,29 @@ const UserForm = () => {
 
   const submitUserForm = async (data) => {
     if (isValid) {
-      const jsonUserData = toDatabaseUser(data);
-      await mutateUser(jsonUserData);
+      const { email, password, passwordAgain } = data;
+      await mutateUser({ email, password, passwordAgain });
     }
   };
 
-  const toDatabaseUser = (formData) => {
-    const standardRole =
-      roles.length > 0 ? roles.find((role) => role.name === "standard") : {};
-
-    const proRole =
-      roles.length > 0 ? roles.find((role) => role.name === "owner") : {};
-    return {
-      username: formData.username,
-      password: formData.password,
-      roles: [formData.isProfessional ? proRole._id : standardRole._id],
-      email: {
-        address: formData.email,
-      },
-      profile: {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        address: {
-          street1: formData.address,
-        },
-      },
-    };
+  const goToLogin = () => {
+    navigate("/login");
   };
 
   return (
     <form name="userForm" onSubmit={handleSubmit(submitUserForm)}>
       <div className="flex gap-4 mb-6">
         <Input
-          {...register("username", {
-            required: { value: true, message: "Username is mandatory." },
-            min: {
-              value: 5,
-              message: "Username must contain more than 5 characters.",
-            },
-            max: {
-              value: 20,
-              message: "Username must contain less than 20 characters.",
-            },
-            pattern: {
-              value: /^[a-zA-Z0-9]+$/,
-              message: "Username format is invalid.",
-            },
-          })}
-          type="text"
-          label="Nom d'utilisateur"
-          validationState={
-            errors?.username || serverResponse?.error?.username
-              ? "invalid"
-              : "valid"
-          }
-          errorMessage={
-            errors?.username?.message ||
-            serverResponse?.error?.username?.message
-          }
-          size="sm"
-        />
-        <Input
           type="email"
           {...register("email", {
-            required: { value: true, message: "Email is mandatory." },
+            required: {
+              value: true,
+              message: "Veuillez saisir votre adresse e-mail.",
+            },
             pattern: { value: /\S+@\S+\.\S+/, message: "Email is invalid." },
           })}
           label="Email"
           formNoValidate
-          validationState={errors?.email ? "invalid" : "valid"}
           errorMessage={errors?.email?.message}
           size="sm"
         />
@@ -116,67 +71,33 @@ const UserForm = () => {
           type="password"
           label="Mot de passe"
           {...register("password", {
-            required: { value: true, message: "Password is mandatory" },
+            required: {
+              value: true,
+              message: "Veuillez saisir un mot de passe.",
+            },
           })}
-          validationState={errors?.password ? "invalid" : "valid"}
           errorMessage={errors?.password?.message}
           size="sm"
         />
+      </div>
+      <div className="flex gap-4 mb-6">
         <Input
           type="password"
           label="Re-saisir le mot de passe"
           {...register("passwordAgain", {
             required: {
               value: true,
-              message: "Type your password a second time.",
+              message: "Veuillez re-saisir votre mot de passe.",
             },
             validate: (value) =>
-              value === watch("password") || "Passwords don't match.",
+              value === watch("password") ||
+              "Les mots de passes ne sont pas identiques.",
           })}
-          validationState={errors?.passwordAgain ? "invalid" : "valid"}
           errorMessage={errors?.passwordAgain?.message}
           size="sm"
         />
       </div>
-      <div className="flex gap-4 mb-6">
-        <Input
-          type="text"
-          label="Prénom"
-          {...register("firstName", {
-            required: { value: true, message: "First name is mandatory" },
-          })}
-          validationState={errors?.firstName ? "invalid" : "valid"}
-          errorMessage={errors?.firstName?.message}
-          size="sm"
-        />
-        <Input
-          type="text"
-          label="Nom"
-          {...register("lastName", {
-            required: { value: true, message: "Last name is mandatory" },
-          })}
-          validationState={errors?.lastName ? "invalid" : "valid"}
-          errorMessage={errors?.lastName?.message}
-          size="sm"
-        />
-      </div>
-      <div className="flex gap-4 mb-6">
-        <Input
-          type="text"
-          label="Adresse postale"
-          {...register("address", {
-            required: { value: true, message: "Address is mandatory" },
-          })}
-          validationState={errors?.address ? "invalid" : "valid"}
-          errorMessage={errors?.address?.message}
-          size="sm"
-        />
-      </div>
-      <div>
-        <ControlledCheckbox control={control} name="isProfessional">
-          Je suis un professionnel
-        </ControlledCheckbox>
-      </div>
+
       <div>
         <ControlledCheckbox
           control={control}
@@ -184,19 +105,22 @@ const UserForm = () => {
           rules={{
             required: {
               value: true,
+              message: "Cochez cette case si vous acceptez les CGUs.",
             },
           }}
         >
-          J'accepte les conditions d'utilisation de BeautyBooker et je souhaite
-          créer un compte.
+          J'accepte les conditions générales d'utilisation de BeautyBooker.
         </ControlledCheckbox>
       </div>
       <div className="flex justify-center lg:max-w-[50%] m-auto my-4">
-        <Button color="primary" type="submit" disabled={isLoading} fullWidth>
+        <Button color="primary" type="submit" isLoading={isLoading} fullWidth>
           Créer mon compte
         </Button>
       </div>
-      <QModal triggerOpenModal={serverResponse && !serverResponse.error} />
+      <QModal
+        triggerOpenModal={serverResponse && !serverResponse.error}
+        onCloseHandler={goToLogin}
+      />
     </form>
   );
 };

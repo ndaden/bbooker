@@ -14,7 +14,7 @@ const Profile = () => {
   const {
     isLoading,
     logout,
-    data: { payload: user } = { payload: { profile: {} } },
+    data: { payload: user } = { payload: undefined },
   } = userContext;
 
   const logoutHandler = async () => {
@@ -49,14 +49,16 @@ const Profile = () => {
         <div className="w-full m-4">
           <Card>
             <CardBody>
-              {isLoading && <div>Loading...</div>}
-
               <>
                 {!isLoading && user && (
                   <>
                     <div className="my-2">
                       <PageTitle
-                        title={`Bienvenue ${user.profile.firstName} ${user.profile.lastName}`}
+                        title={
+                          user.profile
+                            ? `Bienvenue ${user.profile.firstName} ${user.profile.lastName}`
+                            : "Bienvenue"
+                        }
                       ></PageTitle>
                     </div>
                     <div className="xl:w-1/2 bg-zinc-800 rounded-lg p-4 my-4">
@@ -69,16 +71,16 @@ const Profile = () => {
 
                       <div className="m-4">
                         <span className="font-bold">Nom :</span>{" "}
-                        {user.profile.firstName}
+                        {user.profile ? user.profile.firstName : "-"}
                       </div>
                       <div className=" m-4 ">
                         <span className="font-bold">Prénom :</span>{" "}
-                        {user.profile.lastName}
+                        {user.profile ? user.profile.lastName : "-"}
                       </div>
 
                       <div className=" m-4">
                         <span className="font-bold">Adresse postale :</span>{" "}
-                        {user.profile.address}
+                        {user.profile ? user.profile.address : "-"}
                       </div>
                     </div>
                   </>
