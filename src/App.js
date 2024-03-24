@@ -75,7 +75,11 @@ function Root() {
         <Route path="/loading" element={<LoadingPage />} />
         <Route
           path="/profile"
-          element={<ProtectedRoute container={<Profile />} />}
+          element={<ProtectedRoute container={<Profile section="infos" />} />}
+        />
+        <Route
+          path="/profile/options"
+          element={<ProtectedRoute container={<Profile section="options" />} />}
         />
       </Routes>
     </>
