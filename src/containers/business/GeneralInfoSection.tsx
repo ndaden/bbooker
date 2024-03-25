@@ -25,6 +25,7 @@ const GeneralInfoSection = ({ control, validation, hidden }) => {
       />
       <ControlledFileInput
         type="file"
+        label="Photo de couverture"
         control={control}
         name="businessImage"
         rules={validation.businessImage}

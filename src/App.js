@@ -23,7 +23,7 @@ const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
 function App() {
   return (
-    <div className="dark min-h-[100vh] text-foreground bg-background">
+    <main className="dark min-h-[100vh] text-foreground bg-background">
       <RouterProvider router={router} />
       <footer className="w-screen flex items-center justify-center py-3">
         <QLink
@@ -44,7 +44,7 @@ function App() {
           <span className="text-default-600">Conditions d'utilisation</span>
         </QLink>
       </footer>
-    </div>
+    </main>
   );
 }
 

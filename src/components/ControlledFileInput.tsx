@@ -2,7 +2,7 @@ import React from "react";
 import { Controller } from "react-hook-form";
 import get from "lodash/get";
 
-const ControlledFileInput = ({ name, control, rules, ...props }) => {
+const ControlledFileInput = ({ name, control, rules, label, ...props }) => {
   return (
     <Controller
       defaultValue={""}
@@ -14,9 +14,7 @@ const ControlledFileInput = ({ name, control, rules, ...props }) => {
         return (
           <div>
             <div className="rounded-md bg-zinc-800 p-3">
-              <div className="text-sm text-zinc-300 mb-2">
-                Photo de votre centre
-              </div>
+              <div className="text-sm text-zinc-300 mb-2">{label}</div>
               <div>
                 <input
                   accept=".jpg,.png,.jpeg"

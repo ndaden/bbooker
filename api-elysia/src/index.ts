@@ -13,6 +13,9 @@ import { cors } from "@elysiajs/cors";
 
 const app: Elysia = new Elysia()
   .onAfterHandle(({ request, set }) => {
+    set.headers["Access-Control-Allow-Methods"] =
+      "GET, POST, PUT, DELETE, PATCH";
+
     // Only process CORS requests
     if (request.method !== "OPTIONS") return;
 

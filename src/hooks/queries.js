@@ -68,6 +68,21 @@ const logoutUserQuery = async () => {
   return await response.json();
 };
 
+const editProfileQuery = async (formData, isJson = false) => {
+  const response = await fetch(`${publicApiUrl}/auth/profile`, {
+    method: "PATCH",
+    headers: isJson
+      ? {
+          "Content-Type": "application/json",
+        }
+      : {},
+    body: isJson ? JSON.stringify(formData) : formData,
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error(response.statusText);
+  return await response.json();
+};
+
 const getBusinessesQuery = async ({ id, ownerid }) => {
   const businessUrl = !!id
     ? `${publicApiUrl}/business?id=${id}`
@@ -88,9 +103,7 @@ const createBusinessQuery = async (formData) =>
   await fetch(`${publicApiUrl}/business`, {
     method: "POST",
     body: formData,
-    headers: {
-      Authorization: `Bearer ${sessionStorage.getItem("auth_token")}`,
-    },
+    credentials: "include",
   });
 
 const getServicesQuery = async (id, businessId) =>
@@ -129,6 +142,7 @@ export {
   getUserQuery,
   createUserQuery,
   deleteUserQuery,
+  editProfileQuery,
   authenticateUserQuery,
   logoutUserQuery,
   getBusinessesQuery,

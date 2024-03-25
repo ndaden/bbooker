@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Button, Input } from "@nextui-org/react";
+import { Avatar, Button, Image, Input } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 import PageTitle from "../../components/PageTitle";
 import Container from "../../components/Container";
@@ -9,9 +9,13 @@ import LoadingPage from "../../components/LoadingPage";
 import { useForm } from "react-hook-form";
 import AccountLeftMenu from "./AccountLeftMenu";
 import Options from "./Options";
+import ControlledFileInput from "../../components/ControlledFileInput";
+import useMutateProfile from "../../hooks/useMutateProfile";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Profile = ({ section = "infos" }) => {
   const navigate = useNavigate();
+  const queryCache = useQueryClient();
   const userContext = useContext(UserContext);
 
   const [fieldsState, setFieldsState] = useState({
@@ -28,14 +32,23 @@ const Profile = ({ section = "infos" }) => {
     setFocus,
     watch,
     reset,
+    resetField,
     control,
   } = useForm();
 
   const {
     isLoading,
     logout,
+    getUserData,
     data: { payload: user } = { payload: undefined },
   } = userContext;
+
+  const {
+    mutateProfile,
+    data: mutateProfileResult,
+    isError: isErrorMutateProfile,
+    isLoading: isLoadingMutateProfile,
+  } = useMutateProfile();
 
   const logoutHandler = async () => {
     await logout();
@@ -57,8 +70,35 @@ const Profile = ({ section = "infos" }) => {
     );
   };
 
-  const submitProfileHandler = (values) => {
-    console.log(values);
+  const submitProfileHandler = async (values) => {
+    // if we need to update profile picture, we send a form data
+    if (values.profileImage) {
+      const profileImageFormData = new FormData();
+      profileImageFormData.append("profileImage", values.profileImage);
+      mutateProfile({ formData: profileImageFormData });
+    }
+
+    // if we need to update textual informations, we send JSON data
+    if (
+      ["email", "firstName", "lastName", "address"].some((item) =>
+        Object.keys(values).includes(item)
+      )
+    ) {
+      const otherProfileFields = {
+        email: values.email,
+        profile: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          address: values.address,
+        },
+      };
+
+      mutateProfile({ formData: otherProfileFields, isJson: true });
+    }
+
+    await queryCache.invalidateQueries({ queryKey: ["AUTHENTICATED_USER"] });
+    getUserData();
+    reset();
   };
 
   return isLoading ? (
@@ -78,7 +118,9 @@ const Profile = ({ section = "infos" }) => {
                     <PageTitle
                       title={
                         user.profile
-                          ? `Bienvenue ${user.profile.firstName} ${user.profile.lastName}`
+                          ? `Bienvenue ${user.profile.firstName || ""} ${
+                              user.profile.lastName || ""
+                            }`
                           : "Bienvenue"
                       }
                     ></PageTitle>
@@ -98,9 +140,15 @@ const Profile = ({ section = "infos" }) => {
 
                     <div className="my-4">
                       <Input
-                        {...register("firstName")}
+                        {...register("firstName", {
+                          required: {
+                            value: dirtyFields.firstName,
+                            message: "Veuillez saisir votre prénom.",
+                          },
+                        })}
+                        errorMessage={errors.firstName?.message as string}
                         type="text"
-                        label="Nom"
+                        label="Prénom"
                         defaultValue={
                           user.profile ? user.profile.firstName : ""
                         }
@@ -111,11 +159,17 @@ const Profile = ({ section = "infos" }) => {
                     </div>
                     <div className="my-4">
                       <Input
-                        {...register("lastName")}
+                        {...register("lastName", {
+                          required: {
+                            value: dirtyFields.lastName,
+                            message: "Veuillez saisir votre nom.",
+                          },
+                        })}
                         type="text"
-                        label="Prénom"
+                        label="Nom"
+                        errorMessage={errors.lastName?.message as string}
                         defaultValue={user.profile ? user.profile.lastName : ""}
-                        placeholder="Prénom"
+                        placeholder="Nom"
                         endContent={<EditButton field="lastName" />}
                         disabled={fieldsState.lastName}
                       />
@@ -123,18 +177,45 @@ const Profile = ({ section = "infos" }) => {
 
                     <div className="my-4">
                       <Input
-                        {...register("address")}
+                        {...register("address", {
+                          required: {
+                            value: dirtyFields.address,
+                            message: "Veuillez saisir votre adresse postale.",
+                          },
+                        })}
                         type="text"
                         label="Adresse postale"
+                        errorMessage={errors.address?.message as string}
                         defaultValue={user.profile ? user.profile.address : ""}
                         placeholder="Adresse postale"
                         endContent={<EditButton field="address" />}
                         disabled={fieldsState.address}
                       />
                     </div>
+                    <div className="my-4 flex items-center">
+                      {user.profile?.profileImage && (
+                        <div>
+                          <Image
+                            src={user.profile?.profileImage}
+                            width="200px"
+                            height="200px"
+                          />
+                        </div>
+                      )}
+                      <div className="ml-3 w-full">
+                        <ControlledFileInput
+                          label="Photo de profil"
+                          type="file"
+                          control={control}
+                          name="profileImage"
+                          rules={[]}
+                        />
+                      </div>
+                    </div>
                     <Button
                       color="primary"
                       className="float-right"
+                      isDisabled={Object.entries(dirtyFields).length === 0}
                       type="submit"
                     >
                       Enregistrer les modifications

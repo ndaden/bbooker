@@ -80,7 +80,11 @@ const QNavbar = ({ brandLabel, links = [] }) => {
                 color="success"
                 title="Votre profile"
                 size="lg"
-                src="https://i.pravatar.cc/150?u=a04258114e29026302d"
+                src={
+                  user.profile?.profileImage
+                    ? user.profile?.profileImage
+                    : "https://i.pravatar.cc/150?u=a04258114e29026302d"
+                }
               />
             </Link>
           </NavbarItem>

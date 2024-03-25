@@ -4,6 +4,7 @@ import { prisma } from "../../libs/prisma";
 import { accountBodyType, loginBodyType, patchAccountBodyType } from "./types";
 import { buildApiResponse } from "../../utils/api";
 import { isAuthenticated } from "../../middlewares/authentication";
+import { uploadImageToFirebase } from "../../utils/upload";
 
 export const authentification = (app: Elysia) =>
   app.group("/auth", (app) =>
@@ -106,6 +107,7 @@ export const authentification = (app: Elysia) =>
 
           const {
             profile,
+            profileImage,
             email,
             password,
             newPassword,
@@ -114,31 +116,34 @@ export const authentification = (app: Elysia) =>
             role,
           } = body;
 
-          let profileToUpdateOrCreate;
+          let profileToUpdateOrCreate = {};
           let accountToUpdateByUser = { email };
 
-          if (profile) {
-            const { firstName, lastName, address, phoneNumber, profileImage } =
-              profile;
-            let profileImageUrl = "dummy url";
-            if (profileImage) {
-              // upload profile image and get url
-              const uploadResult = await uploadImageToFirebase(profileImage);
+          if (profileImage) {
+            // upload profile image and get url
+            const uploadResult = await uploadImageToFirebase(profileImage);
 
-              if (!uploadResult.success) {
-                set.status = "Bad Request";
-                return buildApiResponse(false, uploadResult.error ?? "");
-              }
-
-              profileImageUrl = uploadResult.url ?? "";
+            if (!uploadResult.success) {
+              set.status = "Bad Request";
+              return buildApiResponse(false, uploadResult.error ?? "");
             }
 
+            let profileImageUrl = uploadResult.url ?? "";
             profileToUpdateOrCreate = {
+              ...profileToUpdateOrCreate,
+              profileImage: profileImageUrl,
+            };
+          }
+
+          if (profile) {
+            const { firstName, lastName, address, phoneNumber } = profile;
+
+            profileToUpdateOrCreate = {
+              ...profileToUpdateOrCreate,
               firstName,
               lastName,
               address,
               phoneNumber,
-              profileImage: profileImageUrl,
             };
           }
 
