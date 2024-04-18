@@ -85,7 +85,7 @@ const editProfileQuery = async (formData, isJson = false) => {
 
 const getBusinessesQuery = async ({ id, ownerid }) => {
   const businessUrl = !!id
-    ? `${publicApiUrl}/business?id=${id}`
+    ? `${publicApiUrl}/business/${id}`
     : !!ownerid
     ? `${publicApiUrl}/business?ownerid=${ownerid}`
     : `${publicApiUrl}/business`;
@@ -102,7 +102,8 @@ const createBusinessQuery = async (formData) =>
   // let the browser generate it.
   await fetch(`${publicApiUrl}/business`, {
     method: "POST",
-    body: formData,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
     credentials: "include",
   });
 

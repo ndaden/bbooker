@@ -137,7 +137,7 @@ const QNavbar = ({ brandLabel, links = [] }) => {
                 Profile
               </Link>
             </NavbarMenuItem>
-            {user?.isProfessional && (
+            {user.role === "OWNER" && (
               <NavbarMenuItem>
                 <Link
                   color="primary"

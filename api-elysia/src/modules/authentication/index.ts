@@ -106,6 +106,7 @@ export const authentification = (app: Elysia) =>
           }
 
           const {
+            id,
             profile,
             profileImage,
             email,
@@ -118,6 +119,9 @@ export const authentification = (app: Elysia) =>
 
           let profileToUpdateOrCreate = {};
           let accountToUpdateByUser = { email };
+
+          // only admin can update another account
+          const idToUpdate = account.role === "ADMIN" ? id : account.id;
 
           if (profileImage) {
             // upload profile image and get url
@@ -181,7 +185,7 @@ export const authentification = (app: Elysia) =>
 
           const updatedAccount = await prisma.account.update({
             where: {
-              id: account.id,
+              id: idToUpdate,
             },
             data: {
               ...accountToUpdateByUser,

@@ -29,7 +29,7 @@ const Business = () => {
   });
 
   if (!isLoadingBusiness) {
-    businessToDisplay = businesses.payload[0];
+    businessToDisplay = businesses.payload;
   }
 
   const onClickTakeAppointment = () => {
@@ -38,7 +38,8 @@ const Business = () => {
     });
   };
   return (
-    !isLoadingBusiness && (
+    !isLoadingBusiness &&
+    businessToDisplay && (
       <Container>
         <div className="relative">
           <Card className="border-none ">

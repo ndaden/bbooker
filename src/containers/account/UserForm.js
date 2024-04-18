@@ -112,13 +112,19 @@ const UserForm = () => {
           J'accepte les conditions générales d'utilisation de BeautyBooker.
         </ControlledCheckbox>
       </div>
+      {serverResponse && !serverResponse.success && (
+        <div className="m-4 text-center text-red-400 font-bold">
+          L'e-mail est déjà utilisé par un autre compte. Si le problème persiste
+          veuillez nous contacter.
+        </div>
+      )}
       <div className="flex justify-center lg:max-w-[50%] m-auto my-4">
         <Button color="primary" type="submit" isLoading={isLoading} fullWidth>
           Créer mon compte
         </Button>
       </div>
       <QModal
-        triggerOpenModal={serverResponse && !serverResponse.error}
+        triggerOpenModal={serverResponse && serverResponse.success}
         onCloseHandler={goToLogin}
       />
     </form>

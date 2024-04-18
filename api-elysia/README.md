@@ -1,13 +1,17 @@
 # Elysia with Bun runtime
 
 ## Getting Started
+
 To get started with this template, simply paste this command into your terminal:
+
 ```bash
 bun create elysia ./elysia-example
 ```
 
 ## Development
+
 To start the development server run:
+
 ```bash
 bun run dev
 ```
@@ -23,4 +27,7 @@ rm -rf node_modules/
 bun install
 bunx prisma generate
 bunx prisma migrate dev
+
+# to create indexes (unique, primary key, etc...)
+bunx prisma db push
 ```

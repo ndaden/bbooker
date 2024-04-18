@@ -12,6 +12,7 @@ import Options from "./Options";
 import ControlledFileInput from "../../components/ControlledFileInput";
 import useMutateProfile from "../../hooks/useMutateProfile";
 import { useQueryClient } from "@tanstack/react-query";
+import ButtonWithConfirmationModal from "./ButtonWithConfirmationModal";
 
 const Profile = ({ section = "infos" }) => {
   const navigate = useNavigate();
@@ -26,22 +27,30 @@ const Profile = ({ section = "infos" }) => {
   });
 
   const {
-    register,
-    handleSubmit,
-    formState: { errors = {}, isValid, dirtyFields },
-    setFocus,
-    watch,
-    reset,
-    resetField,
-    control,
-  } = useForm();
-
-  const {
     isLoading,
     logout,
     getUserData,
     data: { payload: user } = { payload: undefined },
   } = userContext;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors = {}, isValid, defaultValues, dirtyFields },
+    setFocus,
+    watch,
+    reset,
+    resetField,
+    control,
+  } = useForm({
+    defaultValues: {
+      email: user.email,
+      address: user.profile ? user.profile.address : "",
+      firstName: user.profile ? user.profile.firstName : "",
+      lastName: user.profile ? user.profile.lastName : "",
+      profileImage: "",
+    },
+  });
 
   const {
     mutateProfile,
@@ -98,7 +107,13 @@ const Profile = ({ section = "infos" }) => {
 
     await queryCache.invalidateQueries({ queryKey: ["AUTHENTICATED_USER"] });
     getUserData();
-    reset();
+    setFieldsState({
+      address: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+    });
+    reset(undefined, { keepValues: true, keepDirty: false });
   };
 
   return isLoading ? (
@@ -132,7 +147,7 @@ const Profile = ({ section = "infos" }) => {
                         {...register("email")}
                         type="text"
                         label="Email"
-                        defaultValue={user.email}
+                        defaultValue={defaultValues?.email}
                         disabled={fieldsState.email}
                         endContent={<EditButton field="email" />}
                       />
@@ -148,11 +163,9 @@ const Profile = ({ section = "infos" }) => {
                         })}
                         errorMessage={errors.firstName?.message as string}
                         type="text"
+                        defaultValue={defaultValues?.firstName}
                         label="Prénom"
-                        defaultValue={
-                          user.profile ? user.profile.firstName : ""
-                        }
-                        placeholder="Nom"
+                        placeholder="Prénom"
                         endContent={<EditButton field="firstName" />}
                         disabled={fieldsState.firstName}
                       />
@@ -167,8 +180,8 @@ const Profile = ({ section = "infos" }) => {
                         })}
                         type="text"
                         label="Nom"
+                        defaultValue={defaultValues?.lastName}
                         errorMessage={errors.lastName?.message as string}
-                        defaultValue={user.profile ? user.profile.lastName : ""}
                         placeholder="Nom"
                         endContent={<EditButton field="lastName" />}
                         disabled={fieldsState.lastName}
@@ -184,9 +197,9 @@ const Profile = ({ section = "infos" }) => {
                           },
                         })}
                         type="text"
+                        defaultValue={defaultValues?.address}
                         label="Adresse postale"
                         errorMessage={errors.address?.message as string}
-                        defaultValue={user.profile ? user.profile.address : ""}
                         placeholder="Adresse postale"
                         endContent={<EditButton field="address" />}
                         disabled={fieldsState.address}
@@ -212,14 +225,14 @@ const Profile = ({ section = "infos" }) => {
                         />
                       </div>
                     </div>
-                    <Button
+                    <ButtonWithConfirmationModal
                       color="primary"
+                      type="submit"
+                      label="Enregistrer les modifications"
+                      message="Votre profil a bien été mis à jour."
                       className="float-right"
                       isDisabled={Object.entries(dirtyFields).length === 0}
-                      type="submit"
-                    >
-                      Enregistrer les modifications
-                    </Button>
+                    />
                   </form>
                 </div>
               </>

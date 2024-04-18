@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
@@ -15,76 +15,81 @@ datasource db {
 }
 
 model Account {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  email       String        @unique
+  role        Role
+  hash        String
+  salt        String
+  active      Boolean       @default(true)
+  profile     Profile?
+  business    Business?
+  createDate  DateTime      @default(now())
+  updateDate  DateTime?
+  appointment Appointment[]
+
   @@map("account")
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  email         String      @unique
-  role          Role
-  hash          String
-  salt          String
-  active        Boolean     @default(true)
-  profile       Profile?
-  business      Business?
-  createDate    DateTime    @default(now())
-  updateDate    DateTime?
-  appointment   Appointment[]
 }
 
 model Profile {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  account      Account @relation(fields: [accountId], references: [id])
+  accountId    String  @unique @db.ObjectId
+  firstName    String?
+  lastName     String?
+  address      String?
+  phoneNumber  String?
+  profileImage String?
+
   @@map("profile")
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  account         Account   @relation(fields: [accountId], references: [id])
-  accountId       String    @unique @db.ObjectId
-  firstName       String?
-  lastName        String?
-  address         String?
-  phoneNumber     String?
-  profileImage    String?
 }
 
 enum Role {
-  @@map("role")
   ADMIN
   OWNER
   STANDARD
+
+  @@map("role")
 }
 
 model Business {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  account     Account   @relation(fields: [accountId], references: [id])
+  accountId   String    @unique @db.ObjectId
+  name        String
+  description String?
+  image       String?
+  services    Service[]
+  openingTime String?
+  closingTime String?
+  createDate  DateTime  @default(now())
+  updateDate  DateTime?
+
   @@map("business")
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  account       Account     @relation(fields: [accountId], references: [id])
-  accountId     String      @unique @db.ObjectId
-  name          String
-  description   String?
-  image         String?
-  services      Service[]
-  openingTime   String?
-  closingTime   String?
-  createDate    DateTime    @default(now())
-  updateDate    DateTime?
 }
 
 model Service {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  duration    Int
+  price       Float
+  business    Business      @relation(fields: [businessId], references: [id])
+  businessId  String        @db.ObjectId
+  appointment Appointment[]
+
   @@map("service")
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  description   String
-  duration      Int
-  price         Float
-  business      Business  @relation(fields: [businessId], references: [id])
-  businessId    String    @db.ObjectId
-  appointment   Appointment[]
 }
 
 model Appointment {
-  @@map("appointment")
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  service       Service   @relation(fields: [serviceId], references: [id])
-  serviceId     String    @db.ObjectId
-  account       Account   @relation(fields: [accountId], references: [id])
-  accountId     String    @db.ObjectId
-  startTime     DateTime
-  endTime       DateTime
-  createDate    DateTime  @default(now())
-  updateDate    DateTime?  
-}
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  service    Service   @relation(fields: [serviceId], references: [id])
+  serviceId  String    @db.ObjectId
+  account    Account   @relation(fields: [accountId], references: [id])
+  accountId  String    @db.ObjectId
+  startTime  DateTime
+  endTime    DateTime
+  createDate DateTime  @default(now())
+  updateDate DateTime?
 
+  @@map("appointment")
+}
