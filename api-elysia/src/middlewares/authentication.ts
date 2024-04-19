@@ -28,9 +28,7 @@ export const isAuthenticated = (app: Elysia) =>
       return { error: buildApiResponse(false, "Unauthorized") };
     } else {
       const returnedAccount = Object.fromEntries(
-        Object.entries(account).filter(
-          ([key]) => !["hash", "salt"].includes(key)
-        )
+        Object.entries(account).filter(([key]) => !["hash"].includes(key))
       );
 
       return {

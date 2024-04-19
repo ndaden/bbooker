@@ -15,13 +15,12 @@ export const authentification = (app: Elysia) =>
           const { email, password, passwordAgain } = body;
 
           if (password === passwordAgain) {
-            const { hash, salt } = await hashPassword(password);
+            const { hash } = await hashPassword(password);
 
             const newAccount = await prisma.account.create({
               data: {
                 email,
                 hash,
-                salt,
                 role: "STANDARD",
               },
             });
@@ -53,7 +52,6 @@ export const authentification = (app: Elysia) =>
             select: {
               id: true,
               hash: true,
-              salt: true,
             },
           });
 
@@ -62,11 +60,7 @@ export const authentification = (app: Elysia) =>
             return buildApiResponse(false, "wrong email or password");
           }
           // check password
-          const match = await comparePassword(
-            password,
-            account.salt,
-            account.hash
-          );
+          const match = await comparePassword(password, account.hash);
 
           if (!match) {
             set.status = 401;
@@ -158,21 +152,17 @@ export const authentification = (app: Elysia) =>
             }
 
             // check password
-            const match = await comparePassword(
-              password,
-              account.salt,
-              account.hash
-            );
+            const match = await comparePassword(password, account.hash);
 
             if (!match) {
               set.status = 401;
               return buildApiResponse(false, "wrong password");
             }
 
-            const { hash, salt } = await hashPassword(newPassword);
+            const { hash } = await hashPassword(newPassword);
 
             // update password in database
-            accountToUpdateByUser = { ...accountToUpdateByUser, hash, salt };
+            accountToUpdateByUser = { ...accountToUpdateByUser, hash };
           }
 
           let fieldsToUpdateByAdmin;

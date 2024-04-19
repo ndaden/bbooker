@@ -19,7 +19,6 @@ model Account {
   email       String        @unique
   role        Role
   hash        String
-  salt        String
   active      Boolean       @default(true)
   profile     Profile?
   business    Business?

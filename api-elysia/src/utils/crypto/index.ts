@@ -1,36 +1,20 @@
-import { randomBytes, pbkdf2, createHash } from "crypto";
+import { password } from "bun";
 
-async function hashPassword(
-  password: string
-): Promise<{ hash: string; salt: string }> {
-  const salt = randomBytes(16).toString("hex");
-  return new Promise((resolve, reject) => {
-    pbkdf2(password, salt, 1000, 64, "sha512", (error, derivedKey) => {
-      if (error) {
-        return reject(error);
-      }
-      return resolve({ hash: derivedKey.toString("hex"), salt });
-    });
+async function hashPassword(clearPassword: string): Promise<{ hash: string }> {
+  return Promise.resolve({
+    hash: await password.hash(clearPassword, "argon2d"),
   });
 }
 
 async function comparePassword(
-  password: string,
-  salt: string,
+  inputPassword: string,
   hash: string
 ): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    pbkdf2(password, salt, 1000, 64, "sha512", (error, derivedKey) => {
-      if (error) {
-        return reject(error);
-      }
-      return resolve(hash === derivedKey.toString("hex"));
-    });
-  });
+  return Promise.resolve(await password.verify(inputPassword, hash, "argon2d"));
 }
 
 function sha256hash(text: string) {
-  return createHash("sha256").update(text).digest("hex");
+  return password.hashSync(text);
 }
 
 export { hashPassword, comparePassword, sha256hash };
