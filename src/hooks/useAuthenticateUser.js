@@ -7,12 +7,14 @@ const useAuthenticateUser = () => {
     isLoading,
     isError,
     error,
+    isSuccess,
     mutate: authenticate,
   } = useMutation({
     mutationFn: (formData) => authenticateUserQuery(formData),
+    retry: false,
   });
 
-  return { authenticate, data, error, isError, isLoading };
+  return { authenticate, data, error, isError, isLoading, isSuccess };
 };
 
 export default useAuthenticateUser;

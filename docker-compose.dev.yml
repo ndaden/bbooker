@@ -22,16 +22,3 @@ services:
       - "3000:80" # pointing to nginx port 80
     volumes:
       - ./:/usr/src/app
-  mongo:
-    image: mongo:7.0.0
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGODB_DBNAME}
-    env_file:
-      - .env.development
-    ports:
-      - 27017:27017
-    volumes:
-      - ./db:/data/db

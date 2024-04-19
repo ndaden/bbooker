@@ -21,10 +21,10 @@ function Home() {
         {isLoading && <div>loading</div>}
         {!isLoading &&
           !isError &&
-          businesses.map((business) => (
+          businesses.payload.map((business) => (
             <BusinessCard
-              key={business._id}
-              id={business._id}
+              key={business.id}
+              id={business.id}
               name={business.name}
               description={business.description}
               image={business.imageUrl ?? "/images/topform_banner.jpg"}

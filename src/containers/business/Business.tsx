@@ -27,30 +27,26 @@ const Business = () => {
   const { businesses, isLoading: isLoadingBusiness } = useFetchBusinesses({
     id,
   });
-  const { services, isLoading: isLoadingServices } = useFetchServices(
-    undefined,
-    id
-  );
 
   if (!isLoadingBusiness) {
-    businessToDisplay = businesses[0];
+    businessToDisplay = businesses.payload;
   }
 
   const onClickTakeAppointment = () => {
     navigate("/appointment", {
-      state: { business: businessToDisplay, services: services },
+      state: { business: businessToDisplay },
     });
   };
   return (
     !isLoadingBusiness &&
-    !isLoadingServices && (
+    businessToDisplay && (
       <Container>
         <div className="relative">
           <Card className="border-none ">
             <CardBody className="text-center p-0 m-0">
               <Image
                 removeWrapper
-                src={businessToDisplay.imageUrl ?? "/images/topform_banner.jpg"}
+                src={businessToDisplay.image ?? "/images/topform_banner.jpg"}
                 className="object-cover max-h-[500px] "
               />
             </CardBody>
@@ -91,9 +87,9 @@ const Business = () => {
               <TableColumn>Durée</TableColumn>
             </TableHeader>
             <TableBody>
-              {services.map((service) => (
-                <TableRow key={service._id}>
-                  <TableCell>{service.serviceName}</TableCell>
+              {businessToDisplay.services?.map((service) => (
+                <TableRow key={service.id}>
+                  <TableCell>{service.name}</TableCell>
                   <TableCell>{service.description}</TableCell>
                   <TableCell width="70">{service.price / 100} €</TableCell>
                   <TableCell width="70">{service.duration} min</TableCell>

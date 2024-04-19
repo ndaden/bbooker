@@ -1,6 +1,11 @@
-import { createContext } from "react";
+import React, { createContext } from "react";
+import useAuthentication from "../hooks/useAuthentication";
 
-const DEFAULT_USER_CONTEXT = { user: undefined };
-const UserContext = createContext(DEFAULT_USER_CONTEXT);
+const UserContext = createContext({});
+const UserContextProvider = ({ children }) => {
+  const result = useAuthentication(true);
 
-export default UserContext;
+  return <UserContext.Provider value={result}>{children}</UserContext.Provider>;
+};
+
+export { UserContext, UserContextProvider };

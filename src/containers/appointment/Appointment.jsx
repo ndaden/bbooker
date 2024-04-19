@@ -90,7 +90,7 @@ const Appointment = () => {
                 defaultSelectedKey={[]}
                 selectedKeys={chosenService}
               >
-                {state.services.map((service) => (
+                {state.business.services.map((service) => (
                   <SelectItem
                     key={service._id}
                     value={service._id}

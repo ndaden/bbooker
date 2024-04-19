@@ -10,10 +10,20 @@ import {
   NavbarMenuToggle,
   Avatar,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
 
-const QNavbar = ({ brandLabel, user, links = [] }) => {
+const QNavbar = ({ brandLabel, links = [] }) => {
+  const userContext = useContext(UserContext);
+
+  const {
+    isLoading,
+    isError,
+    logout,
+    data: { payload: user } = { payload: undefined },
+  } = userContext;
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -27,14 +37,16 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
     navigate("profile");
   };
 
-  const logoutHandler = () => {
-    user.logout();
+  const logoutHandler = async () => {
+    await logout();
     navigate("/");
   };
+
   return (
     <Navbar
       maxWidth="full"
       className="2xl:max-w-[2000px] 2xl:mx-auto sm:py-3"
+      isMenuOpen={isMenuOpen}
       onMenuOpenChange={setIsMenuOpen}
     >
       <NavbarContent className="sm:hidden">
@@ -60,7 +72,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
         ))}
       </NavbarContent>
       <NavbarContent justify="end">
-        {user && !user.isLoading && !user.isError && (
+        {user && (
           <NavbarItem className="hidden lg:flex">
             <Link href="#" onClick={goToProfile}>
               <Avatar
@@ -68,12 +80,16 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
                 color="success"
                 title="Votre profile"
                 size="lg"
-                src="https://i.pravatar.cc/150?u=a04258114e29026302d"
+                src={
+                  user.profile?.profileImage
+                    ? user.profile?.profileImage
+                    : "https://i.pravatar.cc/150?u=a04258114e29026302d"
+                }
               />
             </Link>
           </NavbarItem>
         )}
-        {user && user.isError && (
+        {!user && (
           <>
             <NavbarItem className="hidden lg:flex">
               <Link href="#" onClick={goToLogin}>
@@ -95,7 +111,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
         )}
       </NavbarContent>
       <NavbarMenu className="bg-dark">
-        {user && user.isError && (
+        {(!user || isError) && (
           <>
             <NavbarMenuItem>
               <Link color="primary" className="w-full" href="/login" size="lg">
@@ -109,7 +125,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
             </NavbarMenuItem>
           </>
         )}
-        {user && !user.isLoading && !user.isError && (
+        {user && !isLoading && !isError && (
           <>
             <NavbarMenuItem>
               <Link
@@ -121,7 +137,7 @@ const QNavbar = ({ brandLabel, user, links = [] }) => {
                 Profile
               </Link>
             </NavbarMenuItem>
-            {user?.user?.isProfessional && (
+            {user.role === "OWNER" && (
               <NavbarMenuItem>
                 <Link
                   color="primary"

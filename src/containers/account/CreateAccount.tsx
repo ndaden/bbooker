@@ -16,7 +16,7 @@ const CreateAccount = () => {
             Créez votre espace, afin de pouvoir prendre des rendez-vous en
             ligne.
           </p>
-          <div>
+          <div className="my-4">
             <UserForm />
           </div>
         </div>

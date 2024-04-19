@@ -1,24 +1,25 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import PageTitle from "../../components/PageTitle";
 import { Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import Container from "../../components/Container";
-import UserContext from "../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import useCreateBusinessAndService from "./useCreateBusinessAndServices";
 import GeneralInfoSection from "./GeneralInfoSection";
 import PrestationsSection from "./PrestationsSection";
 import BusinessOverview from "./BusinessOverview";
+import { UserContext } from "../../contexts/UserContext";
 
 const CreateBusiness = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const userContext = useContext(UserContext);
 
-  useEffect(() => {
-    if (user.isError) {
-      navigate("/login");
-    }
-  });
+  const {
+    isLoading,
+    logout,
+    data: { payload: user } = { payload: undefined },
+  } = userContext;
+
   const [nbPrestations, setNbPrestations] = useState(1);
   const [finalizedCreation, setFinalizedCreation] = useState(false);
 
@@ -64,7 +65,7 @@ const CreateBusiness = () => {
     }
   };
 
-  return !user.isLoading ? (
+  return !isLoading ? (
     <Container>
       <PageTitle title="Créez votre centre" />
       <form

@@ -1,9 +1,22 @@
 const publicApiUrl = process.env.PUBLIC_API_URL;
 
-const getUsersQuery = async () => (await fetch(`${publicApiUrl}/user`)).json();
+const getUserQuery = async () => {
+  const fetchResult = await fetch(`${publicApiUrl}/auth/profile`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (fetchResult.ok) {
+    return await fetchResult.json();
+  }
+
+  const errorMessage = (await fetchResult.json()).message;
+
+  throw errorMessage;
+};
 
 const createUserQuery = async (formData) =>
-  await fetch(`${publicApiUrl}/user/create`, {
+  await fetch(`${publicApiUrl}/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -28,33 +41,51 @@ const deleteRoleQuery = async (id) =>
   });
 
 const authenticateUserQuery = async (credentials) => {
-  const response = await fetch(`${publicApiUrl}/user/login`, {
+  const response = await fetch(`${publicApiUrl}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(credentials),
+  });
+  if (!response.ok && response.status !== 401) {
+    throw new Error(response.statusText);
+  }
+
+  return await response.json();
+};
+
+const logoutUserQuery = async () => {
+  const response = await fetch(`${publicApiUrl}/auth/logout`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
   });
   if (!response.ok) throw new Error(response.statusText);
   return await response.json();
 };
 
-const isAuthenticatedQuery = async () => {
-  const response = await fetch(`${publicApiUrl}/user/authenticated`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${sessionStorage.getItem("auth_token")}`,
-    },
+const editProfileQuery = async (formData, isJson = false) => {
+  const response = await fetch(`${publicApiUrl}/auth/profile`, {
+    method: "PATCH",
+    headers: isJson
+      ? {
+          "Content-Type": "application/json",
+        }
+      : {},
+    body: isJson ? JSON.stringify(formData) : formData,
+    credentials: "include",
   });
   if (!response.ok) throw new Error(response.statusText);
-
   return await response.json();
 };
 
 const getBusinessesQuery = async ({ id, ownerid }) => {
   const businessUrl = !!id
-    ? `${publicApiUrl}/business?id=${id}`
+    ? `${publicApiUrl}/business/${id}`
     : !!ownerid
     ? `${publicApiUrl}/business?ownerid=${ownerid}`
     : `${publicApiUrl}/business`;
@@ -69,12 +100,11 @@ const getBusinessesQuery = async ({ id, ownerid }) => {
 const createBusinessQuery = async (formData) =>
   // WARNING : don't add Content-Type multipart/form-data header because it'll not work corretly
   // let the browser generate it.
-  await fetch(`${publicApiUrl}/business/create`, {
+  await fetch(`${publicApiUrl}/business`, {
     method: "POST",
-    body: formData,
-    headers: {
-      Authorization: `Bearer ${sessionStorage.getItem("auth_token")}`,
-    },
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+    credentials: "include",
   });
 
 const getServicesQuery = async (id, businessId) =>
@@ -110,11 +140,12 @@ const createRoleQuery = async (formData) =>
   });
 
 export {
-  getUsersQuery,
+  getUserQuery,
   createUserQuery,
   deleteUserQuery,
-  isAuthenticatedQuery,
+  editProfileQuery,
   authenticateUserQuery,
+  logoutUserQuery,
   getBusinessesQuery,
   createBusinessQuery,
   getServicesQuery,

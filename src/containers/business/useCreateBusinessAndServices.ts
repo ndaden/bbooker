@@ -49,43 +49,36 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
 
   const toDatabasePrestation = (values) => {
     const prestation = {
-      serviceName: values.name,
+      name: values.name,
       description: values.description,
-      duration: values.durationInMinutes,
-      price: values.price * 100,
+      duration: Number.parseInt(values.durationInMinutes),
+      price: Number.parseFloat(values.price) * 100,
     };
 
     return prestation;
   };
 
+  const isEmptyPrestation = (prestation) =>
+    prestation.name.trim() === "" ||
+    prestation.description.trim() === "" ||
+    !prestation.durationInMinutes ||
+    !prestation.price;
+
   const toDatabaseBusinessWithPrestations = (values) => {
-    const formData = new FormData();
-    formData.append("name", values.businessName);
-    formData.append("description", values.businessDescription);
-    formData.append("owner", user ? user.user["_id"] : "");
-    formData.append("image", values.businessImage);
+    // TODO : implement image upload
+    // formData.append("image", values.businessImage);
 
-    const prestationsToCreate = values.prestations.map((presta, idx) => {
-      return toDatabasePrestation(presta);
+    const prestationsToCreate = values.prestations
+      .filter((p) => !isEmptyPrestation(p))
+      .map((presta, idx) => {
+        return toDatabasePrestation(presta);
+      });
 
-      /* formData.append(
-        `prestations[${idx}].description`,
-        toDatabasePrestation(presta).description
-      );
-
-      formData.append(
-        `prestations[${idx}].duration`,
-        toDatabasePrestation(presta).duration
-      );
-      formData.append(
-        `prestations[${idx}].price`,
-        toDatabasePrestation(presta).price
-      );*/
-    });
-
-    formData.append(`prestations`, JSON.stringify(prestationsToCreate));
-
-    return formData;
+    return {
+      name: values.businessName,
+      description: values.businessDescription,
+      services: prestationsToCreate,
+    };
   };
 
   const goToPrestationsStep = async () => {
