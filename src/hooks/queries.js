@@ -84,7 +84,7 @@ const editProfileQuery = async (formData, isJson = false) => {
 };
 
 const getBusinessesQuery = async ({ id, ownerid }) => {
-  console.log("process.env =", process.env);
+  console.log("process?.env =", process?.env);
   const businessUrl = !!id
     ? `${publicApiUrl}/business/${id}`
     : !!ownerid
