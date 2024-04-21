@@ -1,7 +1,7 @@
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 
-export default defineConfig({
+const rsbuildConfig = defineConfig({
   plugins: [pluginReact()],
   dev: {
     writeToDisk: false,
@@ -33,3 +33,6 @@ export default defineConfig({
     },
   },
 });
+console.log("rsbuild config : ", rsbuildConfig.source?.define);
+
+export default rsbuildConfig;
