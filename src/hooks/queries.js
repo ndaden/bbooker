@@ -1,4 +1,4 @@
-const publicApiUrl = process.env.PUBLIC_API_URL;
+const publicApiUrl = "https://bbooker.bbooker-api.koyeb";
 
 const getUserQuery = async () => {
   const fetchResult = await fetch(`${publicApiUrl}/auth/profile`, {
@@ -84,6 +84,7 @@ const editProfileQuery = async (formData, isJson = false) => {
 };
 
 const getBusinessesQuery = async ({ id, ownerid }) => {
+  console.log("process.env =", process.env);
   const businessUrl = !!id
     ? `${publicApiUrl}/business/${id}`
     : !!ownerid
