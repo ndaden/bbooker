@@ -1,4 +1,4 @@
-const publicApiUrl = "https://bbooker.bbooker-api.koyeb";
+const publicApiUrl = "https://bbooker-api-ndaden.koyeb.app";
 
 const getUserQuery = async () => {
   const fetchResult = await fetch(`${publicApiUrl}/auth/profile`, {
