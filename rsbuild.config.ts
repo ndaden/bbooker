@@ -1,19 +1,20 @@
-import { defineConfig } from "@rsbuild/core";
+import { defineConfig, loadEnv } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginBasicSsl } from '@rsbuild/plugin-basic-ssl';
-import * as fs from "node:fs";
 
 const rsbuildConfig = defineConfig({
   plugins: [pluginReact(),pluginBasicSsl()],
   dev: {
     writeToDisk: false,
   },
+  source: {
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.PUBLIC_API_URL': JSON.stringify(process.env.PUBLIC_API_URL),
+      },
+  },
   server: {
     port: 3000,
-    https: {
-      key: fs.readFileSync('certs/cert.key'),
-      cert: fs.readFileSync('certs/cert.crt'),
-    },
     publicDir: {
       name: "public",
     },
@@ -31,6 +32,5 @@ const rsbuildConfig = defineConfig({
     },
   },
 });
-console.log("rsbuild config : ", rsbuildConfig.source?.define);
 
 export default rsbuildConfig;

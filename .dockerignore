@@ -1,9 +1,9 @@
-api
-api-elysia
-db
+certs
 node_modules
 npm-debug.log
 Dockerfile
+.idea
+.vscode
 .dockerignore
 .git
 .env
