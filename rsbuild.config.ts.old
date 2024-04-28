@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from "@rsbuild/core";
+import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginBasicSsl } from '@rsbuild/plugin-basic-ssl';
 
@@ -9,8 +9,7 @@ const rsbuildConfig = defineConfig({
   },
   source: {
     define: {
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-      'process.env.PUBLIC_API_URL': JSON.stringify(process.env.PUBLIC_API_URL),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
       },
   },
   server: {
