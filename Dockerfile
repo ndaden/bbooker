@@ -23,7 +23,7 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 
 # Copy the built app from the previous stage to the NGINX web server directory
-COPY --from=build /usr/src/app/build .
+COPY --from=build /usr/src/app/public .
 COPY --from=build /usr/src/app/conf/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Start NGINX and serve the app

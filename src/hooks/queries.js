@@ -84,7 +84,6 @@ const editProfileQuery = async (formData, isJson = false) => {
 };
 
 const getBusinessesQuery = async ({ id, ownerid }) => {
-
   const businessUrl = !!id
     ? `${publicApiUrl}/business/${id}`
     : !!ownerid

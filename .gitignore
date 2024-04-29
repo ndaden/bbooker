@@ -17,6 +17,11 @@
 
 /build
 
+certs
+
+.idea
+.vscode
+
 # misc
 .DS_Store
 dev.env
