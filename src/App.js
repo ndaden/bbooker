@@ -15,7 +15,6 @@ import CreateAccount from "./containers/account/CreateAccount";
 import Profile from "./containers/account/Profile";
 import CreateBusiness from "./containers/business/CreateBusiness";
 import Business from "./containers/business/Business";
-import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import LoadingPage from "./components/LoadingPage";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -48,21 +47,10 @@ function App() {
   );
 }
 
-const Brand = ({ pro }) => (
-  <div className="font-onest text-3xl">
-    BeautyBooker
-    {pro && (
-      <span className="text-medium text-orange-600 font-bold align-text-top capitalize">
-        &nbsp;pro <IoShieldCheckmarkOutline className="inline" />
-      </span>
-    )}
-  </div>
-);
-
 function Root() {
   return (
     <>
-      <QNavbar brandLabel={<Brand />} />
+      <QNavbar />
       <Routes>
         <Route path="*" element={<LoadingPage />} />
         <Route path="/" element={<Home />} />

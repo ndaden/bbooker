@@ -13,8 +13,20 @@ import {
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
+import { IoShieldCheckmarkOutline } from "react-icons/io5";
 
-const QNavbar = ({ brandLabel, links = [] }) => {
+const Brand = ({ pro }) => (
+  <div className="font-onest text-3xl">
+    BeautyBooker
+    {pro && (
+      <span className="text-medium text-orange-600 font-bold align-text-top capitalize">
+        &nbsp;pro <IoShieldCheckmarkOutline className="inline" />
+      </span>
+    )}
+  </div>
+);
+
+const QNavbar = ({ links = [] }) => {
   const userContext = useContext(UserContext);
 
   const {
@@ -56,7 +68,9 @@ const QNavbar = ({ brandLabel, links = [] }) => {
         />
       </NavbarContent>
       <NavbarBrand>
-        <a href="/">{brandLabel}</a>
+        <a href="/">
+          <Brand pro={user?.role === "OWNER"} />
+        </a>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {links.map((link) => (

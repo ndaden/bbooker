@@ -25,6 +25,50 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
     `prestations[${prestations.length}]`
   );
 
+  const BUSINESS_DATA_KEY = "new_business_data";
+
+  const [savedBusinessData, setSavedBusinessData] = useState(
+    JSON.parse(sessionStorage.getItem(BUSINESS_DATA_KEY) ?? "{}")
+  );
+
+  useEffect(() => {
+    console.log("initial effect");
+    setValue("businessName", savedBusinessData?.businessName);
+    setValue("businessDescription", savedBusinessData?.businessDescription);
+    setValue("businessImage", savedBusinessData?.businessImage);
+
+    const savedPrestations = (savedBusinessData?.prestations || []).filter(
+      (p) => !isEmptyPrestation(p)
+    );
+
+    if (savedPrestations.length > 0) {
+      setDisplayPrestationForm(true);
+      const currentSavedPrestations = Object.assign(
+        [],
+        savedPrestations as Prestation[]
+      ) as Prestation[];
+
+      currentSavedPrestations.map((p, idx) => {
+        setValue(`prestations[${idx}].name`, p.name);
+        setValue(`prestations[${idx}].description`, p.description);
+        setValue(`prestations[${idx}].durationInMinutes`, p.durationInMinutes);
+        setValue(`prestations[${idx}].price`, p.price);
+      });
+
+      setPrestations(currentSavedPrestations);
+      setPrestationFieldName(`prestations[${currentSavedPrestations.length}]`);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (savedBusinessData) {
+      sessionStorage.setItem(
+        BUSINESS_DATA_KEY,
+        JSON.stringify(savedBusinessData)
+      );
+    }
+  }, [savedBusinessData]);
+
   useEffect(() => {
     if (isPrestationValid) {
       // reset
@@ -59,6 +103,7 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
   };
 
   const isEmptyPrestation = (prestation) =>
+    !prestation ||
     prestation.name.trim() === "" ||
     prestation.description.trim() === "" ||
     !prestation.durationInMinutes ||
@@ -89,6 +134,12 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
     ]);
 
     if (isBusinessValid) {
+      const formValues = Object.assign({}, getValues());
+      setSavedBusinessData({
+        businessName: formValues.businessName,
+        businessDescription: formValues.businessDescription,
+        businessImage: formValues.businessImage,
+      });
       setDisplayPrestationForm(true);
     }
   };
@@ -107,6 +158,14 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
         setIsPrestationValid(true);
         const formValues = Object.assign({}, getValues());
         setPrestations([...(formValues.prestations as Prestation[])]);
+
+        setSavedBusinessData((prevSavedBusinessData) => ({
+          ...prevSavedBusinessData,
+          prestations: Object.assign(
+            [],
+            formValues.prestations as Prestation[]
+          ),
+        }));
       }
     }
   };
@@ -125,11 +184,18 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
   const createBusiness = async (values) => {
     // création du business
     mutateBusiness(toDatabaseBusinessWithPrestations(values));
+
+    sessionStorage.removeItem(BUSINESS_DATA_KEY);
+  };
+
+  const goToPreviewBusiness = () => {
+    cancelAddPrestationHandler();
   };
 
   return {
     deletePrestationHandler,
     cancelAddPrestationHandler,
+    goToPreviewBusiness,
     addPrestationHandler,
     goToPrestationsStep,
     createBusiness,

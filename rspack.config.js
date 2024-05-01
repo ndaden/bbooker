@@ -16,9 +16,11 @@ module.exports = {
   },
   devServer: {
     port: 3000,
+    historyApiFallback: true,
   },
   output: {
     path: path.resolve(__dirname, "public"),
+    publicPath: "/",
   },
   mode: isDev ? "development" : "production",
   module: {

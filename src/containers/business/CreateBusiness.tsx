@@ -41,9 +41,9 @@ const CreateBusiness = () => {
     prestations,
     displayPrestationForm,
     addPrestationHandler,
-    cancelAddPrestationHandler,
     deletePrestationHandler,
     goToPrestationsStep,
+    goToPreviewBusiness,
     createBusiness,
   } = useCreateBusinessAndService(
     {
@@ -121,7 +121,7 @@ const CreateBusiness = () => {
               variant="ghost"
               disabled={prestations.length === 0}
               onClick={() => {
-                cancelAddPrestationHandler();
+                goToPreviewBusiness();
                 setFinalizedCreation(true);
               }}
             >
