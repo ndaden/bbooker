@@ -18,6 +18,17 @@ const BusinessCard = ({
   const goToConfigureCalendar = () => {
     navigate(`/business/${id}/calendar`);
   };
+
+  const truncate = (str, n, useWordBoundary) => {
+    if (str.length <= n) {
+      return str;
+    }
+    const subString = str.slice(0, n - 1); // the original check
+    return useWordBoundary
+      ? subString.slice(0, subString.lastIndexOf(" "))
+      : subString;
+  };
+
   return (
     <Card
       isBlurred
@@ -46,7 +57,7 @@ const BusinessCard = ({
               <div className="flex flex-col gap-0">
                 <h1 className="text-large font-medium mt-2">{name}</h1>
                 <h3 className="font-semibold text-foreground/90">
-                  {description}
+                  {truncate(description, 150, true)}...
                 </h3>
                 <div className="my-3 flex">
                   <Chip>Massage</Chip>

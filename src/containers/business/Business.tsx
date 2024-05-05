@@ -57,10 +57,7 @@ const Business = () => {
                   Ouvert du Lundi au Samedi - de 10h à 18h
                 </p>
                 <p className="text-md my-3 hidden sm:block">
-                  {businessToDisplay.description}. Machin vous accueille dans
-                  son salon situé au centre ville de Niort et réalise toutes vos
-                  coupes et prestations favorites Bla Bla
-                  BlaBlaBlaBlaBlaBlaBlaBlaBla.
+                  {businessToDisplay.description}
                 </p>
               </div>
               <div className="my-3">

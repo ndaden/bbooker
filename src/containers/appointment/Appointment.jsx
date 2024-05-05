@@ -243,15 +243,11 @@ const Appointment = () => {
             </Card>
           )}
 
-          <Button
-            type="submit"
-            fullWidth
-            size="lg"
-            color="primary"
-            isDisabled={!isValid || !isDirty}
-          >
-            Prendre RDV
-          </Button>
+          {isValid && isDirty && (
+            <Button type="submit" fullWidth size="lg" color="primary">
+              Prendre RDV
+            </Button>
+          )}
         </form>
       </Container>
     )
