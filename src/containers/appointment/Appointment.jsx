@@ -125,11 +125,11 @@ const Appointment = () => {
                         base: cn(
                           "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between",
                           "flex-row max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent",
-                          "data-[selected=true]:border-primary"
+                          "data-[selected=true]:border-primary "
                         ),
                       }}
                     >
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-1 ">
                         <p className="text-medium">{service.name}</p>
                         <p className="text-tiny text-default-400">
                           {service.description}
@@ -174,7 +174,7 @@ const Appointment = () => {
                         ),
                       }}
                     >
-                      {jour}
+                      {dayjs(jour).format("ddd DD/MM/YYYY")}
                     </Radio>
                   ))}
                 </ControlledRadio>
@@ -183,13 +183,19 @@ const Appointment = () => {
           )}
           {values.date && (
             <Card>
-              <CardBody>{values.date}</CardBody>
+              <CardBody>
+                {" "}
+                {dayjs(values.date).format("dddd DD/MM/YYYY")}
+              </CardBody>
             </Card>
           )}
 
           {values.service && values.date && !getFieldState("heure").isDirty && (
             <Card className="my-3">
-              <CardHeader>Le {values.date}, à quelle heure ?</CardHeader>
+              <CardHeader>
+                Le {dayjs(values.date).format("DD/MM/YYYY")},&nbsp;à quelle
+                heure ?
+              </CardHeader>
               <CardBody>
                 <div>
                   <label>Voici les créneaux disponibles :</label>
@@ -224,8 +230,11 @@ const Appointment = () => {
                               ),
                             }}
                           >
-                            {dayjs(creneau.debut).format("HH:mm")}-
-                            {dayjs(creneau.fin).format("HH:mm")}
+                            {dayjs(creneau.debut).format("HH:mm")}&nbsp;
+                            <span className="text-tiny text-secondary-500">
+                              ( jusqu'à
+                              {dayjs(creneau.fin).format("HH:mm")} )
+                            </span>
                           </Radio>
                         </Tooltip>
                       ))}

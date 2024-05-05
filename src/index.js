@@ -6,9 +6,12 @@ import { NextUIProvider } from "@nextui-org/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { UserContextProvider } from "./contexts/UserContext";
+import dayjs from "dayjs";
+import "dayjs/locale/fr";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
+dayjs.locale("fr");
 root.render(
   <React.StrictMode>
     <NextUIProvider>
