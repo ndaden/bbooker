@@ -1203,10 +1203,6 @@ video {
   height: 100vh;
 }
 
-.h-0 {
-  height: 0px;
-}
-
 .max-h-64 {
   max-height: 16rem;
 }
@@ -1381,10 +1377,6 @@ video {
   width: 100vw;
 }
 
-.w-0 {
-  width: 0px;
-}
-
 .min-w-10 {
   min-width: 2.5rem;
 }
@@ -1491,6 +1483,14 @@ video {
   max-width: 270px;
 }
 
+.max-w-\[300px\] {
+  max-width: 300px;
+}
+
+.max-w-\[400px\] {
+  max-width: 400px;
+}
+
 .max-w-\[640px\] {
   max-width: 640px;
 }
@@ -1527,10 +1527,6 @@ video {
 
 .max-w-xs {
   max-width: 20rem;
-}
-
-.max-w-\[300px\] {
-  max-width: 300px;
 }
 
 .flex-1 {
@@ -2189,10 +2185,6 @@ video {
   border-width: var(--nextui-border-width-small);
 }
 
-.border-4 {
-  border-width: 4px;
-}
-
 .border-b {
   border-bottom-width: 1px;
 }
@@ -2207,10 +2199,6 @@ video {
 
 .border-dotted {
   border-style: dotted;
-}
-
-.border-hidden {
-  border-style: hidden;
 }
 
 .border-none {
@@ -3059,6 +3047,11 @@ video {
   color: hsl(var(--nextui-secondary-300) / var(--nextui-secondary-300-opacity, var(--tw-text-opacity)));
 }
 
+.text-secondary-500 {
+  --tw-text-opacity: 1;
+  color: hsl(var(--nextui-secondary-500) / var(--nextui-secondary-500-opacity, var(--tw-text-opacity)));
+}
+
 .text-secondary-foreground {
   --tw-text-opacity: 1;
   color: hsl(var(--nextui-secondary-foreground) / var(--nextui-secondary-foreground-opacity, var(--tw-text-opacity)));
@@ -3128,6 +3121,10 @@ video {
 
 .underline {
   text-decoration-line: underline;
+}
+
+.line-through {
+  text-decoration-line: line-through;
 }
 
 .no-underline {
@@ -4955,6 +4952,11 @@ video {
   border-color: hsl(var(--nextui-default-400) / var(--nextui-default-400-opacity, var(--tw-border-opacity)));
 }
 
+.hover\:border-primary:hover {
+  --tw-border-opacity: 1;
+  border-color: hsl(var(--nextui-primary) / var(--nextui-primary-opacity, var(--tw-border-opacity)));
+}
+
 .hover\:\!bg-danger:hover {
   --tw-bg-opacity: 1 !important;
   background-color: hsl(var(--nextui-danger) / var(--nextui-danger-opacity, var(--tw-bg-opacity))) !important;
@@ -4990,6 +4992,11 @@ video {
   background-color: hsl(var(--nextui-warning) / var(--nextui-warning-opacity, var(--tw-bg-opacity))) !important;
 }
 
+.hover\:bg-content2:hover {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--nextui-content2) / var(--nextui-content2-opacity, var(--tw-bg-opacity)));
+}
+
 .hover\:bg-danger-100:hover {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--nextui-danger-100) / var(--nextui-danger-100-opacity, var(--tw-bg-opacity)));
@@ -5023,11 +5030,6 @@ video {
 .hover\:bg-warning-100:hover {
   --tw-bg-opacity: 1;
   background-color: hsl(var(--nextui-warning-100) / var(--nextui-warning-100-opacity, var(--tw-bg-opacity)));
-}
-
-.hover\:bg-content2:hover {
-  --tw-bg-opacity: 1;
-  background-color: hsl(var(--nextui-content2) / var(--nextui-content2-opacity, var(--tw-bg-opacity)));
 }
 
 .hover\:\!text-danger-foreground:hover {
@@ -7480,11 +7482,6 @@ video {
 .group[data-selected=true] .group-data-\[selected\=true\]\:border-warning {
   --tw-border-opacity: 1;
   border-color: hsl(var(--nextui-warning) / var(--nextui-warning-opacity, var(--tw-border-opacity)));
-}
-
-.group[data-hover=true] .group-data-\[hover\=true\]\:border-primary {
-  --tw-border-opacity: 1;
-  border-color: hsl(var(--nextui-primary) / var(--nextui-primary-opacity, var(--tw-border-opacity)));
 }
 
 .group[data-focus=true] .group-data-\[focus\=true\]\:bg-danger-50 {

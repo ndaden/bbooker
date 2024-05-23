@@ -19,10 +19,11 @@ const useAuthentication = (enabled = false) => {
     retry: false,
   });
 
-  const logout = async () => {
+  const logout = async (redirectTo = "/") => {
     await queryCache.removeQueries({ queryKey: ["AUTHENTICATED_USER"] });
     await logoutUserQuery();
-    await getUserData();
+    // await getUserData();
+    window.location.href = redirectTo;
   };
 
   return {

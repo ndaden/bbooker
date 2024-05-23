@@ -127,6 +127,29 @@ const createServiceQuery = async (formData) =>
 const getAppointmentsQuery = async () =>
   (await fetch(`${publicApiUrl}/appointment`)).json();
 
+const createAppointmentQuery = async (formData) =>
+  await fetch(`${publicApiUrl}/appointment`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+    credentials: "include",
+  });
+
+const getFreeSlotsQuery = async ({
+  businessId,
+  startTimeInterval,
+  endTimeInterval,
+  slotDurationInMinutes,
+}) =>
+  (
+    await fetch(
+      `${publicApiUrl}/appointment/slots/${businessId}?startTimeInterval=${startTimeInterval}&endTimeInterval=${endTimeInterval}&slotDurationInMinutes=${slotDurationInMinutes}`,
+      { credentials: "include" }
+    )
+  ).json();
+
 const getRolesQuery = async () => (await fetch(`${publicApiUrl}/role`)).json();
 
 const createRoleQuery = async (formData) =>
@@ -150,6 +173,8 @@ export {
   getServicesQuery,
   createServiceQuery,
   getAppointmentsQuery,
+  createAppointmentQuery,
+  getFreeSlotsQuery,
   getRolesQuery,
   createRoleQuery,
   deleteRoleQuery,

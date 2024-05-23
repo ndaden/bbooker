@@ -12,6 +12,7 @@ import React from "react";
 const ButtonWithConfirmationModal = ({
   className,
   isDisabled,
+  isLoading,
   label,
   type,
   variant = "solid",
@@ -35,6 +36,7 @@ const ButtonWithConfirmationModal = ({
         onClick={onClickHandler}
         className={className}
         isDisabled={isDisabled}
+        isLoading={isLoading}
       >
         {label}
       </Button>

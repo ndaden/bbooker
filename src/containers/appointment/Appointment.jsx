@@ -16,6 +16,35 @@ import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Container from "../../components/Container";
 import ControlledRadio from "../../components/ControlledRadio";
+import { capitalize } from "lodash";
+import useMutateAppointment from "../../hooks/useMutateAppointment";
+import useFetchFreeSlots from "../../hooks/useFetchFreeSlots";
+
+const genererSemaine = (dateDebut) => {
+  return [1, 2, 3, 4, 5, 6, 7].map((i) => {
+    return dayjs(dateDebut, "YYYY-MM-DD")
+      .add(i - 1, "day")
+      .format("YYYY-MM-DD");
+  });
+};
+
+const genererCreneaux = (dateTimeDebut, dateTimeFin) => {
+  let result = [];
+  let pointer = dateTimeDebut;
+  let free = true;
+
+  while (pointer.isBefore(dateTimeFin)) {
+    free = !free;
+    result.push({
+      debut: pointer,
+      fin: pointer.add(30, "minutes"),
+      free: free,
+    });
+
+    pointer = pointer.add(30, "minutes");
+  }
+  return result;
+};
 
 const Appointment = () => {
   const { state } = useLocation();
@@ -38,53 +67,63 @@ const Appointment = () => {
     trigger,
     reset,
   } = useForm();
-
-  const date = dayjs().format("YYYY-MM-DD");
+  // const values = watch();
+  const date = dayjs(getValues("date")).format("YYYY-MM-DD");
   const heureOuverture = "10:00";
   const heureFermeture = "18:00";
+
+  const start = dayjs(getValues("date"));
+  const end = start.add(7, "days");
+
+  const serviceId = getValues("service");
+  const selectedService = serviceId
+    ? state.business.services.find((s) => s.id === serviceId)
+    : undefined;
+
+  const {
+    isLoading: isLoadingFreeSlots,
+    refetchFreeSlots,
+    freeSlots,
+  } = useFetchFreeSlots({
+    businessId: state.business.id,
+    startTimeInterval: getValues("date")
+      ? dayjs(getValues("date")).unix()
+      : undefined,
+    endTimeInterval: getValues("date")
+      ? dayjs(getValues("date")).add(1, "day").unix()
+      : undefined,
+    slotDurationInMinutes: selectedService?.duration,
+  });
 
   let debut = dayjs(`${date} ${heureOuverture}`);
   let fin = dayjs(`${date} ${heureFermeture}`);
 
-  const genererSemaine = (dateDebut) => {
-    return [1, 2, 3, 4, 5, 6, 7].map((i) => {
-      return dayjs(dateDebut, "YYYY-MM-DD")
-        .add(i - 1, "day")
-        .format("YYYY-MM-DD");
-    });
-  };
-
-  const genererCreneaux = (dateTimeDebut, dateTimeFin) => {
-    let result = [];
-    let pointer = dateTimeDebut;
-    let free = true;
-
-    while (pointer.isBefore(dateTimeFin)) {
-      free = !free;
-      result.push({
-        debut: pointer,
-        fin: pointer.add(30, "minutes"),
-        free: free,
-      });
-
-      pointer = pointer.add(30, "minutes");
-    }
-    return result;
-  };
-
   const creneaux = genererCreneaux(debut, fin);
 
-  const submitDateAppointment = (data) => {
+  const [createAppointmentResult, setCreateAppointmentResult] = useState();
+  const {
+    mutateAppointment,
+    isLoading: isCreatingAppointment,
+    isError,
+    data,
+  } = useMutateAppointment();
+
+  const mapFormDataToApi = ({ service, heure }) => {
+    return { serviceId: service, startTime: `${dayjs(heure).format()}` };
+  };
+
+  const submitDateAppointment = async (values) => {
     if (isValid) {
-      console.log(data);
+      await mutateAppointment(mapFormDataToApi(values));
     }
   };
 
-  const values = watch();
+  useEffect(() => {
+    const setResult = async () =>
+      setCreateAppointmentResult(await data?.json());
 
-  const selectedService = values.service
-    ? state.business.services.find((s) => s.id === values.service)
-    : undefined;
+    setResult();
+  }, [data]);
 
   return (
     state && (
@@ -104,7 +143,7 @@ const Appointment = () => {
           name="appointmentForm"
           onSubmit={handleSubmit(submitDateAppointment)}
         >
-          {!values.service && (
+          {!serviceId && (
             <Card className="my-3">
               <CardHeader>
                 Pour quelle prestation souhaitez-vous un RDV ?
@@ -123,13 +162,13 @@ const Appointment = () => {
                         control: "hidden",
                         wrapper: "hidden",
                         base: cn(
-                          "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between",
-                          "flex-row max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent",
-                          "data-[selected=true]:border-primary "
+                          "inline-flex m-0 bg-content1 items-center justify-between",
+                          "flex-row max-w-full cursor-pointer rounded-lg gap-4 p-4 border-2 border-default hover:border-primary",
+                          ""
                         ),
                       }}
                     >
-                      <div className="flex flex-col gap-1 ">
+                      <div className="flex flex-col gap-1">
                         <p className="text-medium">{service.name}</p>
                         <p className="text-tiny text-default-400">
                           {service.description}
@@ -144,13 +183,13 @@ const Appointment = () => {
               </CardBody>
             </Card>
           )}
-          {values.service && (
+          {serviceId && (
             <Card className="my-3">
               <CardBody>{selectedService.name}</CardBody>
             </Card>
           )}
 
-          {values.service && !getFieldState("date").isDirty && (
+          {serviceId && !getFieldState("date").isDirty && (
             <Card className="my-3">
               <CardHeader>Pour quelle date ?</CardHeader>
               <CardBody className="">
@@ -168,96 +207,115 @@ const Appointment = () => {
                         control: "hidden",
                         wrapper: "hidden",
                         base: cn(
-                          "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between ",
-                          "flex-row-reverse max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent ",
-                          "data-[selected=true]:border-primary"
+                          "inline-flex m-0 bg-content1 items-center justify-between ",
+                          "flex-row-reverse max-w-[400px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent ",
+                          "hover:border-primary border-default "
                         ),
                       }}
                     >
-                      {dayjs(jour).format("ddd DD/MM/YYYY")}
+                      {capitalize(dayjs(jour).format("ddd DD/MM/YYYY"))}
                     </Radio>
                   ))}
                 </ControlledRadio>
               </CardBody>
             </Card>
           )}
-          {values.date && (
+          {getValues("date") && (
             <Card>
               <CardBody>
-                {" "}
-                {dayjs(values.date).format("dddd DD/MM/YYYY")}
+                {capitalize(dayjs(getValues("date")).format("dddd DD/MM/YYYY"))}
               </CardBody>
             </Card>
           )}
 
-          {values.service && values.date && !getFieldState("heure").isDirty && (
-            <Card className="my-3">
-              <CardHeader>
-                Le {dayjs(values.date).format("DD/MM/YYYY")},&nbsp;à quelle
-                heure ?
-              </CardHeader>
-              <CardBody>
-                <div>
-                  <label>Voici les créneaux disponibles :</label>
+          {serviceId &&
+            getValues("date") &&
+            !getFieldState("heure").isDirty && (
+              <Card className="my-3">
+                <CardHeader>
+                  Le {dayjs(getValues("date")).format("DD/MM/YYYY")},&nbsp;à
+                  quelle heure ?
+                </CardHeader>
+                <CardBody>
                   <div>
-                    <ControlledRadio
-                      name="heure"
-                      control={control}
-                      rules={{ required: { value: true } }}
-                      orientation="horizontal"
-                    >
-                      {creneaux.map((creneau, idx) => (
-                        <Tooltip
-                          key={idx}
-                          content={
-                            creneau.free
-                              ? "Ce créneau est disponible"
-                              : "Ce créneau n'est pas disponible"
-                          }
-                        >
-                          <Radio
-                            value={creneau.debut}
-                            className="m-3"
-                            isDisabled={!creneau.free}
-                            color={creneau.free ? "primary" : "default"}
-                            classNames={{
-                              control: "hidden",
-                              wrapper: "hidden",
-                              base: cn(
-                                "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between ",
-                                "flex-row-reverse max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent ",
-                                "data-[selected=true]:border-primary"
-                              ),
-                            }}
+                    <label>Voici les créneaux disponibles :</label>
+                    <div>
+                      <ControlledRadio
+                        name="heure"
+                        control={control}
+                        rules={{ required: { value: true } }}
+                        orientation="horizontal"
+                      >
+                        {freeSlots?.payload?.map((creneau, idx) => (
+                          <Tooltip
+                            key={idx}
+                            content={
+                              creneau.free
+                                ? "Ce créneau est disponible"
+                                : "Ce créneau n'est pas disponible"
+                            }
                           >
-                            {dayjs(creneau.debut).format("HH:mm")}&nbsp;
-                            <span className="text-tiny text-secondary-500">
-                              ( jusqu'à
-                              {dayjs(creneau.fin).format("HH:mm")} )
-                            </span>
-                          </Radio>
-                        </Tooltip>
-                      ))}
-                    </ControlledRadio>
+                            <Radio
+                              value={creneau.startTime}
+                              className="m-3"
+                              isDisabled={!creneau.free}
+                              classNames={{
+                                control: "hidden",
+                                wrapper: "hidden",
+                                base: cn(
+                                  "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between ",
+                                  "flex-row-reverse max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent ",
+                                  "data-[selected=true]:border-primary"
+                                ),
+                              }}
+                            >
+                              <p
+                                className={`${
+                                  !creneau.free ? "line-through" : ""
+                                }`}
+                              >
+                                {dayjs(creneau.startTime).format("HH:mm")}&nbsp;
+                                <span className="text-tiny text-secondary-500">
+                                  ( jusqu'à
+                                  {dayjs(creneau.endTime).format("HH:mm")} )
+                                </span>
+                              </p>
+                            </Radio>
+                          </Tooltip>
+                        ))}
+                      </ControlledRadio>
+                    </div>
                   </div>
-                </div>
-              </CardBody>
-            </Card>
-          )}
-          {values.heure && (
+                </CardBody>
+              </Card>
+            )}
+          {getValues("heure") && (
             <Card className="my-3">
-              <CardBody>
-                {dayjs.unix(values.heure / 1000).format("HH:mm")}
-              </CardBody>
+              <CardBody>à {dayjs(getValues("heure")).format("HH:mm")}</CardBody>
             </Card>
           )}
 
           {isValid && isDirty && (
-            <Button type="submit" fullWidth size="lg" color="primary">
+            <Button
+              type="submit"
+              fullWidth
+              size="lg"
+              color="primary"
+              isLoading={isCreatingAppointment}
+            >
               Prendre RDV
             </Button>
           )}
         </form>
+        {createAppointmentResult && createAppointmentResult.success && (
+          <p>Merci d'avoir pris rendez-vous.</p>
+        )}
+        {createAppointmentResult && !createAppointmentResult.success && (
+          <p>
+            Nous sommes désolés, nous ne pouvons pas vous attribuer ce
+            rendez-vous.
+          </p>
+        )}
       </Container>
     )
   );
