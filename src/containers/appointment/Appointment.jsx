@@ -16,7 +16,7 @@ import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Container from "../../components/Container";
 import ControlledRadio from "../../components/ControlledRadio";
-import { capitalize } from "lodash";
+import { capitalize, last } from "lodash";
 import useMutateAppointment from "../../hooks/useMutateAppointment";
 import useFetchFreeSlots from "../../hooks/useFetchFreeSlots";
 
@@ -28,32 +28,17 @@ const genererSemaine = (dateDebut) => {
   });
 };
 
-const genererCreneaux = (dateTimeDebut, dateTimeFin) => {
-  let result = [];
-  let pointer = dateTimeDebut;
-  let free = true;
-
-  while (pointer.isBefore(dateTimeFin)) {
-    free = !free;
-    result.push({
-      debut: pointer,
-      fin: pointer.add(30, "minutes"),
-      free: free,
-    });
-
-    pointer = pointer.add(30, "minutes");
-  }
-  return result;
-};
-
 const Appointment = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const [semaine, setSemaine] = useState([]);
 
   useEffect(() => {
     if (!state) {
       navigate(-1);
     }
+
+    setSemaine(genererSemaine(dayjs()));
   }, []);
 
   const {
@@ -69,11 +54,16 @@ const Appointment = () => {
   } = useForm();
   // const values = watch();
   const date = dayjs(getValues("date")).format("YYYY-MM-DD");
-  const heureOuverture = "10:00";
-  const heureFermeture = "18:00";
 
-  const start = dayjs(getValues("date"));
-  const end = start.add(7, "days");
+  const nextWeekHandler = () => {
+    setSemaine((prevSemaine) => genererSemaine(last(prevSemaine)));
+  };
+
+  const lastWeekHandler = () => {
+    setSemaine((prevSemaine) =>
+      genererSemaine(dayjs(prevSemaine[0]).subtract(7, "days"))
+    );
+  };
 
   const serviceId = getValues("service");
   const selectedService = serviceId
@@ -94,11 +84,6 @@ const Appointment = () => {
       : undefined,
     slotDurationInMinutes: selectedService?.duration,
   });
-
-  let debut = dayjs(`${date} ${heureOuverture}`);
-  let fin = dayjs(`${date} ${heureFermeture}`);
-
-  const creneaux = genererCreneaux(debut, fin);
 
   const [createAppointmentResult, setCreateAppointmentResult] = useState();
   const {
@@ -199,7 +184,7 @@ const Appointment = () => {
                   rules={{ required: { value: true } }}
                   orientation="horizontal"
                 >
-                  {genererSemaine(date).map((jour) => (
+                  {semaine.map((jour) => (
                     <Radio
                       key={jour}
                       value={jour}
@@ -217,6 +202,10 @@ const Appointment = () => {
                     </Radio>
                   ))}
                 </ControlledRadio>
+                <div className="flex justify-between my-4">
+                  <Button onClick={lastWeekHandler}>Semaine précédente</Button>
+                  <Button onClick={nextWeekHandler}>Semaine suivante</Button>
+                </div>
               </CardBody>
             </Card>
           )}
