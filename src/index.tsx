@@ -8,6 +8,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { UserContextProvider } from "./contexts/UserContext";
 import dayjs from "dayjs";
 import "dayjs/locale/fr";
+import "./app.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();

@@ -1,29 +1,33 @@
+version: '3.8'
+
 services:
-  # Base de données MongoDB avec replica set (sans auth pour dev)
   mongodb:
     image: mongo:7
     container_name: bbooker-mongodb
     restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: bbooker
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - bbooker-network
-    command: mongod --replSet rs0 --bind_ip_all --noauth
 
-  # API Backend
   bbooker-api:
-    build: ../bbooker-api
+    build: .
     container_name: bbooker-api
     restart: unless-stopped
     depends_on:
       - mongodb
     environment:
-      NODE_ENV: development
-      DATABASE_URL: "mongodb://mongodb:27017/bbooker?replicaSet=rs0"
+      NODE_ENV: production
+      DATABASE_URL: "mongodb://bbooker_user:bbooker_pass@mongodb:27017/bbooker"
       JWT_SECRET: "super-secure-jwt-secret-key-for-production-32-chars"
-      CORS_ORIGINS: "http://localhost:3001,http://127.0.0.1:3001,http://host.docker.internal:3001"
+      CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
       COOKIE_DOMAIN: "localhost"
       # Firebase variables - à configurer avec vos vraies clés
       FIREBASE_APIKEY: ""
@@ -37,15 +41,14 @@ services:
       GEMINI_API_KEY: ""
       AI_SYSTEM_INSTRUCTION: "You are a helpful assistant for beauty salon bookings."
     ports:
-      - "3003:3002"
+      - "3002:3002"
     networks:
       - bbooker-network
     volumes:
-      - api_uploads:/app/uploads
+      - ./uploads:/app/uploads
 
 volumes:
   mongodb_data:
-  api_uploads:
 
 networks:
   bbooker-network:

@@ -5,7 +5,7 @@ import useFetchBusinesses from "./hooks/useFetchBusinesses";
 import Container from "./components/Container";
 
 function Home() {
-  const { businesses, isLoading, isError } = useFetchBusinesses();
+  const { businesses, isLoading, isError } = useFetchBusinesses({});
   return (
     <Container>
       <div className="my-3">
@@ -21,7 +21,7 @@ function Home() {
         {isLoading && <div>loading</div>}
         {!isLoading &&
           !isError &&
-          businesses.payload.map((business) => (
+          businesses?.payload?.map((business: any) => (
             <BusinessCard
               key={business.id}
               id={business.id}

@@ -9,12 +9,12 @@ import Admin from "./Admin";
 import QNavbar from "./components/QNavbar";
 import QLink from "./components/QLink";
 
-import Appointment from "./containers/appointment/Appointment";
-import Login from "./containers/account/Login";
-import CreateAccount from "./containers/account/CreateAccount";
-import Profile from "./containers/account/Profile";
-import CreateBusiness from "./containers/business/CreateBusiness";
-import Business from "./containers/business/Business";
+import Appointment from "./pages/appointment/Appointment";
+import Login from "./pages/account/Login";
+import CreateAccount from "./pages/account/CreateAccount";
+import Profile from "./pages/account/Profile";
+import CreateBusiness from "./pages/business/CreateBusiness";
+import Business from "./pages/business/Business";
 import LoadingPage from "./components/LoadingPage";
 import ProtectedRoute from "./ProtectedRoute";
 

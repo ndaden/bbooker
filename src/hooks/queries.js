@@ -150,6 +150,8 @@ const getFreeSlotsQuery = async ({
     )
   ).json();
 
+const getUsersQuery = async () => (await fetch(`${publicApiUrl}/user`)).json();
+
 const getRolesQuery = async () => (await fetch(`${publicApiUrl}/role`)).json();
 
 const createRoleQuery = async (formData) =>
@@ -163,6 +165,7 @@ const createRoleQuery = async (formData) =>
 
 export {
   getUserQuery,
+  getUsersQuery,
   createUserQuery,
   deleteUserQuery,
   editProfileQuery,

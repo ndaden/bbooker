@@ -31,7 +31,7 @@ const Admin = () => {
   // Fetch queries
   const { isLoading: isLoadingUsers, users } = useFetchUsers();
   const { isLoading: isLoadingRoles, roles, refetchRoles } = useFetchRoles();
-  const { isLoading: isLoadingBusinesses, businesses } = useFetchBusinesses();
+  const { isLoading: isLoadingBusinesses, businesses } = useFetchBusinesses({});
   const { isLoading: isLoadingServices, services } = useFetchServices();
   const { isLoading: isLoadingAppointments, appointments } =
     useFetchAppointments();
@@ -87,7 +87,7 @@ const Admin = () => {
           <TableColumn>Actions</TableColumn>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
+          {users?.map((user: any) => (
             <TableRow key={user._id}>
               <TableCell width={"50px"}>{user._id}</TableCell>
               <TableCell>{user.username}</TableCell>
@@ -108,7 +108,7 @@ const Admin = () => {
 
       <h2>Businesses</h2>
 
-      {businesses.map((business) => (
+      {businesses?.map((business: any) => (
         <Accordion key={business._id} variant="splitted">
           <AccordionItem
             textValue={business._id}
@@ -124,8 +124,8 @@ const Admin = () => {
               <h1>Services proposés :</h1>
               <ul>
                 {services
-                  .filter((service) => service.business === business._id)
-                  .map((service) => {
+                  ?.filter((service: any) => service.business === business._id)
+                  ?.map((service: any) => {
                     return (
                       <li key={service._id}>
                         - {service.serviceName} - {service.duration} min -{" "}
@@ -149,7 +149,7 @@ const Admin = () => {
           <TableColumn>Time range</TableColumn>
         </TableHeader>
         <TableBody>
-          {appointments.map((appointment) => (
+          {appointments?.map((appointment: any) => (
             <TableRow key={appointment._id}>
               <TableCell width={"50px"}>{appointment._id}</TableCell>
               <TableCell>{appointment.client.username}</TableCell>
@@ -180,7 +180,7 @@ const Admin = () => {
           <TableColumn></TableColumn>
         </TableHeader>
         <TableBody>
-          {roles.map((role) => (
+          {roles?.map((role: any) => (
             <TableRow key={role._id}>
               <TableCell width={"50px"}>{role._id}</TableCell>
               <TableCell>{role.name}</TableCell>
