@@ -10,9 +10,9 @@ import {
   NavbarMenuToggle,
   Avatar,
 } from "@nextui-org/react";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserContext } from "../contexts/UserContext";
+import { useAuth } from "../contexts/UserContext";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
 
 const Brand = ({ pro }) => (
@@ -27,14 +27,7 @@ const Brand = ({ pro }) => (
 );
 
 const QNavbar = ({ links = [] }) => {
-  const userContext = useContext(UserContext);
-
-  const {
-    isLoading,
-    isError,
-    logout,
-    data: { payload: user } = { payload: undefined },
-  } = userContext;
+  const { user, isLoading, logout } = useAuth();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -50,8 +43,7 @@ const QNavbar = ({ links = [] }) => {
   };
 
   const logoutHandler = async () => {
-    await logout();
-    navigate("/");
+    await logout("/");
   };
 
   return (
@@ -91,14 +83,14 @@ const QNavbar = ({ links = [] }) => {
             <Link href="#" onClick={goToProfile}>
               <Avatar
                 isBordered
-                color="success"
-                title="Votre profile"
-                size="lg"
-                src={
-                  user.profile?.profileImage
-                    ? user.profile?.profileImage
-                    : "https://i.pravatar.cc/150?u=a04258114e29026302d"
-                }
+                color="primary"
+                title="Votre profil"
+                size="md"
+                name={user.profile?.firstName ? user.profile.firstName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+                classNames={{
+                  base: "bg-gradient-to-br from-blue-600 to-indigo-600",
+                  name: "text-white font-bold"
+                }}
               />
             </Link>
           </NavbarItem>
@@ -107,7 +99,7 @@ const QNavbar = ({ links = [] }) => {
           <>
             <NavbarItem className="hidden lg:flex">
               <Link href="#" onClick={goToLogin}>
-                S'identifier
+                Se connecter
               </Link>
             </NavbarItem>
             <NavbarItem className="hidden lg:flex">
@@ -125,7 +117,7 @@ const QNavbar = ({ links = [] }) => {
         )}
       </NavbarContent>
       <NavbarMenu className="bg-dark">
-        {(!user || isError) && (
+        {!user && (
           <>
             <NavbarMenuItem>
               <Link color="primary" className="w-full" href="/login" size="lg">
@@ -139,7 +131,7 @@ const QNavbar = ({ links = [] }) => {
             </NavbarMenuItem>
           </>
         )}
-        {user && !isLoading && !isError && (
+        {user && !isLoading && (
           <>
             <NavbarMenuItem>
               <Link

@@ -80,6 +80,13 @@
   dependencies:
     tslib "^2.8.0"
 
+"@hookform/resolvers@^5.2.2":
+  version "5.2.2"
+  resolved "https://registry.npmjs.org/@hookform/resolvers/-/resolvers-5.2.2.tgz"
+  integrity sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==
+  dependencies:
+    "@standard-schema/utils" "^0.3.0"
+
 "@internationalized/date@^3.10.1":
   version "3.10.1"
   resolved "https://registry.npmjs.org/@internationalized/date/-/date-3.10.1.tgz"
@@ -2379,6 +2386,9 @@
   resolved "https://registry.npmjs.org/@rspack/binding-linux-x64-gnu/-/binding-linux-x64-gnu-1.7.3.tgz"
   integrity sha512-adnDbUqafSAI6/N6vZ+iONSo1W3yUpnNtJqP3rVp7+YdABhUpbOhtaY37qpIJ3uFajXctYFyISPrb4MWl1M9Yg==
 
+"@rspack/binding-linux-x64-musl@1.7.3":
+  version "1.7.3"
+
 "@rspack/binding@1.7.3":
   version "1.7.3"
   resolved "https://registry.npmjs.org/@rspack/binding/-/binding-1.7.3.tgz"
@@ -2438,6 +2448,11 @@
     error-stack-parser "^2.1.4"
     html-entities "^2.6.0"
 
+"@standard-schema/utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmjs.org/@standard-schema/utils/-/utils-0.3.0.tgz"
+  integrity sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==
+
 "@swc/helpers@^0.5.0", "@swc/helpers@>=0.5.1":
   version "0.5.18"
   resolved "https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.18.tgz"
@@ -2462,6 +2477,9 @@
   version "4.1.18"
   resolved "https://registry.npmjs.org/@tailwindcss/oxide-linux-x64-gnu/-/oxide-linux-x64-gnu-4.1.18.tgz"
   integrity sha512-v3gyT0ivkfBLoZGF9LyHmts0Isc8jHZyVcbzio6Wpzifg/+5ZJpDiRiUhDLkcr7f/r38SWNe7ucxmGW3j3Kb/g==
+
+"@tailwindcss/oxide-linux-x64-musl@4.1.18":
+  version "4.1.18"
 
 "@tailwindcss/oxide@4.1.18":
   version "4.1.18"
@@ -3521,6 +3539,12 @@ lightningcss-linux-x64-gnu@1.31.1:
   resolved "https://registry.npmjs.org/lightningcss-linux-x64-gnu/-/lightningcss-linux-x64-gnu-1.31.1.tgz"
   integrity sha512-xGlFWRMl+0KvUhgySdIaReQdB4FNudfUTARn7q0hh/V67PVGCs3ADFjw+6++kG1RNd0zdGRlEKa+T13/tQjPMA==
 
+lightningcss-linux-x64-musl@1.30.2:
+  version "1.30.2"
+
+lightningcss-linux-x64-musl@1.31.1:
+  version "1.31.1"
+
 lightningcss@^1.31.1:
   version "1.31.1"
   resolved "https://registry.npmjs.org/lightningcss/-/lightningcss-1.31.1.tgz"
@@ -3835,7 +3859,7 @@ raw-body@~2.5.3:
   dependencies:
     scheduler "^0.27.0"
 
-react-hook-form@^7.71.1:
+react-hook-form@^7.55.0, react-hook-form@^7.71.1:
   version "7.71.1"
   resolved "https://registry.npmjs.org/react-hook-form/-/react-hook-form-7.71.1.tgz"
   integrity sha512-9SUJKCGKo8HUSsCO+y0CtqkqI5nNuaDqTxyqPsZPqIwudpj4rCrAz/jZV+jn57bx5gtZKOh3neQu94DXMc+w5w==
@@ -4387,3 +4411,8 @@ wsl-utils@^0.1.0:
   integrity sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw==
   dependencies:
     is-wsl "^3.1.0"
+
+zod@^4.3.6:
+  version "4.3.6"
+  resolved "https://registry.npmjs.org/zod/-/zod-4.3.6.tgz"
+  integrity sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==

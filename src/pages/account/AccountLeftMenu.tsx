@@ -1,7 +1,11 @@
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import React from "react";
 
-const AccountLeftMenu = ({ logoutHandler, section }) => {
+interface AccountLeftMenuProps {
+  section: string;
+}
+
+const AccountLeftMenu = ({ section }: AccountLeftMenuProps) => {
   return (
     <Listbox
       aria-label="Menu"
@@ -32,9 +36,6 @@ const AccountLeftMenu = ({ logoutHandler, section }) => {
         href="/profile/options"
       >
         Options
-      </ListboxItem>
-      <ListboxItem key="logout" color="danger" onClick={logoutHandler}>
-        Se deconnecter
       </ListboxItem>
     </Listbox>
   );

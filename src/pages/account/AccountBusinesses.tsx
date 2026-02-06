@@ -1,6 +1,5 @@
 import React from "react";
 import useFetchBusinesses from "../../hooks/useFetchBusinesses";
-import useAuthentication from "../../hooks/useAuthentication";
 import BusinessCard from "../../components/BusinessCard";
 import PageTitle from "../../components/PageTitle";
 

@@ -1,27 +1,34 @@
-import { useContext } from "react";
+import { ReactNode, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { UserContext } from "./contexts/UserContext";
+import { useAuth } from "./contexts/UserContext";
 import LoadingPage from "./components/LoadingPage";
 import React from "react";
 
-const ProtectedRoute = ({ container }) => {
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
-  const userContext = useContext(UserContext);
-
   const [searchParams] = useSearchParams();
+  const { user, isLoading, isAuthenticated } = useAuth();
 
-  const { isLoading, data: { payload: user } = { payload: undefined } } =
-    userContext;
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      const redirectUrl = searchParams.get("redirectUrl") ?? "/login";
+      navigate(redirectUrl);
+    }
+  }, [isLoading, isAuthenticated, navigate, searchParams]);
 
   if (isLoading) {
     return <LoadingPage />;
   }
 
-  if (user) {
-    return container;
-  } else {
-    navigate(searchParams.get("redirectUrl") ?? "/login");
+  if (!isAuthenticated) {
+    return null; // Return null while redirecting
   }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

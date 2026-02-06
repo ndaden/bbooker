@@ -5,10 +5,10 @@ export interface User {
   id: string;
   email: string;
   profile?: {
-    firstName: string;
-    lastName: string;
-    address: string;
-    profileImage?: string;
+    firstName?: string;
+    lastName?: string;
+    birthDate?: string;
+    address?: string;
   };
   role: string;
 }
@@ -21,25 +21,59 @@ export interface Business {
   owner: string;
 }
 
+// Types
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  payload?: User;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface SignupCredentials {
+  email: string;
+  password: string;
+  passwordAgain: string;
+  accountType: "STANDARD" | "OWNER";
+}
+
+// Profile Types
+export interface UpdateProfileData {
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  address: string;
+}
+
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 // Auth Services
 export const authService = {
   getProfile: (): Promise<{ payload: User }> =>
     apiClient.get('/auth/profile'),
 
-  login: (credentials: { email: string; password: string }) =>
+  login: (credentials: LoginCredentials): Promise<AuthResponse> =>
     apiClient.post('/auth/login', credentials),
 
-  signup: (userData: any) =>
+  signup: (userData: SignupCredentials): Promise<AuthResponse> =>
     apiClient.post('/auth/signup', userData),
 
-  logout: () =>
+  logout: (): Promise<AuthResponse> =>
     apiClient.get('/auth/logout'),
 
-  updateProfile: (data: any, isJson = false) => {
-    if (isJson) {
-      return apiClient.patch('/auth/profile', data);
-    }
-    return apiClient.upload('/auth/profile', data as FormData);
+  updateProfile: (data: UpdateProfileData): Promise<AuthResponse> => {
+    return apiClient.patch('/auth/profile', data);
+  },
+
+  changePassword: (data: ChangePasswordData): Promise<AuthResponse> => {
+    return apiClient.patch('/auth/password', data);
   },
 };
 

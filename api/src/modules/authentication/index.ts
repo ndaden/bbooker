@@ -13,7 +13,7 @@ export const authentification = (app: Elysia) =>
       .post(
         "/signup",
         async ({ body, set }) => {
-          const { email, password, passwordAgain } = body;
+          const { email, password, passwordAgain, accountType } = body;
           try {
           if (password === passwordAgain) {
             const { hash } = await hashPassword(password);
@@ -21,13 +21,14 @@ export const authentification = (app: Elysia) =>
               data: {
                 email,
                 hash,
-                role: "STANDARD",
+                role: accountType || "STANDARD",
               },
               select: {
                 id: true,
-                email: true
+                email: true,
+                role: true
               }
-            }); 
+            });
           
             set.status = "Created";
             return buildApiResponse(

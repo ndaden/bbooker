@@ -3,6 +3,7 @@ import {
   RouterProvider,
   Routes,
   createBrowserRouter,
+  useLocation,
 } from "react-router-dom";
 import Home from "./Home";
 import Admin from "./Admin";
@@ -12,8 +13,9 @@ import QLink from "./components/QLink";
 import Appointment from "./pages/appointment/Appointment";
 import Login from "./pages/account/Login";
 import CreateAccount from "./pages/account/CreateAccount";
-import Profile from "./pages/account/Profile";
+import Profile from "./pages/account/profile/Profile";
 import CreateBusiness from "./pages/business/CreateBusiness";
+import CreateBusinessNew from "./pages/business/CreateBusinessNew";
 import Business from "./pages/business/Business";
 import LoadingPage from "./components/LoadingPage";
 import ProtectedRoute from "./ProtectedRoute";
@@ -55,7 +57,7 @@ function Root() {
         <Route path="*" element={<LoadingPage />} />
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/new-business" element={<CreateBusiness />} />
+        <Route path="/new-business" element={<CreateBusinessNew />} />
         <Route path="/business/:id" element={<Business />} />
         <Route path="/appointment" element={<Appointment />} />
         <Route path="/login" element={<Login />} />
@@ -63,11 +65,27 @@ function Root() {
         <Route path="/loading" element={<LoadingPage />} />
         <Route
           path="/profile"
-          element={<ProtectedRoute container={<Profile section="infos" />} />}
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/security"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/profile/options"
-          element={<ProtectedRoute container={<Profile section="options" />} />}
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
         />
       </Routes>
     </>
