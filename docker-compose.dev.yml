@@ -8,13 +8,36 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./api/init-replica.js:/docker-entrypoint-initdb.d/init-replica.js:ro
     networks:
       - bbooker-network
     command: mongod --replSet rs0 --bind_ip_all --noauth
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 })"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo-rs-init:
+    image: mongo:7
+    container_name: bbooker-mongodb-init
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/scripts/mongo-rs-init.sh"]
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_REPLICA_SET: rs0
+      MONGO_RS_MEMBER_HOST: mongodb:27017
+    volumes:
+      - ./scripts/mongo-rs-init.sh:/scripts/mongo-rs-init.sh:ro
+    networks:
+      - bbooker-network
+    restart: "no"
 
   # API Backend
   bbooker-api:
-    build: ../bbooker-api
+    build: ./api
     container_name: bbooker-api
     restart: unless-stopped
     depends_on:

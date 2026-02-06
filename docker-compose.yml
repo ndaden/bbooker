@@ -1,24 +1,99 @@
-# Use root/example as user/password credentials
-version: '3.1'
+version: '3.8'
 
 services:
+  mongodb:
+    image: mongo:7
+    container_name: bbooker-mongodb
+    restart: unless-stopped
+    command: mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongo-keyfile
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password123}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-bbooker}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-keyfile:/etc/mongo-keyfile:ro
+      - ./api/init-replica.js:/docker-entrypoint-initdb.d/init-replica.js:ro
+    networks:
+      - bbooker-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand({ ping: 1 })"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo-rs-init:
+    image: mongo:7
+    container_name: bbooker-mongodb-init
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/scripts/mongo-rs-init.sh"]
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_REPLICA_SET: rs0
+      MONGO_RS_MEMBER_HOST: mongodb:27017
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password123}
+    volumes:
+      - ./scripts/mongo-rs-init.sh:/scripts/mongo-rs-init.sh:ro
+    networks:
+      - bbooker-network
+    restart: "no"
+
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
+    container_name: bbooker-api
+    restart: unless-stopped
     depends_on:
-      - mongo
+      - mongodb
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: "mongodb://bbooker_user:bbooker_pass@mongodb:27017/bbooker?replicaSet=rs0"
+      JWT_SECRET: "super-secure-jwt-secret-key-for-production-32-chars"
+      CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+      COOKIE_DOMAIN: "localhost"
+      # Firebase variables - à configurer avec vos vraies clés
+      FIREBASE_APIKEY: ""
+      FIREBASE_AUTHDOMAIN: ""
+      FIREBASE_PROJECTID: ""
+      FIREBASE_STORAGEBUCKET: ""
+      FIREBASE_MESSAGINGSENDERID: ""
+      FIREBASE_APPID: ""
+      FIREBASE_MEASUREMENTID: ""
+      # Google AI - optionnel
+      GEMINI_API_KEY: ""
+      AI_SYSTEM_INSTRUCTION: "You are a helpful assistant for beauty salon bookings."
     ports:
-      - "3001:3001"
+      - "3002:3002"
+    networks:
+      - bbooker-network
     volumes:
-      - ./api:/usr/src/app
+      - api_uploads:/app/uploads
+
   front:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:3002}
+    container_name: bbooker-front
+    restart: unless-stopped
     depends_on:
       - api
     ports:
       - "3000:80" # pointing to nginx port 80
-    volumes:
-      - ./:/usr/src/app
+    networks:
+      - bbooker-network
+
+volumes:
+  mongodb_data:
+  api_uploads:
+
+networks:
+  bbooker-network:
+    driver: bridge

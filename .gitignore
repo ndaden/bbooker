@@ -35,3 +35,6 @@ dev.env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# mongodb keyfile (local only)
+mongo-keyfile

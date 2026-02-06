@@ -9,8 +9,8 @@ RUN npm install -g bun
 COPY package.json bun.lockb ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN bun install --production
+# Install dependencies (incl. devDeps for Prisma CLI during build)
+RUN bun install
 
 # Generate Prisma client
 RUN bunx prisma generate

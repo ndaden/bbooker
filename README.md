@@ -13,7 +13,7 @@ La stack complète BBooker comprend :
 
 ```bash
 cd bbooker
-docker-compose -f docker-compose.dev.yml up -d mongodb bbooker-api
+docker-compose -f docker-compose.dev.yml up -d
 ```
 
 ### 2. Vérifier que l'API fonctionne
@@ -25,7 +25,7 @@ curl http://localhost:3003/
 ### 3. Lancer le frontend (en développement)
 
 ```bash
-PUBLIC_API_URL=http://localhost:3003 yarn dev
+PUBLIC_API_URL=http://localhost:3003 npm run dev
 ```
 
 ## Configuration
@@ -65,17 +65,16 @@ docker-compose -f docker-compose.dev.yml up -d --build bbooker-api
 
 ## Production
 
-Pour la production, configurez :
-1. Variables Firebase réelles dans `docker-compose.dev.yml`
+Pour la production, utilisez `docker-compose.yml` :
+
+```bash
+# Exemple (variables d'env facultatives via --env-file)
+docker compose -f docker-compose.yml up -d --build
+```
+
+À configurer :
+1. Variables Firebase réelles dans `docker-compose.yml`
 2. JWT_SECRET sécurisé
 3. Domaines de production dans CORS_ORIGINS
-4. PUBLIC_API_URL vers votre domaine API
-
-## Sécurité
-
-✅ **Améliorations incluses :**
-- Rate limiting (100 req/15min)
-- Validation stricte des uploads
-- Gestion d'erreurs centralisée
-- Logs de sécurité
-- Utilisateur MongoDB dédié
+4. PUBLIC_API_URL (build-time) vers votre domaine API
+5. Clé MongoDB replica set (copier `mongo-keyfile.example` vers `mongo-keyfile` et remplacer par une valeur aléatoire)

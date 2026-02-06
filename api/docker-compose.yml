@@ -5,6 +5,7 @@ services:
     image: mongo:7
     container_name: bbooker-mongodb
     restart: unless-stopped
+    command: mongod --replSet rs0 --bind_ip_all
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
@@ -13,7 +14,7 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./init-replica.js:/docker-entrypoint-initdb.d/init-replica.js:ro
     networks:
       - bbooker-network
 
@@ -25,7 +26,7 @@ services:
       - mongodb
     environment:
       NODE_ENV: production
-      DATABASE_URL: "mongodb://bbooker_user:bbooker_pass@mongodb:27017/bbooker"
+      DATABASE_URL: "mongodb://bbooker_user:bbooker_pass@mongodb:27017/bbooker?replicaSet=rs0"
       JWT_SECRET: "super-secure-jwt-secret-key-for-production-32-chars"
       CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
       COOKIE_DOMAIN: "localhost"

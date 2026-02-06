@@ -13,6 +13,11 @@ RUN npm install
 # Copy the app's source code to the working directory
 COPY . .
 
+# Build-time environment (Rspack uses process.env.* at build time)
+ARG PUBLIC_API_URL=http://localhost:3002
+ENV PUBLIC_API_URL=$PUBLIC_API_URL
+ENV NODE_ENV=production
+
 # Build the app for production
 RUN npm run build
 

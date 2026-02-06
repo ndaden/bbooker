@@ -33,3 +33,12 @@ db.createUser({
 });
 
 print("✅ Utilisateur bbooker_user créé avec succès");
+// Créer des index pour optimiser les performances
+db.account.createIndex({ "email": 1 }, { unique: true });
+db.business.createIndex({ "accountId": 1 });
+db.service.createIndex({ "businessId": 1 });
+db.appointment.createIndex({ "serviceId": 1 });
+db.appointment.createIndex({ "accountId": 1 });
+db.appointment.createIndex({ "startTime": 1 });
+
+print("✅ Index créés");
