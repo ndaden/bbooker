@@ -2,11 +2,6 @@ import { useEffect, useState } from "react";
 import { businessValidation } from "./businessValidation";
 import useMutateBusiness from "../../hooks/useMutateBusiness";
 
-interface Business {
-  name: string;
-  description: string;
-  owner: string;
-}
 
 interface Prestation {
   name: string;
@@ -15,21 +10,40 @@ interface Prestation {
   price: number;
 }
 
-const useCreateBusinessAndService = (form, user, setNbPrestations) => {
+const useCreateBusinessAndService = (form) => {
   const { getValues, unregister, setValue, trigger, reset } = form;
   const [displayPrestationForm, setDisplayPrestationForm] = useState(false);
   const [prestations, setPrestations] = useState<Prestation[]>([]);
   const [isPrestationValid, setIsPrestationValid] = useState(false);
-  const { mutateBusiness, data: businessCreated } = useMutateBusiness();
+  const { mutateBusiness } = useMutateBusiness();
   const [prestationFieldName, setPrestationFieldName] = useState(
     `prestations[${prestations.length}]`
   );
 
   const BUSINESS_DATA_KEY = "new_business_data";
 
-  const [savedBusinessData, setSavedBusinessData] = useState(
-    JSON.parse(sessionStorage.getItem(BUSINESS_DATA_KEY) ?? "{}")
-  );
+  // Safely parse sessionStorage data with validation
+  const parseStoredData = () => {
+    try {
+      const stored = sessionStorage.getItem(BUSINESS_DATA_KEY);
+      if (!stored) return {};
+      
+      const parsed = JSON.parse(stored);
+      // Validate that parsed data is an object
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        console.warn("Invalid session storage data format, clearing...");
+        sessionStorage.removeItem(BUSINESS_DATA_KEY);
+        return {};
+      }
+      return parsed;
+    } catch (error) {
+      console.error("Error parsing session storage:", error);
+      sessionStorage.removeItem(BUSINESS_DATA_KEY);
+      return {};
+    }
+  };
+
+  const [savedBusinessData, setSavedBusinessData] = useState(parseStoredData());
 
   useEffect(() => {
     console.log("initial effect");
@@ -115,7 +129,7 @@ const useCreateBusinessAndService = (form, user, setNbPrestations) => {
 
     const prestationsToCreate = values.prestations
       .filter((p) => !isEmptyPrestation(p))
-      .map((presta, idx) => {
+      .map((presta) => {
         return toDatabasePrestation(presta);
       });
 

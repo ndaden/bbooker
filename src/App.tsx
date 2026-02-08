@@ -19,6 +19,7 @@ import CreateBusinessNew from "./pages/business/CreateBusinessNew";
 import Business from "./pages/business/Business";
 import LoadingPage from "./components/LoadingPage";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
@@ -56,9 +57,17 @@ function Root() {
       <Routes>
         <Route path="*" element={<LoadingPage />} />
         <Route path="/" element={<Home />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route 
+          path="/admin" 
+          element={
+            <AdminRoute>
+              <Admin />
+            </AdminRoute>
+          } 
+        />
         <Route path="/new-business" element={<CreateBusinessNew />} />
         <Route path="/business/:id" element={<Business />} />
+        <Route path="/business/:id/calendar" element={<Business />} />
         <Route path="/appointment" element={<Appointment />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<CreateAccount />} />

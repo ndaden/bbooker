@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { User } from "../../../types/auth";
 import { Input, Button, Card, CardBody, Tabs, Tab } from "@nextui-org/react";
 import { useAuth } from "../../../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
+import AccountBusinesses from "../AccountBusinesses";
+import UserAppointments from "../UserAppointments";
 import dayjs from "dayjs";
 
 interface ProfileInfoProps {
@@ -10,7 +13,9 @@ interface ProfileInfoProps {
 
 const ProfileInfo = ({ user }: ProfileInfoProps) => {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState("infos");
+  const isOwner = user.role === "OWNER";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,6 +118,33 @@ const ProfileInfo = ({ user }: ProfileInfoProps) => {
                 </Button>
               </form>
             </Tab>
+
+            <Tab key="appointments" title="Mes rendez-vous">
+              <div className="min-h-[400px]">
+                <p className="mb-4 text-gray-600">
+                  Consultez et gérez tous vos rendez-vous passés et à venir
+                </p>
+                <UserAppointments user={user} />
+              </div>
+            </Tab>
+
+            {isOwner && (
+              <Tab key="centres" title="Centres">
+                <div className="min-h-[400px]">
+                  <p className="mb-4 text-gray-600">
+                    Gérez vos établissements et créez de nouveaux centres
+                  </p>
+                  <Button
+                    color="primary"
+                    onClick={() => navigate("/new-business")}
+                    className="mb-6"
+                  >
+                    + Créer un nouveau centre
+                  </Button>
+                  <AccountBusinesses user={user} />
+                </div>
+              </Tab>
+            )}
           </Tabs>
 
           <Button

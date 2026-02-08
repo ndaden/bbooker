@@ -49,6 +49,9 @@ model Business {
   name        String
   description String?
   image       String?
+  address     String?
+  latitude    Float?
+  longitude   Float?
   services    Service[]
   openingTime String?
   closingTime String?

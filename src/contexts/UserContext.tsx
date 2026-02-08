@@ -43,7 +43,15 @@ const UserContextProvider = ({ children }: UserContextProviderProps) => {
       console.error("Logout error:", err);
     } finally {
       await queryClient.removeQueries({ queryKey: QUERY_KEY });
-      window.location.href = redirectTo;
+      
+      // Validate redirect URL to prevent open redirect attacks
+      const allowedDomains = ['localhost:3001', '127.0.0.1:3001'];
+      const isValidRedirect = 
+        redirectTo.startsWith('/') || 
+        allowedDomains.some(domain => redirectTo.includes(domain));
+      
+      const safeRedirect = isValidRedirect ? redirectTo : "/";
+      window.location.href = safeRedirect;
     }
   };
 

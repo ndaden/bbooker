@@ -12,24 +12,28 @@ import {
   TableRow,
 } from "@nextui-org/react";
 import useFetchBusinesses from "../../hooks/useFetchBusinesses";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import useFetchServices from "../../hooks/useFetchServices";
+import useFetchAppointments from "../../hooks/useFetchAppointments";
 import { useNavigate } from "react-router-dom";
 import Container from "../../components/Container";
+import BusinessCalendar from "./BusinessCalendar";
 import React from "react";
 
 const Business = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isCalendarView = location.pathname.includes("/calendar");
 
-  let businessToDisplay;
+  let businessToDisplay: any = null;
 
   const { businesses, isLoading: isLoadingBusiness } = useFetchBusinesses({
     id,
   });
 
-  if (!isLoadingBusiness) {
-    businessToDisplay = businesses.payload;
+  if (!isLoadingBusiness && businesses) {
+    businessToDisplay = businesses.payload || businesses;
   }
 
   const onClickTakeAppointment = () => {
@@ -37,6 +41,41 @@ const Business = () => {
       state: { business: businessToDisplay },
     });
   };
+
+  // Fetch appointments for calendar view
+  const businessIdForCalendar = isCalendarView && id ? id : null;
+  const { appointments, isLoading: isLoadingAppointments } = useFetchAppointments(
+    businessIdForCalendar as any
+  );
+
+  if (isCalendarView) {
+    // Transform appointments data for the calendar
+    const calendarAppointments = appointments?.payload?.map((apt: any) => ({
+      id: apt._id,
+      startTime: apt.startTime,
+      endTime: apt.endTime,
+      serviceName: apt.service?.serviceName || "Service",
+      clientName: apt.client?.username || apt.client?.profile?.firstName || "Client",
+    })) || [];
+
+    return (
+      <Container>
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(`/business/${id}`)}
+          >
+            ← Retour au centre
+          </Button>
+        </div>
+        <h1 className="text-2xl font-bold mb-4">
+          {businessToDisplay?.name} - Calendrier
+        </h1>
+        <BusinessCalendar appointments={calendarAppointments} />
+      </Container>
+    );
+  }
+
   return (
     !isLoadingBusiness &&
     businessToDisplay && (
@@ -84,7 +123,7 @@ const Business = () => {
               <TableColumn>Durée</TableColumn>
             </TableHeader>
             <TableBody>
-              {businessToDisplay.services?.map((service) => (
+              {businessToDisplay.services?.map((service: any) => (
                 <TableRow key={service.id}>
                   <TableCell>{service.name}</TableCell>
                   <TableCell>{service.description}</TableCell>

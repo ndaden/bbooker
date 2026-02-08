@@ -33,13 +33,13 @@ const QNavbar = ({ links = [] }) => {
   const navigate = useNavigate();
 
   const goToLogin = () => {
-    navigate("login");
+    navigate("/login");
   };
   const goToSignup = () => {
-    navigate("signup");
+    navigate("/signup");
   };
   const goToProfile = () => {
-    navigate("profile");
+    navigate("/profile");
   };
 
   const logoutHandler = async () => {

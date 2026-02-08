@@ -1,5 +1,6 @@
 import { Elysia, t } from "elysia";
 import { isAuthenticated } from "../../middlewares/authentication";
+import { checkAppointmentAccess } from "../../middlewares/authorization";
 import { createAppointmentType } from "./types";
 import { prisma } from "../../libs/prisma";
 import { buildApiResponse } from "../../utils/api";
@@ -27,23 +28,68 @@ export const appointment = (app: Elysia) =>
 
           let foundAppointments;
 
-          if (serviceId) {
+          // OWNER role can view appointments for their business services
+          if (account.role === "OWNER") {
+            // Get all appointments for services belonging to owner's businesses
+            foundAppointments = await prisma.appointment.findMany({
+              where: {
+                service: {
+                  business: {
+                    accountId: account.id,
+                  },
+                },
+              },
+              include: {
+                service: {
+                  include: {
+                    business: true,
+                  },
+                },
+              },
+            });
+          } else if (serviceId) {
+            // Filter by service (admin only)
             foundAppointments = await prisma.appointment.findMany({
               where: {
                 serviceId,
               },
+              include: {
+                service: {
+                  include: {
+                    business: true,
+                  },
+                },
+              },
             });
-          }
-
-          if (accountId && accountId === account.id) {
+          } else if (accountId && accountId === account.id) {
+            // Standard users can only view their own appointments
             foundAppointments = await prisma.appointment.findMany({
               where: {
                 accountId,
               },
+              include: {
+                service: {
+                  include: {
+                    business: true,
+                  },
+                },
+              },
+            });
+          } else {
+            // Default: standard users only see their own appointments
+            foundAppointments = await prisma.appointment.findMany({
+              where: {
+                accountId: account.id,
+              },
+              include: {
+                service: {
+                  include: {
+                    business: true,
+                  },
+                },
+              },
             });
           }
-
-          foundAppointments = await prisma.appointment.findMany();
 
           return buildApiResponse(true, "appointments", foundAppointments);
         },
@@ -188,10 +234,121 @@ export const appointment = (app: Elysia) =>
           detail: { tags: ["appointment"] },
         }
       )
-      .patch("/:id", async ({ account, body, params }) => {}, {
-        detail: { tags: ["appointment"] },
-      })
-      .delete("/:id", async ({ account, params }) => {}, {
-        detail: { tags: ["appointment"] },
-      })
+      .get(
+        "/:id",
+        async ({ account, params, set }) => {
+          if (!account) {
+            return buildApiResponse(false, "unauthorized");
+          }
+
+          const { id } = params as { id: string };
+          const { allowed, error, appointment } = await checkAppointmentAccess(account, id);
+
+          if (!allowed) {
+            set.status = 403;
+            return buildApiResponse(false, error);
+          }
+
+          return buildApiResponse(true, "appointment found", appointment);
+        },
+        {
+          params: t.Object({
+            id: t.String(),
+          }),
+          detail: { tags: ["appointment"] },
+        }
+      )
+      .patch(
+        "/:id",
+        async ({ account, body, params, set }) => {
+          if (!account) {
+            return buildApiResponse(false, "unauthorized");
+          }
+
+          const { id } = params as { id: string };
+          const { allowed, error } = await checkAppointmentAccess(account, id);
+
+          if (!allowed) {
+            set.status = 403;
+            return buildApiResponse(false, error);
+          }
+
+          const { startTime, serviceId } = body as { startTime?: string; serviceId?: string };
+
+          // If changing service, verify new service exists
+          if (serviceId) {
+            const service = await prisma.service.findFirst({
+              where: { id: serviceId },
+            });
+            if (!service) {
+              return buildApiResponse(false, "service does not exist");
+            }
+          }
+
+          // Calculate new end time if start time changed
+          let endTime;
+          if (startTime) {
+            const appointment = await prisma.appointment.findFirst({
+              where: { id },
+              include: { service: true },
+            });
+            const service = appointment?.service;
+            if (service) {
+              endTime = dayjs(startTime).add(service.duration, "minutes");
+            }
+          }
+
+          const updatedAppointment = await prisma.appointment.update({
+            where: { id },
+            data: {
+              ...(startTime && { startTime: dayjs(startTime).toDate() }),
+              ...(endTime && { endTime: dayjs(endTime).toDate() }),
+              ...(serviceId && { serviceId }),
+              updateDate: new Date(),
+            },
+          });
+
+          return buildApiResponse(true, "appointment updated", updatedAppointment);
+        },
+        {
+          params: t.Object({
+            id: t.String(),
+          }),
+          body: t.Optional(
+            t.Object({
+              startTime: t.Optional(t.String()),
+              serviceId: t.Optional(t.String()),
+            })
+          ),
+          detail: { tags: ["appointment"] },
+        }
+      )
+      .delete(
+        "/:id",
+        async ({ account, params, set }) => {
+          if (!account) {
+            return buildApiResponse(false, "unauthorized");
+          }
+
+          const { id } = params as { id: string };
+          const { allowed, error } = await checkAppointmentAccess(account, id);
+
+          if (!allowed) {
+            set.status = 403;
+            return buildApiResponse(false, error);
+          }
+
+          await prisma.appointment.delete({
+            where: { id },
+          });
+
+          return buildApiResponse(true, "appointment deleted successfully");
+        },
+        {
+          params: t.Object({
+            id: t.String(),
+          }),
+          detail: { tags: ["appointment"] },
+        }
+      )
   );

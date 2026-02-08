@@ -1,5 +1,5 @@
 import { Button, Card, CardBody } from "@nextui-org/react";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -25,24 +25,25 @@ const LoginForm = () => {
     },
   });
 
-  const { mutate: login, isPending, isSuccess, isError, error, data } = useLogin();
-
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isSuccess && data?.success) {
-      queryClient.invalidateQueries({ queryKey: ["AUTHENTICATED_USER"] });
-      navigate("/profile");
-    } else if (isSuccess && !data?.success) {
-      setErrorMessage(data?.message || "Les informations fournies ne nous permettent de vous identifier.");
-    } else if (isError && error) {
+  const { mutate: login, isPending } = useLogin({
+    onSuccess: async (data) => {
+      if (data?.success) {
+        await queryClient.refetchQueries({ queryKey: ["AUTHENTICATED_USER"] });
+        navigate("/profile");
+      } else {
+        setErrorMessage(data?.message || "Les informations fournies ne nous permettent de vous identifier.");
+      }
+    },
+    onError: (error) => {
       setErrorMessage(
         error instanceof Error
           ? error.message
           : "Une erreur s'est produite lors de la connexion"
       );
     }
-  }, [isSuccess, isError, data, error, navigate, queryClient]);
+  });
 
   const onSubmit = async (formData: LoginFormData) => {
     if (isValid) {

@@ -85,12 +85,28 @@ const editProfileQuery = async (formData, isJson = false) => {
 
 const getBusinessesQuery = async ({ id, ownerid }) => {
   const businessUrl = !!id
-    ? `${publicApiUrl}/business/${id}`
+    ? `${publicApiUrl}/business/${encodeURIComponent(id)}`
     : !!ownerid
-    ? `${publicApiUrl}/business?ownerid=${ownerid}`
+    ? `${publicApiUrl}/business?ownerid=${encodeURIComponent(ownerid)}`
     : `${publicApiUrl}/business`;
   const response = await fetch(businessUrl, {
     method: "GET",
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error(response.statusText);
+  return await response.json();
+};
+
+const searchBusinessesQuery = async ({ query, lat, lng, radius = 10 }) => {
+  const params = new URLSearchParams();
+  if (query) params.append('q', query);
+  if (lat !== undefined && lat !== null) params.append('lat', lat.toString());
+  if (lng !== undefined && lng !== null) params.append('lng', lng.toString());
+  if (radius) params.append('radius', radius.toString());
+  
+  const response = await fetch(`${publicApiUrl}/business/search?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
   });
   if (!response.ok) throw new Error(response.statusText);
   return await response.json();
@@ -106,14 +122,21 @@ const createBusinessQuery = async (formData) =>
     credentials: "include",
   });
 
-const getServicesQuery = async (id, businessId) =>
-  (
-    await fetch(
-      `${publicApiUrl}/service${id ? `?id=${id}` : ``}${
-        businessId ? `?businessId=${businessId}` : `/`
-      }`
-    )
-  ).json();
+const getServicesQuery = async (id, businessId) => {
+  let url = `${publicApiUrl}/service`;
+  const params = [];
+  if (id) params.push(`id=${encodeURIComponent(id)}`);
+  if (businessId) params.push(`businessId=${encodeURIComponent(businessId)}`);
+  if (params.length > 0) {
+    url += `?${params.join('&')}`;
+  }
+  
+  const response = await fetch(url, {
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error(response.statusText);
+  return await response.json();
+};
 
 const createServiceQuery = async (formData) =>
   await fetch(`${publicApiUrl}/service/create`, {
@@ -124,8 +147,23 @@ const createServiceQuery = async (formData) =>
     body: JSON.stringify(formData),
   });
 
-const getAppointmentsQuery = async () =>
-  (await fetch(`${publicApiUrl}/appointment`)).json();
+const getAppointmentsQuery = async () => {
+  const response = await fetch(`${publicApiUrl}/appointment`, { credentials: "include" });
+  if (!response.ok) throw new Error(response.statusText);
+  return await response.json();
+};
+
+const getAppointmentsByBusinessQuery = async (businessId) => {
+  const response = await fetch(`${publicApiUrl}/appointment?businessId=${encodeURIComponent(businessId)}`, { credentials: "include" });
+  if (!response.ok) throw new Error(response.statusText);
+  return await response.json();
+};
+
+const getAppointmentsByUserQuery = async (userId) => {
+  const response = await fetch(`${publicApiUrl}/appointment?accountId=${encodeURIComponent(userId)}`, { credentials: "include" });
+  if (!response.ok) throw new Error(response.statusText);
+  return await response.json();
+};
 
 const createAppointmentQuery = async (formData) =>
   await fetch(`${publicApiUrl}/appointment`, {
@@ -142,13 +180,19 @@ const getFreeSlotsQuery = async ({
   startTimeInterval,
   endTimeInterval,
   slotDurationInMinutes,
-}) =>
-  (
-    await fetch(
-      `${publicApiUrl}/appointment/slots/${businessId}?startTimeInterval=${startTimeInterval}&endTimeInterval=${endTimeInterval}&slotDurationInMinutes=${slotDurationInMinutes}`,
-      { credentials: "include" }
-    )
-  ).json();
+}) => {
+  const params = new URLSearchParams();
+  params.append('startTimeInterval', startTimeInterval);
+  params.append('endTimeInterval', endTimeInterval);
+  params.append('slotDurationInMinutes', slotDurationInMinutes);
+  
+  const response = await fetch(
+    `${publicApiUrl}/appointment/slots/${encodeURIComponent(businessId)}?${params.toString()}`,
+    { credentials: "include" }
+  );
+  if (!response.ok) throw new Error(response.statusText);
+  return await response.json();
+};
 
 const getUsersQuery = async () => (await fetch(`${publicApiUrl}/user`)).json();
 
@@ -172,10 +216,13 @@ export {
   authenticateUserQuery,
   logoutUserQuery,
   getBusinessesQuery,
+  searchBusinessesQuery,
   createBusinessQuery,
   getServicesQuery,
   createServiceQuery,
   getAppointmentsQuery,
+  getAppointmentsByBusinessQuery,
+  getAppointmentsByUserQuery,
   createAppointmentQuery,
   getFreeSlotsQuery,
   getRolesQuery,

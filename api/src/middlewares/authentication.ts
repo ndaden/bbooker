@@ -26,13 +26,19 @@ export const isAuthenticated = (app: Elysia) =>
     if (!account) {
       set.status = 401;
       return { error: buildApiResponse(false, "Unauthorized") };
-    } else {
-      const returnedAccount = Object.fromEntries(
-        Object.entries(account).filter(([key]) => !["hash"].includes(key))
-      );
-
-      return {
-        account: returnedAccount,
-      };
     }
+
+    // Check if account is active
+    if (!account.active) {
+      set.status = 403;
+      return { error: buildApiResponse(false, "Account is disabled. Please contact support.") };
+    }
+
+    const returnedAccount = Object.fromEntries(
+      Object.entries(account).filter(([key]) => !["hash"].includes(key))
+    );
+
+    return {
+      account: returnedAccount,
+    };
   });

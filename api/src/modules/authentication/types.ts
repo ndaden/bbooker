@@ -2,9 +2,9 @@ import { Role } from "@prisma/client";
 import { t } from "elysia";
 
 const accountBodyType = t.Object({
-  email: t.String(),
-  password: t.String(),
-  passwordAgain: t.String(),
+  email: t.String({ format: "email" }),
+  password: t.String({ minLength: 8, maxLength: 128 }),
+  passwordAgain: t.String({ minLength: 8, maxLength: 128 }),
   accountType: t.Optional(t.Enum(Role)),
 });
 

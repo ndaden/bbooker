@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { comparePassword, hashPassword } from "../../utils/crypto";
 import { prisma } from "../../libs/prisma";
 import { accountBodyType, loginBodyType, patchAccountBodyType } from "./types";
@@ -6,10 +6,12 @@ import { buildApiResponse } from "../../utils/api";
 import { isAuthenticated } from "../../middlewares/authentication";
 import { uploadImageToFirebase } from "../../utils/upload";
 import { getErrorMessage } from "../../utils/errors";
+import { authRateLimit } from "../../middlewares/authRateLimit";
 
 export const authentification = (app: Elysia) =>
   app.group("/auth", (app) =>
     app
+      .use(authRateLimit())
       .post(
         "/signup",
         async ({ body, set }) => {

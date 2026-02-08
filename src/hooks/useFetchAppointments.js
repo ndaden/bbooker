@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAppointmentsQuery } from "./queries";
+import { getAppointmentsQuery, getAppointmentsByBusinessQuery } from "./queries";
 import { APPOINTMENTS_KEY } from "./queryKeys";
 
-const useFetchAppointments = () => {
+const useFetchAppointments = (businessId = null) => {
   const {
     data: appointments,
     isLoading,
     refetch: refetchAppointments,
   } = useQuery({
-    queryKey: [APPOINTMENTS_KEY],
-    queryFn: getAppointmentsQuery,
+    queryKey: businessId ? [APPOINTMENTS_KEY, "BUSINESS", businessId] : [APPOINTMENTS_KEY],
+    queryFn: () => businessId ? getAppointmentsByBusinessQuery(businessId) : getAppointmentsQuery(),
     enabled: true,
   });
 
