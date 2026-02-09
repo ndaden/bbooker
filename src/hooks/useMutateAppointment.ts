@@ -1,15 +1,21 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { createAppointmentQuery } from "./queries";
 
-const useMutateAppointment = () => {
+const useMutateAppointment = (): {
+  mutateAppointment: UseMutationResult<Response, Error, unknown, unknown>["mutate"];
+  data: UseMutationResult<Response, Error, unknown, unknown>["data"];
+  error: UseMutationResult<Response, Error, unknown, unknown>["error"];
+  isError: UseMutationResult<Response, Error, unknown, unknown>["isError"];
+  isPending: boolean;
+} => {
   const {
     mutate: mutateAppointment,
     data,
     error,
     isError,
-    isLoading,
+    isPending,
   } = useMutation({
-    mutationFn: (formData) => createAppointmentQuery(formData),
+    mutationFn: (formData: unknown) => createAppointmentQuery(formData),
   });
 
   return {
@@ -17,7 +23,7 @@ const useMutateAppointment = () => {
     data,
     error,
     isError,
-    isLoading,
+    isPending,
   };
 };
 

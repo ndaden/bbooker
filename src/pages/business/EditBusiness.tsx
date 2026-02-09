@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Control, FieldValues } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Button,
@@ -14,6 +14,7 @@ import Container from "../../components/Container";
 import PageTitle from "../../components/PageTitle";
 import ControlledInput from "../../components/ControlledInput";
 import ControlledTextArea from "../../components/ControlledTextArea";
+import KeywordsInput from "../../components/form/KeywordsInput";
 import { useAuth } from "../../contexts/UserContext";
 import useFetchBusinesses from "../../hooks/useFetchBusinesses";
 import { Service } from "./steps/ServicesStep";
@@ -36,6 +37,8 @@ const EditBusiness: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [originalServices, setOriginalServices] = useState<Service[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [originalKeywords, setOriginalKeywords] = useState<string[]>([]);
 
   const { businesses, isLoading: isBusinessLoading, refetchBusinesses } = useFetchBusinesses({
     id,
@@ -80,6 +83,12 @@ const EditBusiness: React.FC = () => {
           setServices(loadedServices);
           setOriginalServices(loadedServices);
         }
+
+        // Load existing keywords
+        if (business.keywords) {
+          setKeywords(business.keywords);
+          setOriginalKeywords(business.keywords);
+        }
       }
     }
   }, [businesses, reset]);
@@ -110,6 +119,7 @@ const EditBusiness: React.FC = () => {
           name: data.businessName,
           description: data.businessDescription,
           address: data.businessAddress,
+          keywords: keywords,
         }),
       });
 
@@ -118,6 +128,7 @@ const EditBusiness: React.FC = () => {
         refetchBusinesses();
         // Clear dirty state by resetting form with current values
         reset(data);
+        setOriginalKeywords([...keywords]);
       } else {
         const error = await response.json();
         alert(error.message || "Une erreur est survenue lors de la mise à jour");
@@ -192,7 +203,18 @@ const EditBusiness: React.FC = () => {
     setServices(services.filter((_, i) => i !== index));
   };
 
+  const handleAddKeyword = (keyword: string) => {
+    if (!keywords.includes(keyword)) {
+      setKeywords([...keywords, keyword]);
+    }
+  };
+
+  const handleRemoveKeyword = (keyword: string) => {
+    setKeywords(keywords.filter((k) => k !== keyword));
+  };
+
   const hasServiceChanges = JSON.stringify(services) !== JSON.stringify(originalServices);
+  const hasKeywordChanges = JSON.stringify(keywords) !== JSON.stringify(originalKeywords);
 
   if (isAuthLoading || isBusinessLoading) {
     return (
@@ -277,7 +299,7 @@ const EditBusiness: React.FC = () => {
                   <form onSubmit={handleSubmit(handleSaveGeneral)}>
                     <div className="flex gap-4 mb-6">
                       <ControlledInput
-                        control={control}
+                        control={control as unknown as Control<FieldValues>}
                         name="businessName"
                         rules={{
                           required: "Veuillez saisir la raison sociale.",
@@ -291,7 +313,7 @@ const EditBusiness: React.FC = () => {
 
                     <div className="flex gap-4 mb-6">
                       <ControlledTextArea
-                        control={control}
+                        control={control as unknown as Control<FieldValues>}
                         name="businessDescription"
                         rules={{
                           required: "Veuillez saisir la description de votre centre.",
@@ -309,7 +331,7 @@ const EditBusiness: React.FC = () => {
 
                     <div className="flex gap-4 mb-6">
                       <ControlledInput
-                        control={control}
+                        control={control as unknown as Control<FieldValues>}
                         name="businessAddress"
                         rules={{
                           required: "Veuillez saisir l'adresse de votre établissement.",
@@ -319,6 +341,21 @@ const EditBusiness: React.FC = () => {
                         placeholder="Ex: 123 Rue de Paris, 75001 Paris, France"
                         size="sm"
                       />
+                    </div>
+
+                    <div className="flex gap-4 mb-6">
+                      <div className="w-full">
+                        <label className="text-sm font-medium mb-2 block">
+                          Mots-clés
+                        </label>
+                        <KeywordsInput
+                          control={control as unknown as Control<FieldValues>}
+                          errors={errors}
+                          keywords={keywords}
+                          onAddKeyword={handleAddKeyword}
+                          onRemoveKeyword={handleRemoveKeyword}
+                        />
+                      </div>
                     </div>
 
                     <Divider className="my-6" />
@@ -335,7 +372,7 @@ const EditBusiness: React.FC = () => {
                         color="primary"
                         type="submit"
                         isLoading={isSaving}
-                        isDisabled={!isDirty}
+                        isDisabled={!isDirty && !hasKeywordChanges}
                       >
                         Enregistrer les modifications
                       </Button>
@@ -347,38 +384,51 @@ const EditBusiness: React.FC = () => {
 
             <Tab key="services" title="Prestations">
               <Card className="mt-4">
-                <CardBody>
+                <CardBody className="p-4">
                   <div className="mb-4">
-                    <h3 className="text-lg font-semibold mb-2">Prestations proposées</h3>
+                    <h3 className="text-lg font-semibold mb-1">Prestations proposées</h3>
                     <p className="text-sm text-default-500">
                       Gérez les services que vous proposez à vos clients
                     </p>
                   </div>
 
-                  <div className="space-y-4 mb-6">
+                  <div className="space-y-3 mb-4">
                     {services.map((service, index) => (
                       <div
                         key={index}
-                        className="border rounded-lg p-4 bg-default-50"
+                        className="group bg-default-100/50 rounded-lg p-4 border border-default-200 hover:border-primary/30 transition-all"
                       >
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <label className="text-xs text-default-500 uppercase mb-1 block">
-                              Nom de la prestation
-                            </label>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2 flex-1">
+                            <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center text-primary text-xs font-semibold">
+                              {index + 1}
+                            </div>
                             <input
                               type="text"
                               value={service.name}
                               onChange={(e) =>
                                 handleUpdateService(index, "name", e.target.value)
                               }
-                              className="w-full p-2 border rounded-md"
-                              placeholder="Ex: Coupe homme"
+                              className="flex-1 text-sm font-medium bg-transparent border-b border-transparent hover:border-default-300 focus:border-primary focus:outline-none transition-colors"
+                              placeholder="Nom de la prestation"
                             />
                           </div>
-                          <div>
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            color="danger"
+                            variant="light"
+                            onClick={() => handleDeleteService(index)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity min-w-0 w-7 h-7"
+                          >
+                            ×
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                          <div className="relative">
                             <label className="text-xs text-default-500 uppercase mb-1 block">
-                              Prix (€)
+                              Prix
                             </label>
                             <div className="relative">
                               <input
@@ -389,15 +439,48 @@ const EditBusiness: React.FC = () => {
                                 onChange={(e) =>
                                   handleUpdateService(index, "price", e.target.value)
                                 }
-                                className="w-full p-2 border rounded-md pr-8"
+                                className="w-full p-2 px-3 bg-default-100 rounded border-0 text-sm focus:ring-1 focus:ring-primary/30 transition-all"
                                 placeholder="0.00"
                               />
-                              <span className="absolute right-3 top-2 text-default-400">€</span>
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-default-400 text-xs">€</span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-xs text-default-500 uppercase mb-1 block">
+                              Durée
+                            </label>
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="number"
+                                min="5"
+                                step="5"
+                                value={service.durationInMinutes}
+                                onChange={(e) =>
+                                  handleUpdateService(index, "durationInMinutes", e.target.value)
+                                }
+                                className="flex-1 p-2 px-3 bg-default-100 rounded border-0 text-sm text-center focus:ring-1 focus:ring-primary/30 transition-all"
+                              />
+                              <span className="text-xs text-default-500">min</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-end">
+                            <div className="flex items-center gap-1.5 text-default-500 text-xs">
+                              <BsClock className="text-primary" size={14} />
+                              <span>
+                                {Math.floor(Number(service.durationInMinutes) / 60) > 0 && (
+                                  <>{Math.floor(Number(service.durationInMinutes) / 60)}h </>
+                                )}
+                                {Number(service.durationInMinutes) % 60 > 0 && (
+                                  <>{Number(service.durationInMinutes) % 60}min</>
+                                )}
+                              </span>
                             </div>
                           </div>
                         </div>
 
-                        <div className="mb-4">
+                        <div>
                           <label className="text-xs text-default-500 uppercase mb-1 block">
                             Description
                           </label>
@@ -406,36 +489,10 @@ const EditBusiness: React.FC = () => {
                             onChange={(e) =>
                               handleUpdateService(index, "description", e.target.value)
                             }
-                            className="w-full p-2 border rounded-md"
+                            className="w-full p-2 px-3 bg-default-100 rounded border-0 text-sm focus:ring-1 focus:ring-primary/30 transition-all resize-none"
                             rows={2}
-                            placeholder="Décrivez cette prestation..."
+                            placeholder="Description de la prestation..."
                           />
-                        </div>
-
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <label className="text-xs text-default-500 uppercase">
-                              Durée (minutes)
-                            </label>
-                            <input
-                              type="number"
-                              min="5"
-                              step="5"
-                              value={service.durationInMinutes}
-                              onChange={(e) =>
-                                handleUpdateService(index, "durationInMinutes", e.target.value)
-                              }
-                              className="w-20 p-1 border rounded-md text-center"
-                            />
-                          </div>
-                          <Button
-                            size="sm"
-                            color="danger"
-                            variant="light"
-                            onClick={() => handleDeleteService(index)}
-                          >
-                            Supprimer
-                          </Button>
                         </div>
                       </div>
                     ))}
@@ -445,29 +502,42 @@ const EditBusiness: React.FC = () => {
                     variant="flat"
                     color="primary"
                     onClick={handleAddService}
-                    className="w-full mb-6"
+                    className="w-full mb-4 border border-dashed border-primary/30 hover:border-primary hover:bg-primary/10 transition-all"
+                    size="sm"
                   >
-                    + Ajouter une prestation
+                    <span className="flex items-center gap-1 text-sm">
+                      <span className="text-lg">+</span>
+                      Ajouter une prestation
+                    </span>
                   </Button>
 
                   {services.length > 0 && (
-                    <div className="bg-default-100 rounded-lg p-4 mb-6">
+                    <div className="bg-default-100 rounded-lg p-4 border border-default-200">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
-                          {services.length} prestation{services.length > 1 ? "s" : ""}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-default-200 flex items-center justify-center">
+                            <span className="text-sm font-semibold text-primary">{services.length}</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {services.length} prestation{services.length > 1 ? "s" : ""}
+                            </p>
+                            <p className="text-xs text-default-500">
+                              Prix moyen: {(
+                                services.reduce((sum, s) => sum + Number(s.price), 0) /
+                                services.length
+                              ).toFixed(2)}€
+                            </p>
+                          </div>
+                        </div>
                         <Chip
                           size="sm"
                           color="success"
                           variant="flat"
                           startContent={<BsCurrencyEuro size={12} />}
+                          className="font-medium"
                         >
-                          Prix moyen:{" "}
-                          {(
-                            services.reduce((sum, s) => sum + Number(s.price), 0) /
-                            services.length
-                          ).toFixed(2)}
-                          €
+                          {services.reduce((sum, s) => sum + Number(s.price), 0).toFixed(2)}€ total
                         </Chip>
                       </div>
                     </div>

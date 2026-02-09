@@ -118,6 +118,15 @@ const Business = () => {
                 <p className="text-md my-3 hidden sm:block">
                   {businessToDisplay.description}
                 </p>
+                {businessToDisplay.keywords && businessToDisplay.keywords.length > 0 && (
+                  <div className="flex flex-wrap gap-1 justify-center my-2">
+                    {businessToDisplay.keywords.map((keyword: string, index: number) => (
+                      <Chip key={`${keyword}-${index}`} size="sm" variant="flat" color="primary">
+                        {keyword}
+                      </Chip>
+                    ))}
+                  </div>
+                )}
                 {businessToDisplay.address && (
                   <div className="flex items-center gap-2 my-2">
                     <BsGeoAlt className="text-white" />

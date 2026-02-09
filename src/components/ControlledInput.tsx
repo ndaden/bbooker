@@ -1,28 +1,34 @@
-import { Input } from "@nextui-org/react";
+import { Input, InputProps } from "@nextui-org/react";
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
 import get from "lodash/get";
 
-const ControlledInput = ({ name, control, rules, ...props }) => {
+interface ControlledInputProps extends Omit<InputProps, "value" | "onChange"> {
+  name: string;
+  control: Control<FieldValues>;
+  rules?: RegisterOptions;
+}
+
+const ControlledInput: React.FC<ControlledInputProps> = ({ name, control, rules, ...props }) => {
   return (
     <Controller
-      defaultValue={""}
+      defaultValue=""
       name={name}
       control={control}
       rules={rules}
-      render={({ field, fieldState, formState }) => {
-        const result = get(formState.errors, name)?.message;
+      render={({ field, formState }) => {
+        const result = get(formState.errors, name)?.message as string | undefined;
         return (
           <Input
             value={field.value}
             onChange={field.onChange}
             isInvalid={!!result}
-            errorMessage={result?.toString()}
+            errorMessage={result}
             {...props}
           />
         );
       }}
-    ></Controller>
+    />
   );
 };
 

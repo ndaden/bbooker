@@ -1,9 +1,16 @@
 import React from "react";
+import { Control, FieldValues, RegisterOptions } from "react-hook-form";
 import ControlledInput from "../../components/ControlledInput";
 import ControlledTextArea from "../../components/ControlledTextArea";
 import ControlledFileInput from "../../components/ControlledFileInput";
 
-const GeneralInfoSection = ({ control, validation, hidden }) => {
+interface GeneralInfoSectionProps {
+  control: Control<FieldValues>;
+  validation: Record<string, RegisterOptions>;
+  hidden: boolean;
+}
+
+const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({ control, validation, hidden }) => {
   return (
     <div className={`my-5 ${hidden ? "hidden" : ""}`}>
       <div className="text-2xl">Informations générales</div>

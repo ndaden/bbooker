@@ -16,6 +16,7 @@ interface BusinessFormData {
   businessName: string;
   businessDescription: string;
   businessAddress: string;
+  keywords: string[];
 }
 
 const CreateBusinessNew: React.FC = () => {
@@ -23,6 +24,7 @@ const CreateBusinessNew: React.FC = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [services, setServices] = useState<Service[]>([]);
+  const [keywords, setKeywords] = useState<string[]>([]);
   const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
 
   const {
@@ -30,6 +32,7 @@ const CreateBusinessNew: React.FC = () => {
     handleSubmit,
     trigger,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm<BusinessFormData>({
     mode: "onChange",
@@ -37,6 +40,7 @@ const CreateBusinessNew: React.FC = () => {
       businessName: "",
       businessDescription: "",
       businessAddress: "",
+      keywords: [],
     },
   });
 
@@ -80,6 +84,21 @@ const CreateBusinessNew: React.FC = () => {
     setServices((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleAddKeyword = (keyword: string) => {
+    if (keyword && !keywords.includes(keyword)) {
+      setKeywords((prev) => [...prev, keyword]);
+      setValue("keywords", [...keywords, keyword]);
+    }
+  };
+
+  const handleRemoveKeyword = (keywordToRemove: string) => {
+    setKeywords((prev) => prev.filter((k) => k !== keywordToRemove));
+    setValue(
+      "keywords",
+      keywords.filter((k) => k !== keywordToRemove)
+    );
+  };
+
   const handleCreateBusiness = async () => {
     if (services.length === 0) {
       alert("Veuillez ajouter au moins une prestation");
@@ -91,6 +110,7 @@ const CreateBusinessNew: React.FC = () => {
       name: formData.businessName,
       description: formData.businessDescription,
       address: formData.businessAddress,
+      keywords: keywords,
       services: services.map((service) => ({
         name: service.name,
         description: service.description,
@@ -173,7 +193,13 @@ const CreateBusinessNew: React.FC = () => {
                   <div className="min-h-[400px]">
                     {/* Step 0: General Info */}
                     {currentStep === 0 && (
-                      <GeneralInfoStep control={control} errors={errors} />
+                      <GeneralInfoStep
+                        control={control}
+                        errors={errors}
+                        keywords={keywords}
+                        onAddKeyword={handleAddKeyword}
+                        onRemoveKeyword={handleRemoveKeyword}
+                      />
                     )}
 
                     {/* Step 1: Services */}
@@ -191,6 +217,7 @@ const CreateBusinessNew: React.FC = () => {
                         businessName={getValues("businessName")}
                         businessDescription={getValues("businessDescription")}
                         businessAddress={getValues("businessAddress")}
+                        keywords={keywords}
                         services={services}
                       />
                     )}

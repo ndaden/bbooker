@@ -47,6 +47,7 @@ const AccountBusinesses = ({ user }: AccountBusinessesProps) => {
           growOnHover={false}
           isOwner
           distance={undefined}
+          keywords={business.keywords}
         />
       ))}
     </div>

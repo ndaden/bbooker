@@ -2,15 +2,22 @@ import React from "react";
 import { Control, FieldErrors } from "react-hook-form";
 import ControlledInput from "../../../components/ControlledInput";
 import ControlledTextArea from "../../../components/ControlledTextArea";
+import KeywordsInput from "../../../components/form/KeywordsInput";
 
 interface GeneralInfoStepProps {
   control: Control<any>;
   errors: FieldErrors;
+  keywords: string[];
+  onAddKeyword: (keyword: string) => void;
+  onRemoveKeyword: (keyword: string) => void;
 }
 
 const GeneralInfoStep: React.FC<GeneralInfoStepProps> = ({
   control,
   errors,
+  keywords,
+  onAddKeyword,
+  onRemoveKeyword,
 }) => {
   return (
     <div>
@@ -43,6 +50,16 @@ const GeneralInfoStep: React.FC<GeneralInfoStepProps> = ({
           placeholder="Décrivez votre établissement, vos spécialités, votre ambiance..."
           minRows={4}
           size="sm"
+        />
+      </div>
+
+      <div className="mb-6">
+        <KeywordsInput
+          control={control}
+          errors={errors}
+          keywords={keywords}
+          onAddKeyword={onAddKeyword}
+          onRemoveKeyword={onRemoveKeyword}
         />
       </div>
 

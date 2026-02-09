@@ -10,14 +10,33 @@ import PrestationsSection from "./PrestationsSection";
 import BusinessOverview from "./BusinessOverview";
 import { UserContext } from "../../contexts/UserContext";
 
+interface Prestation {
+  name: string;
+  description: string;
+  durationInMinutes: string;
+  price: string;
+}
+
+interface CreateBusinessFormData {
+  businessName: string;
+  businessDescription: string;
+  businessAddress: string;
+  prestations: Prestation[];
+  [key: string]: string | Prestation[] | undefined;
+}
+
 const CreateBusiness = () => {
   const navigate = useNavigate();
   const userContext = useContext(UserContext);
 
+  if (!userContext) {
+    throw new Error("UserContext not found");
+  }
+
   const {
     isLoading,
     logout,
-    data: { payload: user } = { payload: undefined },
+    user,
   } = userContext;
 
   const [nbPrestations, setNbPrestations] = useState(1);
@@ -45,23 +64,19 @@ const CreateBusiness = () => {
     goToPrestationsStep,
     goToPreviewBusiness,
     createBusiness,
-  } = useCreateBusinessAndService(
-    {
-      getValues,
-      unregister,
-      setValue,
-      trigger,
-      reset,
-      isSubmitSuccessful,
-    },
-    user,
-    setNbPrestations
-  );
+  } = useCreateBusinessAndService({
+    getValues,
+    unregister,
+    setValue,
+    trigger,
+    reset,
+    isSubmitSuccessful,
+  });
 
-  const submitBusinessForm = async (values) => {
+  const submitBusinessForm = async (values: unknown) => {
     if (isValid) {
       // création du business
-      await createBusiness(values);
+      await createBusiness(values as CreateBusinessFormData);
     }
   };
 

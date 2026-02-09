@@ -10,6 +10,7 @@ const BusinessCard = ({
   growOnHover,
   isOwner,
   distance,
+  keywords,
 }) => {
   const navigate = useNavigate();
   const goToBusiness = () => {
@@ -61,14 +62,17 @@ const BusinessCard = ({
                   {truncate(description, 150, true)}...
                 </h3>
                 <div className="my-3 flex flex-wrap gap-2">
-                  <Chip>Massage</Chip>
-                  <Chip>Onglerie</Chip>
-                  <Chip>Soins visage</Chip>
                   {distance !== undefined && distance !== null && (
                     <Chip color="primary" variant="flat" startContent={<BsGeoAlt />}>
                       {distance < 1 ? `${(distance * 1000).toFixed(0)} m` : `${distance.toFixed(1)} km`}
                     </Chip>
                   )}
+                  {keywords &&
+                    keywords.map((keyword, index) => (
+                      <Chip key={index} variant="solid" color="default">
+                        {keyword}
+                      </Chip>
+                    ))}
                 </div>
                 <div className="flex items-center">
                   <BsClock className="mr-3" /> Du lundi au vendredi de 10h à 19h

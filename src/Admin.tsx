@@ -48,18 +48,18 @@ const Admin = () => {
     reset,
   } = useForm();
 
-  const onSubmitRole = async (values) => {
-    await mutateRole(values);
+  const onSubmitRole = async (values: Record<string, unknown>) => {
+    await mutateRole(values as unknown as Parameters<typeof mutateRole>[0]);
     await queryCache.invalidateQueries({ queryKey: [ROLES_KEY] });
     await refetchRoles();
   };
 
-  const deleteRoleHandler = async (id) => {
+  const deleteRoleHandler = async (id: string) => {
     await deleteRoleQuery(id);
     await queryCache.invalidateQueries({ queryKey: [ROLES_KEY] });
   };
 
-  const deleteUserHandler = async (id) => {
+  const deleteUserHandler = async (id: string) => {
     await deleteUserQuery(id);
     await queryCache.invalidateQueries({ queryKey: [USERS_KEY] });
   };
@@ -177,7 +177,7 @@ const Admin = () => {
           <TableColumn>#</TableColumn>
           <TableColumn>Name</TableColumn>
           <TableColumn>Description</TableColumn>
-          <TableColumn></TableColumn>
+          <TableColumn>Actions</TableColumn>
         </TableHeader>
         <TableBody>
           {roles?.map((role: any) => (

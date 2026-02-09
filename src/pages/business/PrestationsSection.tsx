@@ -1,11 +1,30 @@
 import React from "react";
+import { Control, FieldValues, RegisterOptions } from "react-hook-form";
 import ControlledInput from "../../components/ControlledInput";
 import { Accordion, AccordionItem, Button, Chip } from "@nextui-org/react";
 import { IoMdAddCircle } from "react-icons/io";
 import { TiDeleteOutline } from "react-icons/ti";
 import { BsClock } from "react-icons/bs";
 import { BsCurrencyEuro } from "react-icons/bs";
-const PrestationsSection = ({
+
+interface Prestation {
+  name: string;
+  description: string;
+  durationInMinutes: string;
+  price: string;
+}
+
+interface PrestationsSectionProps {
+  prestationFieldName: string;
+  hidden: boolean;
+  validation: Record<string, RegisterOptions>;
+  control: Control<FieldValues>;
+  prestations: Prestation[];
+  addPrestationHandler: () => void;
+  deletePrestationHandler: (index: number) => void;
+}
+
+const PrestationsSection: React.FC<PrestationsSectionProps> = ({
   prestationFieldName,
   hidden,
   validation,
@@ -85,7 +104,7 @@ const PrestationsSection = ({
         )}
         {prestations.length > 0 && (
           <Accordion>
-            {prestations.map((prestation, idx) => (
+            {prestations.map((prestation: Prestation, idx: number) => (
               <AccordionItem
                 key={prestation.name}
                 title={

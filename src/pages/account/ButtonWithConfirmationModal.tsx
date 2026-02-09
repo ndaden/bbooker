@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonProps,
   Modal,
   ModalBody,
   ModalContent,
@@ -9,7 +10,19 @@ import {
 } from "@nextui-org/react";
 import React from "react";
 
-const ButtonWithConfirmationModal = ({
+interface ButtonWithConfirmationModalProps extends Omit<ButtonProps, "onClick"> {
+  className?: string;
+  isDisabled?: boolean;
+  isLoading?: boolean;
+  label: string;
+  type?: "button" | "submit" | "reset";
+  variant?: ButtonProps["variant"];
+  color?: ButtonProps["color"];
+  message: React.ReactNode;
+  onClick?: () => void;
+}
+
+const ButtonWithConfirmationModal: React.FC<ButtonWithConfirmationModalProps> = ({
   className,
   isDisabled,
   isLoading,

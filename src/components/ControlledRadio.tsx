@@ -1,16 +1,22 @@
-import { RadioGroup, Switch } from "@nextui-org/react";
+import { RadioGroup, RadioGroupProps } from "@nextui-org/react";
 import React from "react";
-import { Controller } from "react-hook-form";
-// import get from "lodash/get";
+import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
 
-const ControlledRadio = ({ name, control, rules, orientation, ...props }) => {
+interface ControlledRadioProps extends Omit<RadioGroupProps, "value" | "onValueChange"> {
+  name: string;
+  control: Control<FieldValues>;
+  rules?: RegisterOptions;
+  orientation?: "horizontal" | "vertical";
+  children: React.ReactNode;
+}
+
+const ControlledRadio: React.FC<ControlledRadioProps> = ({ name, control, rules, orientation, children, ...props }) => {
   return (
     <Controller
       name={name}
       control={control}
       rules={rules}
-      render={({ field, fieldState, formState }) => {
-        // const result = get(formState.errors, name)?.message;
+      render={({ field }) => {
         return (
           <RadioGroup
             value={field.value}
@@ -19,11 +25,11 @@ const ControlledRadio = ({ name, control, rules, orientation, ...props }) => {
             onValueChange={field.onChange}
             {...props}
           >
-            {props.children}
+            {children}
           </RadioGroup>
         );
       }}
-    ></Controller>
+    />
   );
 };
 

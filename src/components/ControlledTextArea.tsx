@@ -1,28 +1,34 @@
-import { Textarea } from "@nextui-org/react";
+import { Textarea, TextAreaProps } from "@nextui-org/react";
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
 import get from "lodash/get";
 
-const ControlledTextArea = ({ name, control, rules, ...props }) => {
+interface ControlledTextAreaProps extends Omit<TextAreaProps, "value" | "onChange"> {
+  name: string;
+  control: Control<FieldValues>;
+  rules?: RegisterOptions;
+}
+
+const ControlledTextArea: React.FC<ControlledTextAreaProps> = ({ name, control, rules, ...props }) => {
   return (
     <Controller
-      defaultValue={""}
+      defaultValue=""
       name={name}
       control={control}
       rules={rules}
-      render={({ field, fieldState, formState }) => {
-        const result = get(formState.errors, name)?.message;
+      render={({ field, formState }) => {
+        const result = get(formState.errors, name)?.message as string | undefined;
         return (
           <Textarea
             value={field.value}
             onChange={field.onChange}
             isInvalid={!!result}
-            errorMessage={result?.toString()}
+            errorMessage={result}
             {...props}
           />
         );
       }}
-    ></Controller>
+    />
   );
 };
 

@@ -52,6 +52,7 @@ model Business {
   address     String?
   latitude    Float?
   longitude   Float?
+  keywords    String[]
   services    Service[]
   openingTime String?
   closingTime String?

@@ -10,7 +10,11 @@ import dayjs from "dayjs";
 import "dayjs/locale/fr";
 import "./app.css";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+const root = ReactDOM.createRoot(rootElement);
 const queryClient = new QueryClient();
 dayjs.locale("fr");
 root.render(

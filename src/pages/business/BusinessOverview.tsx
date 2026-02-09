@@ -1,6 +1,10 @@
 import React from "react";
 
-const BusinessOverview = ({ data }) => {
+interface BusinessOverviewProps {
+  data: Record<string, unknown>;
+}
+
+const BusinessOverview: React.FC<BusinessOverviewProps> = ({ data }) => {
   return (
     <div>
       <div>Vérifiez les informations puis appuyez sur Finaliser et Créer</div>

@@ -91,7 +91,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             return buildApiResponse(false, "Unauthorized")
         }
 
-        const { name, description, services, address } = body as any
+        const { name, description, services, address, keywords } = body as any
 
         // Geocode address if provided
         let latitude: number | undefined
@@ -114,6 +114,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
                 address,
                 latitude,
                 longitude,
+                keywords: keywords || [],
                 services: { createMany: { data: services } }
             }, include: { services: true }
         })
@@ -144,7 +145,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             return buildApiResponse(false, "Cannot update")
         }
 
-        const { name, description, image, services, address } = body as any
+        const { name, description, image, services, address, keywords } = body as any
         let imageUrl = 'dummy url'
 
         if (image) {
@@ -213,6 +214,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
                 address,
                 latitude,
                 longitude,
+                keywords,
                 services: services && { createMany: { data: services } },
                 updateDate: new Date()
             }

@@ -2,12 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import { getFreeSlotsQuery } from "./queries";
 import { FREE_SLOTS_KEY } from "./queryKeys";
 
+interface UseFetchFreeSlotsProps {
+  businessId: string;
+  startTimeInterval: string;
+  endTimeInterval: string;
+  slotDurationInMinutes: number;
+}
+
 const useFetchFreeSlots = ({
   businessId,
   startTimeInterval,
   endTimeInterval,
   slotDurationInMinutes,
-}) => {
+}: UseFetchFreeSlotsProps) => {
   const {
     data: freeSlots,
     isLoading,

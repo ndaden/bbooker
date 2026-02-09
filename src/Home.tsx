@@ -212,6 +212,7 @@ function Home() {
               growOnHover
               isOwner={false}
               distance={business.distance}
+              keywords={business.keywords}
             />
           ))}
       </div>

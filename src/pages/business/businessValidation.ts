@@ -1,4 +1,11 @@
-export const businessValidation = (prestations) => ({
+interface Prestation {
+  name: string;
+  description: string;
+  durationInMinutes: string;
+  price: string;
+}
+
+export const businessValidation = (prestations: Prestation[]) => ({
   businessName: {
     required: { value: true, message: "Veuillez saisir la raison sociale." },
   },

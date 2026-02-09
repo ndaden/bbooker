@@ -1,17 +1,35 @@
 import { useEffect, useState } from "react";
 import { businessValidation } from "./businessValidation";
 import useMutateBusiness from "../../hooks/useMutateBusiness";
-
+import { UseFormReturn, FieldValues } from "react-hook-form";
 
 interface Prestation {
   name: string;
   description: string;
-  durationInMinutes: number;
+  durationInMinutes: string;
+  price: string;
+}
+
+interface DatabasePrestation {
+  name: string;
+  description: string;
+  duration: number;
   price: number;
 }
 
-const useCreateBusinessAndService = (form) => {
-  const { getValues, unregister, setValue, trigger, reset } = form;
+interface BusinessFormData {
+  businessName: string;
+  businessDescription: string;
+  businessImage?: File;
+  prestations: Prestation[];
+}
+
+type FormMethods = Pick<UseFormReturn<FieldValues>, 'getValues' | 'unregister' | 'setValue' | 'trigger' | 'reset'> & {
+  isSubmitSuccessful: boolean;
+};
+
+const useCreateBusinessAndService = (form: FormMethods) => {
+  const { getValues, unregister, setValue, trigger, reset, isSubmitSuccessful } = form;
   const [displayPrestationForm, setDisplayPrestationForm] = useState(false);
   const [prestations, setPrestations] = useState<Prestation[]>([]);
   const [isPrestationValid, setIsPrestationValid] = useState(false);
@@ -23,7 +41,7 @@ const useCreateBusinessAndService = (form) => {
   const BUSINESS_DATA_KEY = "new_business_data";
 
   // Safely parse sessionStorage data with validation
-  const parseStoredData = () => {
+  const parseStoredData = (): Record<string, unknown> => {
     try {
       const stored = sessionStorage.getItem(BUSINESS_DATA_KEY);
       if (!stored) return {};
@@ -35,7 +53,7 @@ const useCreateBusinessAndService = (form) => {
         sessionStorage.removeItem(BUSINESS_DATA_KEY);
         return {};
       }
-      return parsed;
+      return parsed as Record<string, unknown>;
     } catch (error) {
       console.error("Error parsing session storage:", error);
       sessionStorage.removeItem(BUSINESS_DATA_KEY);
@@ -43,7 +61,7 @@ const useCreateBusinessAndService = (form) => {
     }
   };
 
-  const [savedBusinessData, setSavedBusinessData] = useState(parseStoredData());
+  const [savedBusinessData, setSavedBusinessData] = useState<Record<string, unknown>>(parseStoredData());
 
   useEffect(() => {
     console.log("initial effect");
@@ -51,8 +69,8 @@ const useCreateBusinessAndService = (form) => {
     setValue("businessDescription", savedBusinessData?.businessDescription);
     setValue("businessImage", savedBusinessData?.businessImage);
 
-    const savedPrestations = (savedBusinessData?.prestations || []).filter(
-      (p) => !isEmptyPrestation(p)
+    const savedPrestations = ((savedBusinessData?.prestations as Prestation[]) || []).filter(
+      (p: Prestation) => !isEmptyPrestation(p)
     );
 
     if (savedPrestations.length > 0) {
@@ -62,7 +80,7 @@ const useCreateBusinessAndService = (form) => {
         savedPrestations as Prestation[]
       ) as Prestation[];
 
-      currentSavedPrestations.map((p, idx) => {
+      currentSavedPrestations.map((p: Prestation, idx: number) => {
         setValue(`prestations[${idx}].name`, p.name);
         setValue(`prestations[${idx}].description`, p.description);
         setValue(`prestations[${idx}].durationInMinutes`, p.durationInMinutes);
@@ -105,7 +123,7 @@ const useCreateBusinessAndService = (form) => {
 
   const validation = businessValidation(prestations);
 
-  const toDatabasePrestation = (values) => {
+  const toDatabasePrestation = (values: Prestation): DatabasePrestation => {
     const prestation = {
       name: values.name,
       description: values.description,
@@ -116,20 +134,20 @@ const useCreateBusinessAndService = (form) => {
     return prestation;
   };
 
-  const isEmptyPrestation = (prestation) =>
+  const isEmptyPrestation = (prestation: Prestation | null | undefined): boolean =>
     !prestation ||
     prestation.name.trim() === "" ||
     prestation.description.trim() === "" ||
     !prestation.durationInMinutes ||
     !prestation.price;
 
-  const toDatabaseBusinessWithPrestations = (values) => {
+  const toDatabaseBusinessWithPrestations = (values: BusinessFormData) => {
     // TODO : implement image upload
     // formData.append("image", values.businessImage);
 
     const prestationsToCreate = values.prestations
-      .filter((p) => !isEmptyPrestation(p))
-      .map((presta) => {
+      .filter((p: Prestation) => !isEmptyPrestation(p))
+      .map((presta: Prestation) => {
         return toDatabasePrestation(presta);
       });
 
@@ -148,7 +166,7 @@ const useCreateBusinessAndService = (form) => {
     ]);
 
     if (isBusinessValid) {
-      const formValues = Object.assign({}, getValues());
+      const formValues = Object.assign({}, getValues()) as BusinessFormData;
       setSavedBusinessData({
         businessName: formValues.businessName,
         businessDescription: formValues.businessDescription,
@@ -170,10 +188,10 @@ const useCreateBusinessAndService = (form) => {
       if (prestationValid) {
         setPrestationFieldName(`prestations[${prestations.length + 1}]`);
         setIsPrestationValid(true);
-        const formValues = Object.assign({}, getValues());
+        const formValues = Object.assign({}, getValues()) as BusinessFormData;
         setPrestations([...(formValues.prestations as Prestation[])]);
 
-        setSavedBusinessData((prevSavedBusinessData) => ({
+        setSavedBusinessData((prevSavedBusinessData: Record<string, unknown>) => ({
           ...prevSavedBusinessData,
           prestations: Object.assign(
             [],
@@ -188,16 +206,16 @@ const useCreateBusinessAndService = (form) => {
     unregister(`prestations[${prestations.length}]`);
   };
 
-  const deletePrestationHandler = (index) => {
-    const newPrestations = prestations.filter((prest, idx) => idx !== index);
-    setPrestations((prev) => [...prev.filter((prest, idx) => idx !== index)]);
+  const deletePrestationHandler = (index: number) => {
+    const newPrestations = prestations.filter((prest: Prestation, idx: number) => idx !== index);
+    setPrestations((prev: Prestation[]) => [...prev.filter((prest: Prestation, idx: number) => idx !== index)]);
     setValue("prestations", newPrestations);
     setPrestationFieldName(`prestations[${prestations.length - 1}]`);
   };
 
-  const createBusiness = async (values) => {
+  const createBusiness = async (values: BusinessFormData) => {
     // création du business
-    mutateBusiness(toDatabaseBusinessWithPrestations(values));
+    mutateBusiness(toDatabaseBusinessWithPrestations(values) as unknown as Parameters<typeof mutateBusiness>[0]);
 
     sessionStorage.removeItem(BUSINESS_DATA_KEY);
   };

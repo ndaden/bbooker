@@ -1,16 +1,23 @@
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
 import get from "lodash/get";
 
-const ControlledFileInput = ({ name, control, rules, label, ...props }) => {
+interface ControlledFileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  name: string;
+  control: Control<FieldValues>;
+  rules?: RegisterOptions;
+  label?: string;
+}
+
+const ControlledFileInput: React.FC<ControlledFileInputProps> = ({ name, control, rules, label, ...props }) => {
   return (
     <Controller
-      defaultValue={""}
+      defaultValue=""
       name={name}
       control={control}
       rules={rules}
-      render={({ field, fieldState, formState }) => {
-        const result = get(formState.errors, name)?.message;
+      render={({ field, formState }) => {
+        const result = get(formState.errors, name)?.message as string | undefined;
         return (
           <div>
             <div className="rounded-md bg-zinc-800 p-3">
@@ -18,9 +25,10 @@ const ControlledFileInput = ({ name, control, rules, label, ...props }) => {
               <div>
                 <input
                   accept=".jpg,.png,.jpeg"
-                  value={field.value?.fileName}
+                  value={field.value?.fileName || ""}
                   onChange={(event) => {
-                    field.onChange(event.target.files[0]);
+                    const file = event.target.files?.[0];
+                    field.onChange(file || null);
                   }}
                   {...props}
                 />
@@ -28,13 +36,13 @@ const ControlledFileInput = ({ name, control, rules, label, ...props }) => {
             </div>
             {!!result && (
               <div className="text-red-700 text-sm py-2">
-                {result?.toString()}
+                {result}
               </div>
             )}
           </div>
         );
       }}
-    ></Controller>
+    />
   );
 };
 

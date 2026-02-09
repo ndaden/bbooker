@@ -1,12 +1,13 @@
 import React from "react";
 import { Chip, Divider } from "@nextui-org/react";
-import { BsClock, BsCurrencyEuro, BsCheckCircle, BsGeoAlt } from "react-icons/bs";
+import { BsClock, BsCurrencyEuro, BsCheckCircle, BsGeoAlt, BsTags } from "react-icons/bs";
 import { Service } from "./ServicesStep";
 
 interface PreviewStepProps {
   businessName: string;
   businessDescription: string;
   businessAddress: string;
+  keywords: string[];
   services: Service[];
 }
 
@@ -14,6 +15,7 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
   businessName,
   businessDescription,
   businessAddress,
+  keywords,
   services,
 }) => {
   const totalServices = services.length;
@@ -59,6 +61,27 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
             </label>
             <p className="text-base mt-1 leading-relaxed">{businessDescription}</p>
           </div>
+
+          {keywords.length > 0 && (
+            <>
+              <Divider />
+              <div>
+                <label className="text-xs text-default-500 uppercase tracking-wide">
+                  Mots-clés
+                </label>
+                <div className="flex items-center gap-2 mt-1">
+                  <BsTags className="text-primary" />
+                  <div className="flex flex-wrap gap-1">
+                    {keywords.map((keyword, index) => (
+                      <Chip key={`${keyword}-${index}`} size="sm" variant="flat" color="primary">
+                        {keyword}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           <Divider />
 
