@@ -8,7 +8,7 @@ import { business } from "./modules/business";
 import { appointment } from "./modules/appointment";
 import { userManagement } from "./modules/userManagement";
 import { isMaintenance } from "./middlewares/maintenance";
-import { rateLimit } from "./middlewares/rateLimit";
+// import { rateLimit } from "./middlewares/rateLimit";
 import { buildApiResponse } from "./utils/api";
 import { errorHandler } from "./utils/errorHandler";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -46,7 +46,7 @@ const app: Elysia = new Elysia()
     set.status = 204;
     return '';
   })
-  .use(rateLimit())
+ // .use(rateLimit())
   .use(isMaintenance)
   .use(errorHandler)
   .get(

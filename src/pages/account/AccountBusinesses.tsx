@@ -46,6 +46,7 @@ const AccountBusinesses = ({ user }: AccountBusinessesProps) => {
           image={business.imageUrl ?? "/images/topform_banner.jpg"}
           growOnHover={false}
           isOwner
+          distance={undefined}
         />
       ))}
     </div>

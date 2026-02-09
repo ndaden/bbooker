@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import { IoLocationOutline, IoSearchOutline } from "react-icons/io5";
 import useSearchBusinesses from "../hooks/useSearchBusinesses";
 
-const QAutoComplete = ({ onSearch, onLocationClick, searchQuery }) => {
+const QAutoComplete = ({ onSearch, onLocationClick = null, searchQuery }) => {
   const [showResults, setShowResults] = useState(false);
   const [inputValue, setInputValue] = useState(searchQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);

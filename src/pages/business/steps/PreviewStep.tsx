@@ -1,17 +1,19 @@
 import React from "react";
 import { Chip, Divider } from "@nextui-org/react";
-import { BsClock, BsCurrencyEuro, BsCheckCircle } from "react-icons/bs";
+import { BsClock, BsCurrencyEuro, BsCheckCircle, BsGeoAlt } from "react-icons/bs";
 import { Service } from "./ServicesStep";
 
 interface PreviewStepProps {
   businessName: string;
   businessDescription: string;
+  businessAddress: string;
   services: Service[];
 }
 
 const PreviewStep: React.FC<PreviewStepProps> = ({
   businessName,
   businessDescription,
+  businessAddress,
   services,
 }) => {
   const totalServices = services.length;
@@ -56,6 +58,18 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
               Description
             </label>
             <p className="text-base mt-1 leading-relaxed">{businessDescription}</p>
+          </div>
+
+          <Divider />
+
+          <div>
+            <label className="text-xs text-default-500 uppercase tracking-wide">
+              Adresse
+            </label>
+            <div className="flex items-center gap-2 mt-1">
+              <BsGeoAlt className="text-primary" />
+              <p className="text-base">{businessAddress}</p>
+            </div>
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  Chip,
 } from "@nextui-org/react";
 import useFetchBusinesses from "../../hooks/useFetchBusinesses";
 import { useParams, useLocation } from "react-router-dom";
@@ -19,27 +20,46 @@ import { useNavigate } from "react-router-dom";
 import Container from "../../components/Container";
 import BusinessCalendar from "./BusinessCalendar";
 import React from "react";
+import { useAuth } from "../../contexts/UserContext";
+import { BsGeoAlt, BsPencil } from "react-icons/bs";
 
 const Business = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const isCalendarView = location.pathname.includes("/calendar");
-
-  let businessToDisplay: any = null;
+  const { user } = useAuth();
 
   const { businesses, isLoading: isLoadingBusiness } = useFetchBusinesses({
     id,
   });
 
-  if (!isLoadingBusiness && businesses) {
-    businessToDisplay = businesses.payload || businesses;
-  }
+  // Get business data
+  const businessToDisplay = businesses?.payload || businesses;
+
+  // Check if current user is the owner
+  const isOwner = user && businessToDisplay && (
+    businessToDisplay.ownerId === user.id || 
+    businessToDisplay.owner?._id === user.id ||
+    businessToDisplay.owner?.id === user.id ||
+    businessToDisplay.accountId === user.id
+  );
 
   const onClickTakeAppointment = () => {
     navigate("/appointment", {
       state: { business: businessToDisplay },
     });
+  };
+
+  const onClickGoThere = () => {
+    if (businessToDisplay?.address) {
+      const encodedAddress = encodeURIComponent(businessToDisplay.address);
+      window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+    }
+  };
+
+  const onClickEdit = () => {
+    navigate(`/business/${id}/edit`);
   };
 
   // Fetch appointments for calendar view
@@ -98,8 +118,14 @@ const Business = () => {
                 <p className="text-md my-3 hidden sm:block">
                   {businessToDisplay.description}
                 </p>
+                {businessToDisplay.address && (
+                  <div className="flex items-center gap-2 my-2">
+                    <BsGeoAlt className="text-white" />
+                    <p className="text-sm text-white/90">{businessToDisplay.address}</p>
+                  </div>
+                )}
               </div>
-              <div className="my-3">
+              <div className="my-3 flex gap-3">
                 <Button
                   size="lg"
                   variant="solid"
@@ -110,7 +136,32 @@ const Business = () => {
                 >
                   Prendre un rendez-vous
                 </Button>
+                {businessToDisplay.address && (
+                  <Button
+                    size="lg"
+                    variant="bordered"
+                    type="button"
+                    className="font-bold border-white text-white"
+                    onClick={onClickGoThere}
+                    startContent={<BsGeoAlt />}
+                  >
+                    Y aller
+                  </Button>
+                )}
               </div>
+              {isOwner && (
+                <div className="mt-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    color="warning"
+                    onClick={onClickEdit}
+                    startContent={<BsPencil />}
+                  >
+                    Modifier
+                  </Button>
+                </div>
+              )}
             </CardFooter>
           </Card>
         </div>

@@ -5,6 +5,7 @@ import { prisma } from "../../libs/prisma";
 import { buildApiResponse } from "../../utils/api";
 import { uploadImageToFirebase } from "../../utils/upload";
 import { getErrorMessage } from "../../utils/errors";
+import { geocodeAddress } from "../../utils/geocoding";
 
 // Haversine formula to calculate distance between two points
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -90,7 +91,19 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             return buildApiResponse(false, "Unauthorized")
         }
 
-        const { name, description, services, address, latitude, longitude } = body as any
+        const { name, description, services, address } = body as any
+
+        // Geocode address if provided
+        let latitude: number | undefined
+        let longitude: number | undefined
+
+        if (address && address.trim().length > 0) {
+            const geocodingResult = await geocodeAddress(address)
+            if (geocodingResult) {
+                latitude = geocodingResult.latitude
+                longitude = geocodingResult.longitude
+            }
+        }
 
         // Create business with its services
         const businessCreated = await prisma.business.create({
@@ -131,7 +144,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             return buildApiResponse(false, "Cannot update")
         }
 
-        const { name, description, image, services, address, latitude, longitude } = body as any
+        const { name, description, image, services, address } = body as any
         let imageUrl = 'dummy url'
 
         if (image) {
@@ -160,6 +173,34 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             return buildApiResponse(true, "business updated", updatedBusinessImage)
         }
 
+        // Get current business to check if address changed
+        const currentBusiness = await prisma.business.findFirst({
+            where: {
+                id: id,
+                AND: {
+                    accountId: account.id
+                }
+            }
+        })
+
+        let latitude = currentBusiness?.latitude
+        let longitude = currentBusiness?.longitude
+
+        // Geocode new address if provided and different from current
+        if (address !== undefined && address !== currentBusiness?.address) {
+            if (address && address.trim().length > 0) {
+                const geocodingResult = await geocodeAddress(address)
+                if (geocodingResult) {
+                    latitude = geocodingResult.latitude
+                    longitude = geocodingResult.longitude
+                }
+            } else {
+                // Address cleared, reset coordinates
+                latitude = null
+                longitude = null
+            }
+        }
+
         const updatedBusiness = await prisma.business.update({
             where: {
                 id: id,
@@ -167,7 +208,11 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
                     accountId: account.id
                 }
             }, data: {
-                name, description, address, latitude, longitude,
+                name,
+                description,
+                address,
+                latitude,
+                longitude,
                 services: services && { createMany: { data: services } },
                 updateDate: new Date()
             }

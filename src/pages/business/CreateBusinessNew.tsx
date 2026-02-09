@@ -15,6 +15,7 @@ import { useAuth } from "../../contexts/UserContext";
 interface BusinessFormData {
   businessName: string;
   businessDescription: string;
+  businessAddress: string;
 }
 
 const CreateBusinessNew: React.FC = () => {
@@ -35,6 +36,7 @@ const CreateBusinessNew: React.FC = () => {
     defaultValues: {
       businessName: "",
       businessDescription: "",
+      businessAddress: "",
     },
   });
 
@@ -52,7 +54,7 @@ const CreateBusinessNew: React.FC = () => {
 
     if (currentStep === 0) {
       // Validate general info
-      isValid = await trigger(["businessName", "businessDescription"]);
+      isValid = await trigger(["businessName", "businessDescription", "businessAddress"]);
     } else if (currentStep === 1) {
       // Validate services
       isValid = services.length > 0;
@@ -88,6 +90,7 @@ const CreateBusinessNew: React.FC = () => {
     const businessData = {
       name: formData.businessName,
       description: formData.businessDescription,
+      address: formData.businessAddress,
       services: services.map((service) => ({
         name: service.name,
         description: service.description,
@@ -187,6 +190,7 @@ const CreateBusinessNew: React.FC = () => {
                       <PreviewStep
                         businessName={getValues("businessName")}
                         businessDescription={getValues("businessDescription")}
+                        businessAddress={getValues("businessAddress")}
                         services={services}
                       />
                     )}

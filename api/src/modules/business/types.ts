@@ -11,6 +11,7 @@ const businessBodyType = t.Object({
     name: t.String(),
     description: t.String(),
     services: t.Array(serviceBodyType),
+    address: t.Optional(t.String()),
   })
 
   const businessUpdateBodyType = t.Object({
@@ -18,6 +19,7 @@ const businessBodyType = t.Object({
     description: t.Optional(t.String()),
     image: t.Optional(t.File()),
     services: t.Optional(t.Array(t.Optional(serviceBodyType))),
+    address: t.Optional(t.String()),
   })
 
 

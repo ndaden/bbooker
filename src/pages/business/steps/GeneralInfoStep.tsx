@@ -45,6 +45,24 @@ const GeneralInfoStep: React.FC<GeneralInfoStepProps> = ({
           size="sm"
         />
       </div>
+
+      <div className="flex gap-4 mb-6">
+        <ControlledInput
+          control={control}
+          name="businessAddress"
+          rules={{
+            required: "Veuillez saisir l'adresse de votre centre.",
+            minLength: {
+              value: 10,
+              message: "L'adresse doit contenir au moins 10 caractères.",
+            },
+          }}
+          type="text"
+          label="Adresse"
+          placeholder="Ex: 123 rue de la Paix, 75001 Paris"
+          size="sm"
+        />
+      </div>
     </div>
   );
 };

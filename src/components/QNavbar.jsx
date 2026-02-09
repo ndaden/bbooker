@@ -77,7 +77,12 @@ const QNavbar = ({ links = [] }) => {
           </NavbarItem>
         ))}
       </NavbarContent>
-      <NavbarContent justify="end">
+      <NavbarContent justify="end" className="hidden sm:flex gap-4">
+        <NavbarItem>
+          <Link color="warning" href="/professionnels" className="text-warning font-semibold">
+            Professionnels
+          </Link>
+        </NavbarItem>
         {user && (
           <NavbarItem className="hidden lg:flex">
             <Link href="#" onClick={goToProfile}>
@@ -117,6 +122,16 @@ const QNavbar = ({ links = [] }) => {
         )}
       </NavbarContent>
       <NavbarMenu className="bg-dark">
+        <NavbarMenuItem>
+          <Link
+            color="foreground"
+            className="w-full"
+            href="/professionnels"
+            size="lg"
+          >
+            Professionnels
+          </Link>
+        </NavbarMenuItem>
         {!user && (
           <>
             <NavbarMenuItem>

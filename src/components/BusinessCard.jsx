@@ -1,5 +1,5 @@
 import { Button, Card, CardBody, Chip, Image, Spacer } from "@nextui-org/react";
-import { BsClock } from "react-icons/bs";
+import { BsClock, BsGeoAlt } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 
 const BusinessCard = ({
@@ -9,6 +9,7 @@ const BusinessCard = ({
   image,
   growOnHover,
   isOwner,
+  distance,
 }) => {
   const navigate = useNavigate();
   const goToBusiness = () => {
@@ -59,12 +60,15 @@ const BusinessCard = ({
                 <h3 className="font-semibold text-foreground/90">
                   {truncate(description, 150, true)}...
                 </h3>
-                <div className="my-3 flex">
+                <div className="my-3 flex flex-wrap gap-2">
                   <Chip>Massage</Chip>
-                  <Spacer x={2} />
                   <Chip>Onglerie</Chip>
-                  <Spacer x={2} />
                   <Chip>Soins visage</Chip>
+                  {distance !== undefined && distance !== null && (
+                    <Chip color="primary" variant="flat" startContent={<BsGeoAlt />}>
+                      {distance < 1 ? `${(distance * 1000).toFixed(0)} m` : `${distance.toFixed(1)} km`}
+                    </Chip>
+                  )}
                 </div>
                 <div className="flex items-center">
                   <BsClock className="mr-3" /> Du lundi au vendredi de 10h à 19h

@@ -19,6 +19,9 @@ export interface Business {
   description: string;
   imageUrl?: string;
   owner: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 // Types
