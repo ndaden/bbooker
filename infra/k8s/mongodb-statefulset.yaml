@@ -20,7 +20,8 @@ spec:
         runAsUser: 999
       containers:
       - name: mongodb
-        image: mongo:7-alpine
+        image: mongo:7
+        imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
