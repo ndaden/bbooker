@@ -34,6 +34,12 @@ export default defineConfig({
       {
         test: /\.css$/,
         type: 'css/auto',
+        use: [
+          {
+            loader: 'builtin:lightningcss-loader',
+            options: {},
+          },
+        ],
       },
       {
         test: /\.scss$/,

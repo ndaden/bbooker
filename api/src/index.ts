@@ -19,10 +19,7 @@ const genAI = new GoogleGenerativeAI(Bun.env.GEMINI_API_KEY!)
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: Bun.env.AI_SYSTEM_INSTRUCTION })
 
 // CORS Configuration - Load from environment variables
-const ALLOWED_ORIGINS = Bun.env.ALLOWED_ORIGINS?.split(',') || [
-  'http://localhost:3001',
-  'http://127.0.0.1:3001'
-];
+const ALLOWED_ORIGINS = (Bun.env.CORS_ORIGINS || 'http://localhost:3001,http://127.0.0.1:3001').split(',').map(origin => origin.trim());
 
 const app: Elysia = new Elysia()
   .use(
