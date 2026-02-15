@@ -32,6 +32,20 @@ export default defineConfig({
         type: 'asset',
       },
       {
+        test: /\.css$/,
+        type: 'css/auto',
+      },
+      {
+        test: /\.scss$/,
+        type: 'css/auto',
+        use: [
+          {
+            loader: 'builtin:sass-loader',
+            options: {},
+          },
+        ],
+      },
+      {
         test: /\.(jsx?|tsx?)$/,
         use: [
           {

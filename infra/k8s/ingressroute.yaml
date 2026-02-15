@@ -1,0 +1,41 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: bbooker
+  namespace: bbooker
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  entryPoints:
+    - websecure
+    - web
+  routes:
+    # Frontend route
+    - match: Host(`bbooker.dnabil.ovh`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: frontend
+          port: 80
+    # API route with middleware to strip /api prefix
+    - match: Host(`bbooker.dnabil.ovh`) && PathPrefix(`/api`)
+      kind: Rule
+      middlewares:
+        - name: strip-api-prefix
+      services:
+        - name: api
+          port: 3002
+  tls:
+    certResolver: letsencrypt
+    domains:
+      - main: bbooker.dnabil.ovh
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-api-prefix
+  namespace: bbooker
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+    forceSlash: false
