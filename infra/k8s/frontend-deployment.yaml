@@ -31,7 +31,12 @@ spec:
           capabilities:
             drop:
             - ALL
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: false
+        volumeMounts:
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-run
+          mountPath: /var/run
         ports:
         - containerPort: 80
           name: http
@@ -54,6 +59,11 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "250m"
+      volumes:
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
