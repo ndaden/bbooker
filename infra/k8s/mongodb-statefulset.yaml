@@ -47,26 +47,26 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /data/db
-        livenessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - mongo --eval 'db.adminCommand("ping")' --quiet
-          initialDelaySeconds: 45
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - mongo --eval 'db.adminCommand("ping")' --quiet
-          initialDelaySeconds: 15
-          periodSeconds: 5
-          timeoutSeconds: 5
-          failureThreshold: 2
+        # livenessProbe:
+        #   exec:
+        #     command:
+        #       - /bin/sh
+        #       - -c
+        #       - mongo --eval 'db.adminCommand("ping")' --quiet
+        #   initialDelaySeconds: 45
+        #   periodSeconds: 10
+        #   timeoutSeconds: 5
+        #   failureThreshold: 3
+        # readinessProbe:
+        #   exec:
+        #     command:
+        #       - /bin/sh
+        #       - -c
+        #       - mongo --eval 'db.adminCommand("ping")' --quiet
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 5
+        #   timeoutSeconds: 5
+        #   failureThreshold: 2
         resources:
           requests:
             memory: "256Mi"
