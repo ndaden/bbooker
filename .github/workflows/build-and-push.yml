@@ -86,15 +86,3 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-  deploy:
-    needs: [build-and-push-api, build-and-push-frontend]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    permissions:
-      contents: read
-    steps:
-    - uses: actions/checkout@v4
-    - name: Trigger deployment
-      run: gh workflow run deploy.yml
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

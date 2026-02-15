@@ -24,7 +24,7 @@ spec:
         fsGroup: 1000
       containers:
       - name: api
-        image: ghcr.io/ndaden/bbooker-api:latest
+        image: ghcr.io/ndaden/bbooker-api:main
         imagePullPolicy: Always
         securityContext:
           allowPrivilegeEscalation: false

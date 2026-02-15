@@ -24,7 +24,7 @@ spec:
         fsGroup: 101
       containers:
       - name: frontend
-        image: ghcr.io/ndaden/bbooker-frontend:latest
+        image: ghcr.io/ndaden/bbooker-frontend:main
         imagePullPolicy: Always
         securityContext:
           allowPrivilegeEscalation: false
