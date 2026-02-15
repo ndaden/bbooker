@@ -1,0 +1,68 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+    - uses: actions/checkout@v4
+
+    # Configure kubeconfig
+    - name: Set up kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+
+    # Create namespace if it doesn't exist
+    - name: Create namespace
+      run: kubectl create namespace bbooker --dry-run=client -o yaml | kubectl apply -f -
+
+    # Create/Update secrets from GitHub secrets
+    - name: Create API secrets
+      run: |
+        kubectl create secret generic api-secret \
+          --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+          --from-literal=FIREBASE_PROJECT_ID="${{ secrets.FIREBASE_PROJECT_ID }}" \
+          --from-literal=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+          --from-literal=FIREBASE_CLIENT_EMAIL="${{ secrets.FIREBASE_CLIENT_EMAIL }}" \
+          --from-literal=GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
+          --namespace=bbooker \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Create MongoDB secrets
+      run: |
+        kubectl create secret generic mongodb-secret \
+          --from-literal=username="${{ secrets.MONGODB_USERNAME }}" \
+          --from-literal=password="${{ secrets.MONGODB_PASSWORD }}" \
+          --namespace=bbooker \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+    # Deploy infrastructure
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f infra/k8s/namespace.yaml
+        kubectl apply -f infra/k8s/api-configmap.yaml
+        kubectl apply -f infra/k8s/mongodb-pvc.yaml
+        kubectl apply -f infra/k8s/mongodb-statefulset.yaml
+        kubectl apply -f infra/k8s/api-deployment.yaml
+        kubectl apply -f infra/k8s/frontend-deployment.yaml
+        kubectl apply -f infra/k8s/ingress.yaml
+
+    # Wait for rollout
+    - name: Wait for deployment to be ready
+      run: |
+        kubectl rollout status deployment/api -n bbooker --timeout=5m
+        kubectl rollout status deployment/frontend -n bbooker --timeout=5m

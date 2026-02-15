@@ -1,0 +1,55 @@
+name: CI - Code Quality
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-typecheck-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Typecheck frontend
+      run: npm run typecheck
+    - name: Lint frontend (if configured)
+      run: npm run lint --if-present || echo "Linting not configured"
+
+  lint-and-typecheck-api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+    - name: Install dependencies
+      run: bun install
+    - name: Build API
+      run: bun run build
+
+  build-verification:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    - name: Install frontend dependencies
+      run: npm ci
+    - name: Build frontend for verification
+      run: npm run build

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: bbooker
+data:
+  NODE_ENV: "production"
+  MONGO_USER: "bbooker"
+  MONGO_DB: "bbooker"
+  MONGO_HOST: "mongodb"
+  MONGO_PORT: "27017"
+  CORS_ORIGINS: "https://bbooker.dnabil.ovh"
+  API_PORT: "3002"
