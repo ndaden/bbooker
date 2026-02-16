@@ -1,28 +1,28 @@
 #!/usr/bin/env bash
 
-echo "Checking MongoDB replica set status..."
+echo "Checking MongoDB connectivity..."
 
 MONGODB_URL="${DATABASE_URL:-mongodb://mongodb:27017/bbooker?replicaSet=rs0}"
 
-# Extract host from connection string
-MONGO_HOST=$(echo "$MONGODB_URL" | sed -n 's|.*://\([^:/@]*\).*|\1|p')
+# Extract host and port from connection string
+MONGO_HOST=$(echo "$MONGODB_URL" | sed -n 's|.*://[^:/@]*:*[^/@]*@*\([^:/@]*\).*|\1|p')
 MONGO_PORT=$(echo "$MONGODB_URL" | sed -n 's|.*:\([0-9]*\).*|\1|p')
 
 # Default values
 MONGO_HOST="${MONGO_HOST:-mongodb}"
 MONGO_PORT="${MONGO_PORT:-27017}"
 
-echo "Attempting to connect to MongoDB at $MONGO_HOST:$MONGO_PORT..."
+echo "Attempting TCP connection to MongoDB at $MONGO_HOST:$MONGO_PORT..."
 
-# Try to connect and check replica set status
+# Try TCP connection (simpler than mongosh)
 for i in {1..30}; do
-  if mongosh --host "$MONGO_HOST" --port "$MONGO_PORT" --quiet --eval "rs.status()" >/dev/null 2>&1; then
-    echo "✅ MongoDB replica set is ready!"
+  if timeout 2 bash -c "</dev/tcp/$MONGO_HOST/$MONGO_PORT" 2>/dev/null; then
+    echo "✅ MongoDB is reachable!"
     exit 0
   fi
-  echo "Waiting for MongoDB replica set... (${i}/30)"
-  sleep 2
+  echo "Waiting for MongoDB... (${i}/30)"
+  sleep 1
 done
 
-echo "❌ MongoDB replica set is not ready. Startup proceeding anyway..."
+echo "⚠️  MongoDB not yet reachable, but proceeding with startup..."
 exit 0
