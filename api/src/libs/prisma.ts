@@ -4,9 +4,14 @@ if (!Bun.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is not set");
 }
 
-console.log("Connecting to MongoDB with URL:", Bun.env.DATABASE_URL);
-
-export const prisma = new PrismaClient();
+// Force Prisma to use runtime DATABASE_URL by passing it directly
+export const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: Bun.env.DATABASE_URL,
+    },
+  },
+});
 
 prisma.$connect().catch((error) => {
   console.error("Failed to connect to MongoDB:", error);
