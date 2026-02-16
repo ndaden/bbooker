@@ -26,8 +26,9 @@ spec:
         - mongod
         - "--replSet"
         - "rs0"
-        - "--smallfiles"
-        - "--noprealloc"
+        - "--bind_ip_all"
+        - "--keyFile"
+        - "/etc/mongo-keyfile"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -51,6 +52,10 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /data/db
+        - name: keyfile
+          mountPath: /etc/mongo-keyfile
+          subPath: keyfile
+          readOnly: true
         # livenessProbe:
         #   exec:
         #     command:
@@ -78,11 +83,11 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-      - name: mongo-sidecar
-        image: cvallance/mongo-k8s-sidecar
-        env:
-          - name: MONGO_SIDECAR_POD_LABELS
-            value: "app=mongodb"
+      volumes:
+      - name: keyfile
+        secret:
+          secretName: mongodb-keyfile
+          defaultMode: 0400
   volumeClaimTemplates:
   - metadata:
       name: data
