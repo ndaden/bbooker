@@ -67,7 +67,7 @@ spec:
               name: mongodb-secret
               key: password
         - name: DATABASE_URL
-          value: "mongodb://$(MONGO_USER):$(MONGO_PASSWORD)@$(MONGO_HOST):$(MONGO_PORT)/$(MONGO_DB)?authSource=admin&retryWrites=true&replicaSet=rs0&w=majority"
+          value: "mongodb://$(MONGO_USER):$(MONGO_PASSWORD)@$(MONGO_HOST):$(MONGO_PORT)/$(MONGO_DB)?replicaSet=rs0"
         - name: CORS_ORIGINS
           valueFrom:
             configMapKeyRef:
