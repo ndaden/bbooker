@@ -12,6 +12,9 @@ COPY prisma ./prisma/
 # Install dependencies (incl. devDeps for Prisma CLI during build)
 RUN bun install
 
+# Set dummy DATABASE_URL for Prisma generation
+ENV DATABASE_URL="mongodb://localhost:27017/bbooker"
+
 # Generate Prisma client
 RUN bunx prisma generate
 
