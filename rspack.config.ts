@@ -31,15 +31,10 @@ export default defineConfig({
         test: /\.svg$/,
         type: 'asset',
       },
-      {
+     {
         test: /\.css$/,
-        type: 'css/auto',
-        use: [
-          {
-            loader: 'builtin:lightningcss-loader',
-            options: {},
-          },
-        ],
+        use: ["postcss-loader"],
+        type: "css",
       },
       {
         test: /\.scss$/,
