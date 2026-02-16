@@ -46,11 +46,6 @@ spec:
             configMapKeyRef:
               name: api-config
               key: MONGO_USER
-        - name: MONGO_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mongodb-secret
-              key: password
         - name: MONGO_HOST
           valueFrom:
             configMapKeyRef:
@@ -66,8 +61,13 @@ spec:
             configMapKeyRef:
               name: api-config
               key: MONGO_DB
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: password
         - name: DATABASE_URL
-          value: "mongodb://bbooker:${MONGO_PASSWORD}@mongodb:27017/bbooker?authSource=admin&retryWrites=true&w=majority"
+          value: "mongodb://bbooker:$(MONGO_PASSWORD)@mongodb:27017/bbooker?authSource=admin&retryWrites=true&w=majority"
         - name: CORS_ORIGINS
           valueFrom:
             configMapKeyRef:
