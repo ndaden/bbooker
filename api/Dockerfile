@@ -30,14 +30,10 @@ ENV NODE_ENV=production
 USER node
 EXPOSE 3002
 
-# Create startup script to construct DATABASE_URL from env vars and regenerate Prisma
+# Create startup script to construct DATABASE_URL from env vars
 RUN cat > /app/start.sh << 'EOF'
 #!/bin/bash
 export DATABASE_URL="mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?replicaSet=rs0&authSource=admin&retryWrites=true&w=majority"
-
-# Remove cached Prisma client and regenerate it
-rm -rf /app/node_modules/.prisma /app/node_modules/@prisma/client
-bunx prisma generate
 exec bun src/index.ts
 EOF
 RUN chmod +x /app/start.sh

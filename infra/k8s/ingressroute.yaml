@@ -25,11 +25,7 @@ spec:
         - name: api
           port: 3002
   tls:
-    certResolver: letsencrypt
-    domains:
-      - main: bbooker.dnabil.ovh
-  options:
-    name: default
+    secretName: bbooker-tls-secret
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
