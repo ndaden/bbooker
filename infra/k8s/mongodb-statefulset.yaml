@@ -23,29 +23,11 @@ spec:
         image: mongo:7
         imagePullPolicy: IfNotPresent
         command:
-        - /bin/bash
-        args:
-        - -c
-        - |
-          mongod --replSet rs0 --bind_ip 0.0.0.0 &
-          MONGOD_PID=$!
-          
-          # Wait for MongoDB to start (without auth initially)
-          until mongosh --eval "db.adminCommand('ping')" 2>/dev/null; do
-            sleep 1
-          done
-          
-          # Initialize replica set
-          mongosh --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb:27017'}]})" 2>/dev/null || true
-          
-          # Wait a moment for replica set to initialize
-          sleep 2
-          
-          # Now set up root user
-          mongosh --eval "db.createUser({user: '$MONGO_USERNAME', pwd: '$MONGO_PASSWORD', roles: ['root']})" 2>/dev/null || true
-          
-          # Foreground the mongod process
-          wait $MONGOD_PID
+        - mongod
+        - "--replSet"
+        - "rs0"
+        - "--smallfiles"
+        - "--noprealloc"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -96,6 +78,11 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+      - name: mongo-sidecar
+        image: cvallance/mongo-k8s-sidecar
+        env:
+          - name: MONGO_SIDECAR_POD_LABELS
+            value: "app=mongodb"
   volumeClaimTemplates:
   - metadata:
       name: data
