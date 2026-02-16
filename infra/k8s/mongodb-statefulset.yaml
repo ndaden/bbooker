@@ -22,6 +22,13 @@ spec:
       - name: mongodb
         image: mongo:7
         imagePullPolicy: IfNotPresent
+        command:
+        - mongod
+        args:
+        - --replSet
+        - rs0
+        - --bind_ip
+        - 0.0.0.0
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -74,6 +81,26 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+      initContainers:
+      - name: init-replica-set
+        image: mongo:7
+        command:
+        - /bin/bash
+        - -c
+        - |
+          until mongosh --host mongodb-0.mongodb.bbooker.svc.cluster.local:27017 \
+            -u root -p $MONGO_PASSWORD --authenticationDatabase admin \
+            --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb-0.mongodb.bbooker.svc.cluster.local:27017'}]})" \
+            2>/dev/null; do
+            echo 'Waiting for MongoDB to be ready...'
+            sleep 2
+          done
+        env:
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: password
   volumeClaimTemplates:
   - metadata:
       name: data
