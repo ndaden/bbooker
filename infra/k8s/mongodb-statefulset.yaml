@@ -14,10 +14,6 @@ spec:
       labels:
         app: mongodb
     spec:
-      securityContext:
-        fsGroup: 999
-        runAsNonRoot: true
-        runAsUser: 999
       containers:
       - name: mongodb
         image: mongo:7
@@ -29,12 +25,6 @@ spec:
         - "--bind_ip_all"
         - "--keyFile"
         - "/etc/mongo-keyfile"
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          readOnlyRootFilesystem: false
         ports:
         - containerPort: 27017
           name: mongodb
