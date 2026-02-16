@@ -7,7 +7,7 @@ import {
   CardHeader,
   Divider,
   Link,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 const QQuestion = () => (
   <Card className="my-3">

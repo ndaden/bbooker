@@ -1,5 +1,5 @@
 import React from "react";
-import { Chip, Divider } from "@nextui-org/react";
+import { Chip, Divider } from "@heroui/react";
 import { BsClock, BsCurrencyEuro, BsCheckCircle, BsGeoAlt, BsTags } from "react-icons/bs";
 import { Service } from "./ServicesStep";
 

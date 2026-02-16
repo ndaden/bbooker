@@ -9,7 +9,7 @@ import {
   Tab,
   Divider,
   Chip,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import Container from "../../components/Container";
 import PageTitle from "../../components/PageTitle";
 import ControlledInput from "../../components/ControlledInput";

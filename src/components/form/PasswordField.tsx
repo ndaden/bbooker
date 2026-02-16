@@ -1,4 +1,4 @@
-import { Input, Button, Progress } from "@nextui-org/react";
+import { Input, Button, Progress } from "@heroui/react";
 import React, { useState, useMemo } from "react";
 import { Controller, Control, FieldValues, Path } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";

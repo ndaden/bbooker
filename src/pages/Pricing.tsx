@@ -7,7 +7,7 @@ import {
   CardFooter,
   Chip,
   Divider,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import Container from "../components/Container";
 import { BsCheck, BsStarFill, BsLightningFill, BsRocketFill } from "react-icons/bs";
 

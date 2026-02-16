@@ -1,7 +1,7 @@
 import React from "react";
 import { Control, FieldValues, RegisterOptions } from "react-hook-form";
 import ControlledInput from "../../components/ControlledInput";
-import { Accordion, AccordionItem, Button, Chip } from "@nextui-org/react";
+import { Accordion, AccordionItem, Button, Chip } from "@heroui/react";
 import { IoMdAddCircle } from "react-icons/io";
 import { TiDeleteOutline } from "react-icons/ti";
 import { BsClock } from "react-icons/bs";

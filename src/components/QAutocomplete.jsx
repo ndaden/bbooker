@@ -3,7 +3,7 @@ import {
   Listbox,
   ListboxItem,
   Chip,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { useState, useEffect, useRef } from "react";
 import { IoLocationOutline, IoSearchOutline } from "react-icons/io5";
 import useSearchBusinesses from "../hooks/useSearchBusinesses";

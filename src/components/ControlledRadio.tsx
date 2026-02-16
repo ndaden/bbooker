@@ -1,4 +1,4 @@
-import { RadioGroup, RadioGroupProps } from "@nextui-org/react";
+import { RadioGroup, RadioGroupProps } from "@heroui/react";
 import React from "react";
 import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
 

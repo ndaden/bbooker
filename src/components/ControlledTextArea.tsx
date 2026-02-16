@@ -1,4 +1,4 @@
-import { Textarea, TextAreaProps } from "@nextui-org/react";
+import { Textarea, TextAreaProps } from "@heroui/react";
 import React from "react";
 import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
 import get from "lodash/get";

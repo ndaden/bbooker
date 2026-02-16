@@ -5,7 +5,7 @@ import {
   ModalContent,
   ModalFooter,
   useDisclosure,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { useEffect } from "react";
 import { BsPatchCheckFill } from "react-icons/bs";
 const QModal = ({ triggerOpenModal = false, onCloseHandler }) => {

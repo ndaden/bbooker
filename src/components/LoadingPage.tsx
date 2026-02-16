@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Container from "./Container";
-import { Button, CircularProgress } from "@nextui-org/react";
+import { Button, CircularProgress } from "@heroui/react";
 
 const LoadingPage = () => {
   const [displayTooLongBtn, setDisplayTooLongBtn] = useState(false);

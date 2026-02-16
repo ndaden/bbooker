@@ -1,4 +1,4 @@
-import { Listbox, ListboxItem } from "@nextui-org/react";
+import { Listbox, ListboxItem } from "@heroui/react";
 import React from "react";
 
 interface AccountLeftMenuProps {

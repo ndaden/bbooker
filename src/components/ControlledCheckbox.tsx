@@ -1,4 +1,4 @@
-import { Checkbox, CheckboxProps } from "@nextui-org/react";
+import { Checkbox, CheckboxProps } from "@heroui/react";
 import React from "react";
 import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
 import get from "lodash/get";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { User } from "../../../types/auth";
-import { Input, Button, Card, CardBody, Tabs, Tab } from "@nextui-org/react";
+import { Input, Button, Card, CardBody, Tabs, Tab } from "@heroui/react";
 import { useAuth } from "../../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import AccountBusinesses from "../AccountBusinesses";

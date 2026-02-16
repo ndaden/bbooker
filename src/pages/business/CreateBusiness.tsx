@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import PageTitle from "../../components/PageTitle";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import Container from "../../components/Container";
 import { useNavigate } from "react-router-dom";

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Input, Button } from "@nextui-org/react";
+import { Input, Button } from "@heroui/react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const ProfileSecurity = () => {

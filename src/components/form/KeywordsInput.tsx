@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Input, Chip, Button } from "@nextui-org/react";
+import { Input, Chip, Button } from "@heroui/react";
 import { Control, Controller, FieldErrors, FieldValues } from "react-hook-form";
 
 interface KeywordsInputProps<T extends FieldValues = FieldValues> {

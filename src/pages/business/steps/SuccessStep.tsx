@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Chip, Divider } from "@nextui-org/react";
+import { Button, Chip, Divider } from "@heroui/react";
 import { BsCheckCircleFill, BsClock, BsCurrencyEuro } from "react-icons/bs";
 import { Service } from "./ServicesStep";
 

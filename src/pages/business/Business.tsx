@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
   Chip,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import useFetchBusinesses from "../../hooks/useFetchBusinesses";
 import { useParams, useLocation } from "react-router-dom";
 import useFetchServices from "../../hooks/useFetchServices";

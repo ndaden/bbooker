@@ -8,7 +8,7 @@ import {
   Chip,
   Accordion,
   AccordionItem,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { User } from "../../types/auth";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";

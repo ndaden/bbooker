@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { UserContextProvider } from "./contexts/UserContext";
@@ -19,14 +19,14 @@ const queryClient = new QueryClient();
 dayjs.locale("fr");
 root.render(
   <React.StrictMode>
-    <NextUIProvider>
+    <HeroUIProvider>
       <QueryClientProvider client={queryClient}>
         <UserContextProvider>
           <App />
         </UserContextProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </NextUIProvider>
+    </HeroUIProvider>
   </React.StrictMode>
 );
 

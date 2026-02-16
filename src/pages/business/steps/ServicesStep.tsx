@@ -11,7 +11,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { BsClock, BsCurrencyEuro, BsTrash, BsPlus } from "react-icons/bs";
 
 export interface Service {

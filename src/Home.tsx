@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Pagination, Button, Chip, Switch } from "@nextui-org/react";
+import { Pagination, Button, Switch } from "@heroui/react";
 import QAutoComplete from "./components/QAutocomplete";
 import BusinessCard from "./components/BusinessCard";
 import useFetchBusinesses from "./hooks/useFetchBusinesses";

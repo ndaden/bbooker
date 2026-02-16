@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, Chip, Image, Spacer } from "@nextui-org/react";
+import { Button, Card, CardBody, Chip, Image, Spacer } from "@heroui/react";
 import { BsClock, BsGeoAlt } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 

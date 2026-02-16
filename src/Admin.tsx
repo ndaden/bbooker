@@ -13,7 +13,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import useFetchUsers from "./hooks/useFetchUsers";
 import useFetchBusinesses from "./hooks/useFetchBusinesses";
 import useFetchServices from "./hooks/useFetchServices";

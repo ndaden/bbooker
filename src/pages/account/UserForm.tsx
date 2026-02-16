@@ -1,4 +1,4 @@
-import { Button, Checkbox, RadioGroup, Radio } from "@nextui-org/react";
+import { Button, Checkbox, RadioGroup, Radio } from "@heroui/react";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
