@@ -23,12 +23,29 @@ spec:
         image: mongo:7
         imagePullPolicy: IfNotPresent
         command:
-        - mongod
+        - /bin/bash
         args:
-        - --replSet
-        - rs0
-        - --bind_ip
-        - 0.0.0.0
+        - -c
+        - |
+          mongod --replSet rs0 --bind_ip 0.0.0.0 &
+          MONGOD_PID=$!
+          
+          # Wait for MongoDB to start (without auth initially)
+          until mongosh --eval "db.adminCommand('ping')" 2>/dev/null; do
+            sleep 1
+          done
+          
+          # Initialize replica set
+          mongosh --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})" 2>/dev/null || true
+          
+          # Wait a moment for replica set to initialize
+          sleep 2
+          
+          # Now set up root user
+          mongosh --eval "db.createUser({user: '$MONGO_USERNAME', pwd: '$MONGO_PASSWORD', roles: ['root']})" 2>/dev/null || true
+          
+          # Foreground the mongod process
+          wait $MONGOD_PID
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -39,18 +56,16 @@ spec:
         - containerPort: 27017
           name: mongodb
         env:
-        - name: MONGO_INITDB_ROOT_USERNAME
+        - name: MONGO_USERNAME
           valueFrom:
             secretKeyRef:
               name: mongodb-secret
               key: username
-        - name: MONGO_INITDB_ROOT_PASSWORD
+        - name: MONGO_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mongodb-secret
               key: password
-        - name: MONGO_INITDB_DATABASE
-          value: bbooker
         volumeMounts:
         - name: data
           mountPath: /data/db
@@ -81,23 +96,6 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-      initContainers:
-      - name: init-replica-set
-        image: mongo:7
-        command:
-        - /bin/bash
-        - -c
-        - |
-          # Wait for MongoDB to be ready (before auth is set up)
-          until mongosh --host mongodb-0.mongodb.bbooker.svc.cluster.local:27017 \
-            --eval "db.adminCommand('ping')" \
-            2>/dev/null; do
-            echo 'Waiting for MongoDB to be ready...'
-            sleep 2
-          done
-          # Initialize replica set
-          mongosh --host mongodb-0.mongodb.bbooker.svc.cluster.local:27017 \
-            --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb-0.mongodb.bbooker.svc.cluster.local:27017'}]})"
   volumeClaimTemplates:
   - metadata:
       name: data
