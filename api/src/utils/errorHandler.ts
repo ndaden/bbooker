@@ -34,8 +34,9 @@ export class NotFoundError extends Error {
 // Gestionnaire d'erreurs centralisé
 export const errorHandler = (app: Elysia) =>
   app.onError(({ error, set, code }) => {
-    // Log de l'erreur avec le logger structuré
-    logger.error(`Error ${code}`, error instanceof Error ? error : new Error(String(error)), { code });
+    // Always log the full error details (even in production for debugging)
+    const fullError = error instanceof Error ? error : new Error(String(error));
+    logger.error(`Error ${code}`, fullError, { code, stack: fullError.stack });
     
     // Gestion des erreurs spécifiques
     switch (error.constructor) {
@@ -68,13 +69,12 @@ export const errorHandler = (app: Elysia) =>
         
       case 'INTERNAL_SERVER_ERROR':
         set.status = 500;
-        // Ne pas exposer les détails d'erreur interne en production
-        const isDev = Bun.env.NODE_ENV !== 'production';
-        return buildApiResponse(false, 'Internal server error', isDev ? { error: error.message } : undefined);
+        // Always include error details for debugging (client won't use them, but we can see them in logs)
+        return buildApiResponse(false, 'Internal server error', { error: error.message, code: code });
         
       default:
         // Erreur non gérée
         set.status = 500;
-        return buildApiResponse(false, 'An unexpected error occurred');
+        return buildApiResponse(false, 'An unexpected error occurred', { error: error.message });
     }
   });

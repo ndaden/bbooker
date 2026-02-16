@@ -11,6 +11,7 @@ interface LogEntry {
 
 class Logger {
   private isDev = Bun.env.NODE_ENV !== 'production';
+  private logErrors = true; // Always log errors for debugging
 
   private format(entry: LogEntry): string {
     const { timestamp, level, message, context, stack, requestId } = entry;

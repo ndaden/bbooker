@@ -6,6 +6,7 @@ import { buildApiResponse } from "../../utils/api";
 import { isAuthenticated } from "../../middlewares/authentication";
 import { uploadImageToFirebase } from "../../utils/upload";
 import { getErrorMessage } from "../../utils/errors";
+import { logger } from "../../utils/logger";
 // import { authRateLimit } from "../../middlewares/authRateLimit";
 
 export const authentification = (app: Elysia) =>
@@ -43,6 +44,12 @@ export const authentification = (app: Elysia) =>
             return buildApiResponse(false, "Passwords don't match");
           }
         } catch (error: any) {
+          // Log full error details for debugging
+          logger.error('Signup error', error instanceof Error ? error : new Error(String(error)), {
+            code: error.code,
+            message: error.message,
+            meta: error.meta,
+          });
           set.status = "Bad Request"; 
           return buildApiResponse(false, getErrorMessage(error.code));
         }
