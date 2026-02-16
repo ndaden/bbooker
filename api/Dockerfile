@@ -30,6 +30,14 @@ ENV NODE_ENV=production
 USER node
 EXPOSE 3002
 
+# Create startup script to construct DATABASE_URL from env vars
+RUN cat > /app/start.sh << 'EOF'
+#!/bin/bash
+export DATABASE_URL="mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?replicaSet=rs0&authSource=admin&retryWrites=true&w=majority"
+exec bun src/index.ts
+EOF
+RUN chmod +x /app/start.sh
+
 # Check MongoDB replica set before starting
-CMD ["/bin/bash", "-c", "bun src/index.ts"]
+CMD ["/bin/bash", "-c", "./start.sh"]
 
