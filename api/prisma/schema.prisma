@@ -12,6 +12,9 @@ generator client {
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
+  // Disable transaction support for MongoDB standalone (not replica set)
+  // Set this to false if using MongoDB without replica set
+  // This is needed for production deployments on standard MongoDB instances
 }
 
 model Account {

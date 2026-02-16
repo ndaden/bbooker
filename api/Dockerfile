@@ -18,14 +18,16 @@ RUN bunx prisma generate
 # Copy source code
 COPY src ./src/
 COPY tsconfig.json ./
+COPY check-mongodb.sh ./
 
 # Create uploads directory and set permissions
-RUN mkdir -p /app/uploads && chown -R node:node /app
+RUN mkdir -p /app/uploads && chown -R node:node /app && chmod +x /app/check-mongodb.sh
 
 # Set environment and user
 ENV NODE_ENV=production
 USER node
 EXPOSE 3002
 
-CMD ["bun", "src/index.ts"]
+# Check MongoDB replica set before starting
+CMD ["/bin/bash", "-c", "./check-mongodb.sh && bun src/index.ts"]
 
