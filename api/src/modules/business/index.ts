@@ -6,6 +6,7 @@ import { buildApiResponse } from "../../utils/api";
 import { uploadImageToFirebase } from "../../utils/upload";
 import { getErrorMessage } from "../../utils/errors";
 import { geocodeAddress } from "../../utils/geocoding";
+import { logger } from "../../utils/logger";
 
 // Haversine formula to calculate distance between two points
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -267,7 +268,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
 
             return buildApiResponse(true, "deleted successfully.")
         } catch (error: any) {
-            console.log(error)
+            logger.error('Business deletion error', error instanceof Error ? error : new Error(String(error)));
             return buildApiResponse(false, getErrorMessage(error.code))
         }
     }, { detail: { tags: ['business'] } }))

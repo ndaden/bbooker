@@ -3,6 +3,8 @@
  * Free service, no API key required (respect usage policy)
  */
 
+import { logger } from './logger';
+
 interface GeocodingResult {
   latitude: number;
   longitude: number;
@@ -33,14 +35,14 @@ export async function geocodeAddress(address: string): Promise<GeocodingResult |
     });
 
     if (!response.ok) {
-      console.error('Geocoding API error:', response.statusText);
+      logger.error('Geocoding API error', new Error(response.statusText));
       return null;
     }
 
     const data = await response.json();
 
     if (!data || data.length === 0) {
-      console.log('No geocoding results found for address:', address);
+      logger.debug('No geocoding results found for address', { address });
       return null;
     }
 
@@ -52,7 +54,7 @@ export async function geocodeAddress(address: string): Promise<GeocodingResult |
       displayName: result.display_name,
     };
   } catch (error) {
-    console.error('Error geocoding address:', error);
+    logger.error('Error geocoding address', error instanceof Error ? error : new Error(String(error)));
     return null;
   }
 }
@@ -72,7 +74,7 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
     });
 
     if (!response.ok) {
-      console.error('Reverse geocoding API error:', response.statusText);
+      logger.error('Reverse geocoding API error', new Error(response.statusText));
       return null;
     }
 
@@ -80,7 +82,7 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
 
     return data.display_name || null;
   } catch (error) {
-    console.error('Error reverse geocoding:', error);
+    logger.error('Error reverse geocoding', error instanceof Error ? error : new Error(String(error)));
     return null;
   }
 }

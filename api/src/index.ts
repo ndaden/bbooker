@@ -11,6 +11,8 @@ import { isMaintenance } from "./middlewares/maintenance";
 // import { rateLimit } from "./middlewares/rateLimit";
 import { buildApiResponse } from "./utils/api";
 import { errorHandler } from "./utils/errorHandler";
+import { logger } from "./utils/logger";
+import { requestLogger } from "./middlewares/requestLogger";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generatePrompt } from "./utils/ai/prompts";
 import { isAuthenticated } from "./middlewares/authentication";
@@ -44,6 +46,7 @@ const app: Elysia = new Elysia()
     return '';
   })
  // .use(rateLimit())
+  .use(requestLogger)
   .use(isMaintenance)
   .use(errorHandler)
   .get(
@@ -76,13 +79,13 @@ const app: Elysia = new Elysia()
         try {
           json = JSON.parse(text);
         } catch (parseError) {
-          console.error("AI response JSON parse error:", parseError);
+          logger.error("AI response JSON parse error", parseError instanceof Error ? parseError : new Error(String(parseError)));
           return buildApiResponse(false, "Invalid response format from AI service");
         }
         
         return buildApiResponse(true, "AI response", json);
       } catch (error) {
-        console.error("AI generation error:", error);
+        logger.error("AI generation error", error instanceof Error ? error : new Error(String(error)));
         return buildApiResponse(false, "Error generating AI content");
       }
     },

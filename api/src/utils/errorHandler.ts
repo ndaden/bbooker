@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia';
 import { buildApiResponse } from './api';
+import { logger } from './logger';
 
 // Types d'erreurs spécifiques
 export class ValidationError extends Error {
@@ -33,8 +34,8 @@ export class NotFoundError extends Error {
 // Gestionnaire d'erreurs centralisé
 export const errorHandler = (app: Elysia) =>
   app.onError(({ error, set, code }) => {
-    // Log de l'erreur (en prod, utiliser un logger professionnel)
-    console.error(`[${new Date().toISOString()}] Error ${code}:`, error.message);
+    // Log de l'erreur avec le logger structuré
+    logger.error(`Error ${code}`, error instanceof Error ? error : new Error(String(error)), { code });
     
     // Gestion des erreurs spécifiques
     switch (error.constructor) {
