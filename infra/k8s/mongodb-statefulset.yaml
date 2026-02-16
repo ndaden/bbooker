@@ -25,6 +25,7 @@ spec:
         - "--bind_ip_all"
         - "--keyFile"
         - "/etc/mongo-keyfile"
+        - "--auth"
         ports:
         - containerPort: 27017
           name: mongodb
@@ -35,6 +36,16 @@ spec:
               name: mongodb-secret
               key: username
         - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: password
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mongodb-secret

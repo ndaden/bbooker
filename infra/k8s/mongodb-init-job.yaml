@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-init
+  namespace: bbooker
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      serviceAccountName: default
+      containers:
+      - name: mongodb-init
+        image: mongo:7
+        env:
+        - name: MONGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: username
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: password
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Waiting for MongoDB to be ready..."
+          for i in {1..30}; do
+            if mongosh --host mongodb:27017 -u "$MONGO_USERNAME" -p "$MONGO_PASSWORD" --authenticationDatabase=admin --eval "db.adminCommand('ping')" 2>/dev/null; then
+              echo "MongoDB is ready!"
+              break
+            fi
+            echo "Attempt $i/30 - MongoDB not ready yet, waiting..."
+            sleep 2
+          done
+          
+          echo "Initializing replica set..."
+          mongosh --host mongodb:27017 -u "$MONGO_USERNAME" -p "$MONGO_PASSWORD" --authenticationDatabase=admin --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb:27017'}]})" || true
+          
+          sleep 3
+          
+          echo "Waiting for replica set to be primary..."
+          for i in {1..30}; do
+            status=$(mongosh --host mongodb:27017 -u "$MONGO_USERNAME" -p "$MONGO_PASSWORD" --authenticationDatabase=admin --eval "rs.status().ok" 2>/dev/null || echo "0")
+            if [ "$status" = "1" ]; then
+              echo "Replica set is now primary!"
+              break
+            fi
+            echo "Attempt $i/30 - Waiting for replica set to be ready..."
+            sleep 1
+          done
+          
+          echo "Replica set initialization complete"
+      restartPolicy: Never
