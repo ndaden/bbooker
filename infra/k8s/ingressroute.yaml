@@ -28,6 +28,8 @@ spec:
     certResolver: letsencrypt
     domains:
       - main: bbooker.dnabil.ovh
+  options:
+    name: default
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
