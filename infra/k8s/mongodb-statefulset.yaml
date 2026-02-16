@@ -88,19 +88,16 @@ spec:
         - /bin/bash
         - -c
         - |
+          # Wait for MongoDB to be ready (before auth is set up)
           until mongosh --host mongodb-0.mongodb.bbooker.svc.cluster.local:27017 \
-            -u root -p $MONGO_PASSWORD --authenticationDatabase admin \
-            --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb-0.mongodb.bbooker.svc.cluster.local:27017'}]})" \
+            --eval "db.adminCommand('ping')" \
             2>/dev/null; do
             echo 'Waiting for MongoDB to be ready...'
             sleep 2
           done
-        env:
-        - name: MONGO_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mongodb-secret
-              key: password
+          # Initialize replica set
+          mongosh --host mongodb-0.mongodb.bbooker.svc.cluster.local:27017 \
+            --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb-0.mongodb.bbooker.svc.cluster.local:27017'}]})"
   volumeClaimTemplates:
   - metadata:
       name: data
