@@ -43,9 +43,9 @@ spec:
               key: NODE_ENV
         - name: MONGO_USER
           valueFrom:
-            configMapKeyRef:
-              name: api-config
-              key: MONGO_USER
+            secretKeyRef:
+              name: mongodb-secret
+              key: username
         - name: MONGO_HOST
           valueFrom:
             configMapKeyRef:
@@ -67,7 +67,7 @@ spec:
               name: mongodb-secret
               key: password
         - name: DATABASE_URL
-          value: "mongodb://bbooker:$(MONGO_PASSWORD)@mongodb:27017/bbooker?authSource=admin&retryWrites=true&w=majority"
+          value: "mongodb://$(MONGO_USER):$(MONGO_PASSWORD)@$(MONGO_HOST):$(MONGO_PORT)/$(MONGO_DB)?authSource=admin&retryWrites=true&w=majority"
         - name: CORS_ORIGINS
           valueFrom:
             configMapKeyRef:
