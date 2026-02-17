@@ -103,7 +103,7 @@ function Home() {
       {/* Location Mode Switch */}
       <div className="my-6 p-4 bg-default-100 dark:bg-default-50/10 rounded-lg border border-default-200">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <IoLocationOutline className="text-2xl text-primary" />
             <div>
               <h3 className="font-semibold text-sm">Mode d'affichage</h3>
@@ -112,7 +112,7 @@ function Home() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 md:gap-3 w-full md:w-auto justify-center md:justify-end">
             <span className={`text-sm font-medium whitespace-nowrap transition-colors ${!locationMode || locationMode === "all" ? "text-primary" : "text-default-400"}`}>
               Voir tous
             </span>
