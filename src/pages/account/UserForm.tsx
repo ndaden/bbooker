@@ -1,9 +1,9 @@
 import { Button, Checkbox, RadioGroup, Radio } from "@heroui/react";
+import { addToast } from "@heroui/react";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import QModal from "../../components/QModal";
 import { useNavigate } from "react-router-dom";
 import { useSignup } from "../../hooks/useSignup";
 import { signupSchema, SignupFormData } from "../../schemas/auth";
@@ -33,7 +33,6 @@ const UserForm = () => {
   });
 
   const { mutate: signup, isPending, isSuccess, isError, error, data } = useSignup();
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const accountType = watch("accountType");
 
@@ -41,13 +40,19 @@ const UserForm = () => {
     if (isSuccess && data) {
       queryClient.invalidateQueries({ queryKey: ["AUTHENTICATED_USER"] });
       
-      // Si c'est un professionnel, rediriger vers la création d'entreprise
+      // Si c'est un professionnel, afficher toast et rediriger vers login
       if (accountType === "OWNER") {
+        addToast({
+          title: "Félicitations",
+          description: "Vous avez créé votre compte.",
+          color: "success",
+      
+        });
         reset();
-        navigate("/new-business");
+        setTimeout(() => {
+          navigate("/login");
+        }, 500);
       } else {
-        // Sinon, afficher le modal de succès et rediriger vers login
-        setShowSuccessModal(true);
         reset();
       }
     }
@@ -58,7 +63,7 @@ const UserForm = () => {
           : "Une erreur s'est produite lors de la création du compte"
       );
     }
-  }, [isSuccess, isError, error, data, accountType, reset, queryClient, navigate]);
+  }, [isSuccess, isError, error, data, accountType, reset, queryClient, navigate, addToast]);
 
   const onSubmit = async (data: SignupFormData) => {
     if (isValid) {
@@ -188,11 +193,6 @@ const UserForm = () => {
           Créer mon compte
         </Button>
       </div>
-      
-      <QModal
-        triggerOpenModal={showSuccessModal}
-        onCloseHandler={goToLogin}
-      />
     </form>
   );
 };
