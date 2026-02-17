@@ -12,9 +12,6 @@ COPY prisma ./prisma/
 # Install dependencies (incl. devDeps for Prisma CLI during build)
 RUN bun install
 
-# Set dummy DATABASE_URL for Prisma generation
-ENV DATABASE_URL="mongodb://localhost:27017/bbooker"
-
 # Generate Prisma client
 RUN bunx prisma generate
 
@@ -30,14 +27,6 @@ ENV NODE_ENV=production
 USER node
 EXPOSE 3002
 
-# Create startup script to construct DATABASE_URL from env vars
-RUN cat > /app/start.sh << 'EOF'
-#!/bin/bash
-export DATABASE_URL="mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?replicaSet=rs0&authSource=admin&retryWrites=true&w=majority"
-exec bun src/index.ts
-EOF
-RUN chmod +x /app/start.sh
-
 # Check MongoDB replica set before starting
-CMD ["/bin/bash", "-c", "./start.sh"]
+CMD ["bun", "src/index.ts"]
 
