@@ -67,7 +67,7 @@ spec:
               name: mongodb-secret
               key: password
         - name: DATABASE_URL
-          value: "mongodb+srv://bbooker:<db_password>@cluster0.a0bgb2g.mongodb.net/?appName=Cluster0"
+          value: "mongodb+srv://bbooker:<db_password>@cluster0.a0bgb2g.mongodb.net/?appName=Cluster0&authSource=admin"
         - name: CORS_ORIGINS
           valueFrom:
             configMapKeyRef:
