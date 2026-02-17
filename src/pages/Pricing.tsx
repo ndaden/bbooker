@@ -138,9 +138,9 @@ const Pricing: React.FC = () => {
                 </div>
 
                 {/* Price */}
-                <div className="text-center mb-8">
-                  <span className="text-6xl md:text-7xl font-extrabold">{plan.price}</span>
-                  <span className="text-default-400 text-xl ml-3">
+                <div className="text-center mb-8 h-20 flex flex-col justify-center">
+                  <span className="text-4xl md:text-5xl font-extrabold">{plan.price}</span>
+                  <span className="text-default-400 text-sm mt-2">
                     {plan.priceLabel}
                   </span>
                 </div>
