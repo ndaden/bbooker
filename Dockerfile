@@ -29,6 +29,9 @@ RUN rm -rf ./*
 
 # Copy the built app from the previous stage to the NGINX web server directory
 COPY --from=build /usr/src/app/public .
+
+# Copy public images folder for static assets
+COPY --from=build /usr/src/app/public/images ./images
 COPY --from=build /usr/src/app/conf/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Start NGINX and serve the app
