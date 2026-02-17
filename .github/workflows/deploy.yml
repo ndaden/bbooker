@@ -42,6 +42,14 @@ jobs:
           --namespace=bbooker \
           --dry-run=client -o yaml | kubectl apply -f -
 
+    - name: Create MongoDB secrets
+      run: |
+        kubectl create secret generic mongodb-secret \
+          --from-literal=username="${{ secrets.MONGODB_USERNAME }}" \
+          --from-literal=password="${{ secrets.MONGODB_PASSWORD }}" \
+          --namespace=bbooker \
+          --dry-run=client -o yaml | kubectl apply -f -
+
     # Deploy infrastructure
     - name: Deploy to Kubernetes
       run: |
