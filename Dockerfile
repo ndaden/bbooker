@@ -13,6 +13,10 @@ RUN npm install
 # Copy the app's source code to the working directory
 COPY . .
 
+# Copy images before build
+RUN mkdir -p public/images
+COPY public/images ./public/images
+
 # Build-time environment (Rspack uses process.env.* at build time)
 ARG PUBLIC_API_URL=http://localhost:3002
 ENV PUBLIC_API_URL=$PUBLIC_API_URL
@@ -20,6 +24,10 @@ ENV NODE_ENV=production
 
 # Build the app for production
 RUN npm run build
+
+# Restore images after build
+RUN mkdir -p public/images
+COPY public/images ./public/images || true
 
 # Use NGINX as a lightweight server to serve the static files
 FROM nginx:latest
@@ -30,8 +38,6 @@ RUN rm -rf ./*
 # Copy the built app from the previous stage to the NGINX web server directory
 COPY --from=build /usr/src/app/public .
 
-# Copy public images folder for static assets
-COPY --from=build /usr/src/app/public/images ./images
 COPY --from=build /usr/src/app/conf/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Start NGINX and serve the app
