@@ -27,7 +27,7 @@ RUN npm run build
 
 # Restore images after build
 RUN mkdir -p public/images
-COPY public/images ./public/images || true
+COPY public/images ./public/images
 
 # Use NGINX as a lightweight server to serve the static files
 FROM nginx:latest
