@@ -42,37 +42,15 @@ jobs:
           --namespace=bbooker \
           --dry-run=client -o yaml | kubectl apply -f -
 
-    - name: Create MongoDB secrets
-      run: |
-        kubectl create secret generic mongodb-secret \
-          --from-literal=username="${{ secrets.MONGODB_USERNAME }}" \
-          --from-literal=password="${{ secrets.MONGODB_PASSWORD }}" \
-          --namespace=bbooker \
-          --dry-run=client -o yaml | kubectl apply -f -
-
-    - name: Create MongoDB keyfile secret
-      run: |
-        kubectl create secret generic mongodb-keyfile \
-          --from-literal=keyfile="${{ secrets.MONGODB_KEYFILE }}" \
-          --namespace=bbooker \
-          --dry-run=client -o yaml | kubectl apply -f -
-
     # Deploy infrastructure
     - name: Deploy to Kubernetes
       run: |
         kubectl apply -f infra/k8s/namespace.yaml
         kubectl apply -f infra/k8s/api-configmap.yaml
-        kubectl apply -f infra/k8s/mongodb-statefulset.yaml
-        kubectl apply -f infra/k8s/mongodb-init-job.yaml
         kubectl apply -f infra/k8s/api-deployment.yaml
         kubectl apply -f infra/k8s/frontend-deployment.yaml
         kubectl apply -f infra/k8s/certificate.yaml
         kubectl apply -f infra/k8s/ingressroute.yaml
-
-    # Wait for MongoDB to be initialized
-    - name: Wait for MongoDB initialization
-      run: |
-        kubectl wait --for=condition=complete job/mongodb-init -n bbooker --timeout=5m || true
 
     # Wait for rollout
     - name: Wait for deployment to be ready
