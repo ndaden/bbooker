@@ -57,7 +57,6 @@ function Root() {
     <>
       <QNavbar />
       <Routes>
-        <Route path="*" element={<LoadingPage />} />
         <Route path="/" element={<Home />} />
         <Route 
           path="/admin" 
@@ -101,6 +100,7 @@ function Root() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<LoadingPage />} />
       </Routes>
     </>
   );

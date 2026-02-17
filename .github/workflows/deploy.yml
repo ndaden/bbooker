@@ -5,6 +5,11 @@ on:
     branches: [ main ]
     tags: [ 'v*' ]
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy (leave empty to use triggered branch/main)'
+        required: false
+        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -18,6 +23,8 @@ jobs:
       packages: read
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.branch || github.ref }}
 
     # Configure kubeconfig
     - name: Set up kubeconfig
