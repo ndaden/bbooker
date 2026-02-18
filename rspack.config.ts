@@ -21,24 +21,43 @@ export default defineConfig({
     path: require('path').resolve(__dirname, 'public'),
     publicPath: '/',
     clean: true,
-    filename: '[name].[contenthash:8].js',
-    chunkFilename: '[name].[contenthash:8].js',
+    filename: isDev ? '[name].js' : '[name].[contenthash:8].js',
+    chunkFilename: isDev ? '[name].js' : '[name].[contenthash:8].js',
+    assetModuleFilename: isDev ? '[name][ext]' : '[name].[contenthash:8][ext]',
+    cssFilename: isDev ? '[name].css' : '[name].[contenthash:8].css',
+    cssChunkFilename: isDev ? '[name].css' : '[name].[contenthash:8].css',
   },
   optimization: {
     minimize: !isDev,
     splitChunks: {
       chunks: 'all',
+      maxAsyncRequests: 30,
+      maxInitialRequests: 30,
       cacheGroups: {
+        react: {
+          test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom)[\\/]/,
+          name: 'react-vendors',
+          priority: 20,
+          reuseExistingChunk: true,
+        },
+        heroui: {
+          test: /[\\/]node_modules[\\/]@heroui[\\/]/,
+          name: 'heroui-vendors',
+          priority: 15,
+          reuseExistingChunk: true,
+        },
         vendors: {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendors',
           priority: 10,
           reuseExistingChunk: true,
+          enforce: true,
         },
         common: {
           minChunks: 2,
           priority: 5,
           reuseExistingChunk: true,
+          enforce: true,
         },
       },
     },
@@ -52,11 +71,17 @@ export default defineConfig({
       {
         test: /\.svg$/,
         type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 8 * 1024,
+          },
+        },
       },
      {
         test: /\.css$/,
         use: ["postcss-loader"],
         type: "css",
+        sideEffects: true,
       },
       {
         test: /\.scss$/,
