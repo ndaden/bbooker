@@ -1,9 +1,8 @@
 import {
-  Route,
   RouterProvider,
-  Routes,
   createBrowserRouter,
-  useLocation,
+  Routes,
+  Route,
 } from "react-router-dom";
 import Home from "./Home";
 import Admin from "./Admin";
@@ -14,7 +13,6 @@ import Appointment from "./pages/appointment/Appointment";
 import Login from "./pages/account/Login";
 import CreateAccount from "./pages/account/CreateAccount";
 import Profile from "./pages/account/profile/Profile";
-import CreateBusiness from "./pages/business/CreateBusiness";
 import CreateBusinessNew from "./pages/business/CreateBusinessNew";
 import Business from "./pages/business/Business";
 import EditBusiness from "./pages/business/EditBusiness";
@@ -22,6 +20,7 @@ import Pricing from "./pages/Pricing";
 import LoadingPage from "./components/LoadingPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
+import { AppInitializer } from "./AppInitializer";
 
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
 
@@ -54,55 +53,26 @@ function App() {
 
 function Root() {
   return (
-    <>
+    <AppInitializer>
       <QNavbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route 
-          path="/admin" 
-          element={
-            <AdminRoute>
-              <Admin />
-            </AdminRoute>
-          } 
-        />
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
         <Route path="/new-business" element={<CreateBusinessNew />} />
-        <Route path="/business/:id" element={<Business />} />
-        <Route path="/business/:id/edit" element={<EditBusiness />} />
         <Route path="/business/:id/calendar" element={<Business />} />
+        <Route path="/business/:id/edit" element={<EditBusiness />} />
+        <Route path="/business/:id" element={<Business />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/professionnels" element={<Pricing />} />
         <Route path="/appointment" element={<Appointment />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<CreateAccount />} />
         <Route path="/loading" element={<LoadingPage />} />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile/security"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile/options"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<LoadingPage />} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/profile/security" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/profile/options" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       </Routes>
-    </>
+    </AppInitializer>
   );
 }
 

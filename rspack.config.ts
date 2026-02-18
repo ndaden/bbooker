@@ -19,7 +19,29 @@ export default defineConfig({
   },
   output: {
     path: require('path').resolve(__dirname, 'public'),
+    publicPath: '/',
     clean: true,
+    filename: '[name].[contenthash:8].js',
+    chunkFilename: '[name].[contenthash:8].js',
+  },
+  optimization: {
+    minimize: !isDev,
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          priority: 10,
+          reuseExistingChunk: true,
+        },
+        common: {
+          minChunks: 2,
+          priority: 5,
+          reuseExistingChunk: true,
+        },
+      },
+    },
   },
   mode: isDev ? 'development' : 'production',
   experiments: {

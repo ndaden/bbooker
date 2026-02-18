@@ -14,12 +14,10 @@ import {
 } from "@heroui/react";
 import useFetchBusinesses from "../../hooks/useFetchBusinesses";
 import { useParams, useLocation } from "react-router-dom";
-import useFetchServices from "../../hooks/useFetchServices";
 import useFetchAppointments from "../../hooks/useFetchAppointments";
 import { useNavigate } from "react-router-dom";
 import Container from "../../components/Container";
 import BusinessCalendar from "./BusinessCalendar";
-import React from "react";
 import { useAuth } from "../../contexts/UserContext";
 import { BsGeoAlt, BsPencil } from "react-icons/bs";
 
@@ -30,7 +28,7 @@ const Business = () => {
   const isCalendarView = location.pathname.includes("/calendar");
   const { user } = useAuth();
 
-  const { businesses, isLoading: isLoadingBusiness } = useFetchBusinesses({
+  const { businesses, isLoading: isLoadingBusiness, isError, error } = useFetchBusinesses({
     id,
   });
 
@@ -68,6 +66,34 @@ const Business = () => {
     businessIdForCalendar as any
   );
 
+  // Show loading state while data is being fetched
+  if (isLoadingBusiness) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <p className="text-lg text-default-500">Chargement du centre...</p>
+      </div>
+    );
+  }
+
+  // Show error state if request failed
+  if (isError || !businessToDisplay) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="text-center">
+          <p className="text-lg text-red-500 font-bold">Erreur</p>
+          <p className="text-default-500">Le centre n'a pas pu être chargé.</p>
+          {error && <p className="text-sm text-default-400 mt-2">{String(error)}</p>}
+          <Button 
+            className="mt-4"
+            onClick={() => navigate("/")}
+          >
+            Retour à l'accueil
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (isCalendarView) {
     // Transform appointments data for the calendar
     const calendarAppointments = appointments?.payload?.map((apt: any) => ({
@@ -97,8 +123,6 @@ const Business = () => {
   }
 
   return (
-    !isLoadingBusiness &&
-    businessToDisplay && (
       <Container>
         <div className="relative">
           <Card className="border-none ">
@@ -195,8 +219,7 @@ const Business = () => {
           </Table>
         </div>
       </Container>
-    )
-  );
+    );
 };
 
 export default Business;
