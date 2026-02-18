@@ -25,9 +25,9 @@
   },
   "scripts": {
     "dev": "rspack serve",
-    "build": "rspack build",
+    "build": "NODE_ENV=production rspack build",
     "typecheck": "tsc --noEmit",
-    "preview": "rspack serve --mode production"
+    "preview": "NODE_ENV=production rspack serve --mode production"
   },
   "eslintConfig": {
     "extends": [
