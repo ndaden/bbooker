@@ -11,8 +11,9 @@ export const apiClient = {
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     
+    const isGetOrHead = options.method === 'GET' || options.method === 'HEAD';
     const config: RequestInit = {
-      headers: {
+      headers: isGetOrHead ? options.headers : {
         'Content-Type': 'application/json',
         ...options.headers,
       },
@@ -61,6 +62,14 @@ export const apiClient = {
   upload<T>(endpoint: string, formData: FormData): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
+      body: formData,
+      headers: {}, // Laisser le navigateur définir Content-Type pour FormData
+    });
+  },
+
+  uploadWithPatch<T>(endpoint: string, formData: FormData): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
       body: formData,
       headers: {}, // Laisser le navigateur définir Content-Type pour FormData
     });

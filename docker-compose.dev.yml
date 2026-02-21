@@ -42,29 +42,25 @@ services:
     restart: unless-stopped
     depends_on:
       - mongodb
+    env_file:
+      - ./api/.env
     environment:
       NODE_ENV: development
       DATABASE_URL: "mongodb://mongodb:27017/bbooker?replicaSet=rs0"
       JWT_SECRET: "super-secure-jwt-secret-key-for-production-32-chars"
       CORS_ORIGINS: "http://localhost:3001,http://127.0.0.1:3001,http://host.docker.internal:3001"
       COOKIE_DOMAIN: "localhost"
-      # Firebase variables - à configurer avec vos vraies clés
-      FIREBASE_APIKEY: ""
-      FIREBASE_AUTHDOMAIN: ""
-      FIREBASE_PROJECTID: ""
-      FIREBASE_STORAGEBUCKET: ""
-      FIREBASE_MESSAGINGSENDERID: ""
-      FIREBASE_APPID: ""
-      FIREBASE_MEASUREMENTID: ""
-      # Google AI - optionnel
-      GEMINI_API_KEY: ""
-      AI_SYSTEM_INSTRUCTION: "You are a helpful assistant for beauty salon bookings."
     ports:
       - "3003:3002"
     networks:
       - bbooker-network
     volumes:
+      - ./api/src:/app/src
+      - ./api/prisma:/app/prisma
+      - ./api/.env:/app/.env
+      - /app/node_modules
       - api_uploads:/app/uploads
+    command: ["bun", "run", "dev"]
 
 volumes:
   mongodb_data:

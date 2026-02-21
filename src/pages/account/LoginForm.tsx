@@ -1,4 +1,5 @@
 import { Button, Card, CardBody } from "@heroui/react";
+import { addToast } from "@heroui/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +31,11 @@ const LoginForm = () => {
   const { mutate: login, isPending } = useLogin({
     onSuccess: async (data) => {
       if (data?.success) {
+        addToast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur BeautyBooker",
+          color: "success",
+        });
         await queryClient.refetchQueries({ queryKey: ["AUTHENTICATED_USER"] });
         navigate("/profile");
       } else {

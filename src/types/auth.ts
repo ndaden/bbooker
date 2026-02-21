@@ -6,6 +6,8 @@ export interface User {
     lastName?: string;
     birthDate?: string;
     address?: string;
+    phoneNumber?: string;
+    profileImage?: string;
   };
   role: string;
 }

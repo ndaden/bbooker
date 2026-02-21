@@ -1,11 +1,11 @@
 import { Input, InputProps } from "@heroui/react";
 import React from "react";
-import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
+import { Control, Controller, RegisterOptions } from "react-hook-form";
 import get from "lodash/get";
 
 interface ControlledInputProps extends Omit<InputProps, "value" | "onChange"> {
   name: string;
-  control: Control<FieldValues>;
+  control: Control<any>;
   rules?: RegisterOptions;
 }
 

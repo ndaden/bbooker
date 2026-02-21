@@ -13,6 +13,7 @@ const businessBodyType = t.Object({
     services: t.Array(serviceBodyType),
     address: t.Optional(t.String()),
     keywords: t.Optional(t.Array(t.String())),
+    image: t.Optional(t.File()),
   })
 
   const businessUpdateBodyType = t.Object({

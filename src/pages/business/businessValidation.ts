@@ -5,7 +5,9 @@ interface Prestation {
   price: string;
 }
 
-export const businessValidation = (prestations: Prestation[]) => ({
+export const businessValidation = (prestations: Prestation[]) => {
+  const fieldName = `prestations[${prestations.length}]`;
+  return {
   businessName: {
     required: { value: true, message: "Veuillez saisir la raison sociale." },
   },
@@ -22,25 +24,26 @@ export const businessValidation = (prestations: Prestation[]) => ({
         "Ajoutez une photo de votre centre afin d'améliorer sa visibilité sur Beauty Booker",
     },
   },
-  [`prestations[${prestations.length}].name`]: {
+  [fieldName + '.name']: {
     required: {
       value: true,
       message: "Veuillez saisir le libellé de prestation.",
     },
   },
-  [`prestations[${prestations.length}].description`]: {
+  [fieldName + '.description']: {
     required: {
       value: true,
       message: "Veuillez saisir la description de la prestation.",
     },
   },
-  [`prestations[${prestations.length}].durationInMinutes`]: {
+  [fieldName + '.durationInMinutes']: {
     required: {
       value: true,
       message: "Veuillez saisir la durée de la prestation en minutes.",
     },
   },
-  [`prestations[${prestations.length}].price`]: {
+  [fieldName + '.price']: {
     required: { value: true, message: "Veuillez saisir le tarif." },
   },
-});
+  };
+};

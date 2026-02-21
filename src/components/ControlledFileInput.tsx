@@ -1,10 +1,10 @@
 import React from "react";
-import { Control, Controller, FieldValues, RegisterOptions } from "react-hook-form";
+import { Control, Controller, RegisterOptions } from "react-hook-form";
 import get from "lodash/get";
 
 interface ControlledFileInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   name: string;
-  control: Control<FieldValues>;
+  control: Control<any>;
   rules?: RegisterOptions;
   label?: string;
 }
@@ -24,7 +24,7 @@ const ControlledFileInput: React.FC<ControlledFileInputProps> = ({ name, control
               <div className="text-sm text-zinc-300 mb-2">{label}</div>
               <div>
                 <input
-                  accept=".jpg,.png,.jpeg"
+                  accept=".jpg,.png,.jpeg,webp"
                   value={field.value?.fileName || ""}
                   onChange={(event) => {
                     const file = event.target.files?.[0];

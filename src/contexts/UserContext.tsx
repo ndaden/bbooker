@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import { AuthContextType, User } from "../types/auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../lib/api/services";
@@ -13,6 +13,25 @@ const QUERY_KEY = ["AUTHENTICATED_USER"];
 
 const UserContextProvider = ({ children }: UserContextProviderProps) => {
   const queryClient = useQueryClient();
+
+  // Track authenticated state via localStorage (httpOnly cookie is not accessible to JS)
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('auth_state') === 'authenticated';
+  });
+
+  // Listen for auth state changes (e.g., from login)
+  useEffect(() => {
+    const handleAuthStateChange = () => {
+      setIsLoggedIn(localStorage.getItem('auth_state') === 'authenticated');
+    };
+    window.addEventListener('auth-state-change', handleAuthStateChange);
+    window.addEventListener('storage', handleAuthStateChange);
+    return () => {
+      window.removeEventListener('auth-state-change', handleAuthStateChange);
+      window.removeEventListener('storage', handleAuthStateChange);
+    };
+  }, []);
 
   const {
     data: user,
@@ -29,6 +48,7 @@ const UserContextProvider = ({ children }: UserContextProviderProps) => {
         return null;
       }
     },
+    enabled: isLoggedIn, // Only fetch if user logged in
     retry: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -42,6 +62,8 @@ const UserContextProvider = ({ children }: UserContextProviderProps) => {
     } catch (err) {
       console.error("Logout error:", err);
     } finally {
+      localStorage.removeItem('auth_state');
+      window.dispatchEvent(new Event('auth-state-change'));
       await queryClient.removeQueries({ queryKey: QUERY_KEY });
       
       // Validate redirect URL to prevent open redirect attacks

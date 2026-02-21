@@ -10,6 +10,9 @@ interface SearchParams {
 }
 
 const useSearchBusinesses = ({ query, lat, lng, radius = 10 }: SearchParams) => {
+  // Only search when we have a query text OR location coordinates
+  const enabled = !!query?.trim() || (lat !== undefined && lng !== undefined);
+
   const {
     data,
     isLoading,
@@ -20,7 +23,7 @@ const useSearchBusinesses = ({ query, lat, lng, radius = 10 }: SearchParams) => 
     queryKey: [BUSINESSES_KEY, "SEARCH", query, lat, lng, radius],
     queryFn: () =>
       searchBusinessesQuery({ query, lat, lng, radius }),
-    enabled: !!query || (lat !== undefined && lng !== undefined),
+    enabled,
   });
 
   return {
