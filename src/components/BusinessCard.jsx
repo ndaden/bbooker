@@ -1,5 +1,5 @@
 import { Button, Card, CardBody, Chip, Image, Spacer } from "@heroui/react";
-import { BsClock, BsGeoAlt } from "react-icons/bs";
+import { BsGeoAlt } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 
 const BusinessCard = ({
@@ -73,9 +73,6 @@ const BusinessCard = ({
                         {keyword}
                       </Chip>
                     ))}
-                </div>
-                <div className="flex items-center">
-                  <BsClock className="mr-3" /> Du lundi au vendredi de 10h à 19h
                 </div>
               </div>
             </div>

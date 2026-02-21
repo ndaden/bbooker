@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User } from "../../../types/auth";
 import { Input, Button, Card, CardBody, Tabs, Tab } from "@heroui/react";
 import { useAuth } from "../../../contexts/UserContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { addToast } from "@heroui/react";
 import { useForm } from "react-hook-form";
@@ -13,6 +13,7 @@ import ControlledInput from "../../../components/ControlledInput";
 import dayjs from "dayjs";
 import { authService } from "../../../lib/api/services";
 import { useDeleteProfileImage } from "../../../hooks/useDeleteProfileImage";
+import { FaTrash } from "react-icons/fa";
 
 interface ProfileInfoProps {
   user: User;
@@ -36,11 +37,21 @@ interface PasswordFormData {
 const ProfileInfo = ({ user }: ProfileInfoProps) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("infos");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const isOwner = user.role === "OWNER";
+
+  // Handle active tab from navigation state
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setSelectedTab(location.state.activeTab);
+      // Clear the state to prevent tab staying active on subsequent visits
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const { mutate: deleteProfileImage, isPending: isDeletingImage } = useDeleteProfileImage();
 
@@ -230,7 +241,7 @@ const ProfileInfo = ({ user }: ProfileInfoProps) => {
                       variant="light"
                       isDisabled={isDeletingImage}
                       onPress={handleDeleteProfileImage}
-                      startContent={<span>🗑️</span>}
+                      startContent={<FaTrash />}
                     >
                       {isDeletingImage ? "Suppression..." : "Supprimer la photo"}
                     </Button>

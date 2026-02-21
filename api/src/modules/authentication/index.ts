@@ -248,10 +248,6 @@ export const authentification = (app: Elysia) =>
       )
       .delete(
         "/profile/image",
-        {
-          body: t.Object({}),
-          detail: { tags: ["auth"] }
-        },
         async ({ account, error, set }) => {
           if (!account) {
             return error;
@@ -300,6 +296,9 @@ export const authentification = (app: Elysia) =>
             return buildApiResponse(false, getErrorMessage(error.code) || 'Delete failed');
           }
         },
-        { detail: { tags: ["auth"] } }
+        { 
+          body: t.Object({}),
+          detail: { tags: ["auth"] } 
+        }
       )
   );

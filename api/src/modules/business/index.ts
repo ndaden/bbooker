@@ -89,21 +89,22 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
     .use(isAuthenticated)
     .post(
       "/",
-      async ({ request, set, account }) => {
+      async ({ body, set, account }) => {
         if (!account) {
             return buildApiResponse(false, "Unauthorized")
         }
 
-        // Parse FormData manually
-        const formData = await request.formData();
-        const name = formData.get('name')?.toString();
-        const description = formData.get('description')?.toString();
-        const address = formData.get('address')?.toString();
-        const image = formData.get('image') as File | undefined;
-        const keywordsStr = formData.get('keywords')?.toString();
-        const servicesStr = formData.get('services')?.toString();
+        // Access form data from body (already parsed by Elysia as object)
+        const name = body.name as string | undefined;
+        const description = body.description as string | undefined;
+        const address = body.address as string | undefined;
+        const image = body.image as File | undefined;
+        const keywordsStr = body.keywords as string | undefined;
+        const servicesStr = body.services as string | undefined;
+        const businessHoursStr = body.businessHours as string | undefined;
         const keywords = keywordsStr ? JSON.parse(keywordsStr) : [];
         const services = servicesStr ? JSON.parse(servicesStr) : [];
+        const businessHours = businessHoursStr ? JSON.parse(businessHoursStr) : undefined;
         
         let imageUrl = ''
 
@@ -140,6 +141,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
                 longitude,
                 keywords: keywords || [],
                 image: imageUrl || undefined,
+                businessHours,
                 services: { createMany: { data: services } }
             }, include: { services: true }
         })
@@ -149,7 +151,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
     },
     { body: t.Any(), detail: { tags: ['business'] } })
     .patch('/:id', 
-      async ({ params, set, account, request }) => {
+      async ({ params, set, account, body }) => {
         const { id } = params
 
         if (!account) {
@@ -172,16 +174,17 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             return buildApiResponse(false, "Cannot update")
         }
 
-        // Parse FormData manually
-        const formData = await request.formData();
-        const name = formData.get('name')?.toString();
-        const description = formData.get('description')?.toString();
-        const address = formData.get('address')?.toString();
-        const image = formData.get('image') as File | undefined;
-        const keywordsStr = formData.get('keywords')?.toString();
-        const servicesStr = formData.get('services')?.toString();
+        // Access form data from body (already parsed by Elysia as object)
+        const name = body.name as string | undefined;
+        const description = body.description as string | undefined;
+        const address = body.address as string | undefined;
+        const image = body.image as File | undefined;
+        const keywordsStr = body.keywords as string | undefined;
+        const servicesStr = body.services as string | undefined;
+        const businessHoursStr = body.businessHours as string | undefined;
         const keywords = keywordsStr ? JSON.parse(keywordsStr) : undefined;
         const services = servicesStr ? JSON.parse(servicesStr) : undefined;
+        const businessHours = businessHoursStr ? JSON.parse(businessHoursStr) : undefined;
 
         let imageUrl: string | undefined;
 
@@ -232,6 +235,7 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
         if (longitude !== undefined && currentBusiness?.longitude !== longitude) updateData.longitude = longitude
         if (imageUrl) updateData.image = imageUrl
         if (keywords) updateData.keywords = keywords
+        if (businessHours !== undefined) updateData.businessHours = businessHours
         if (services) updateData.services = { createMany: { data: services } }
         updateData.updateDate = new Date()
 

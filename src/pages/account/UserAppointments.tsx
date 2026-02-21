@@ -9,6 +9,7 @@ import {
   Accordion,
   AccordionItem,
 } from "@heroui/react";
+import { BsCalendar3, BsClock } from "react-icons/bs";
 import { User } from "../../types/auth";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -133,11 +134,11 @@ const UserAppointments = ({ user }: UserAppointmentsProps) => {
               </Chip>
             </div>
             <div className="flex items-center gap-2 text-sm mt-2">
-              <span className="text-gray-500">📅</span>
+              <BsCalendar3 className="text-default-500" />
               <span className="capitalize">{dateStr}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-500">🕐</span>
+              <BsClock className="text-default-500" />
               <span>{timeStr}</span>
             </div>
           </div>

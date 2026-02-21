@@ -95,7 +95,10 @@ export const authService = {
     apiClient.uploadWithPatch('/auth/profile', data),
 
   deleteProfileImage: (): Promise<AuthResponse> =>
-    apiClient.delete('/auth/profile/image'),
+    apiClient.request('/auth/profile/image', { 
+      method: 'DELETE',
+      body: JSON.stringify({})
+    }),
 
   changePassword: (data: ChangePasswordData): Promise<AuthResponse> =>
     apiClient.patch('/auth/password', data),

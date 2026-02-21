@@ -22,6 +22,10 @@ import useFetchBusinesses from "../../hooks/useFetchBusinesses";
 import { Service } from "./steps/ServicesStep";
 import { BsArrowLeft, BsCheckCircle, BsClock, BsCurrencyEuro } from "react-icons/bs";
 import { businessService } from "../../lib/api/services";
+import BusinessHoursInput, {
+  BusinessHours,
+  getDefaultBusinessHours,
+} from "../../components/BusinessHoursInput";
 
 const publicApiUrl = process.env.PUBLIC_API_URL;
 
@@ -43,6 +47,8 @@ const EditBusiness: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [originalKeywords, setOriginalKeywords] = useState<string[]>([]);
+  const [businessHours, setBusinessHours] = useState<BusinessHours>(getDefaultBusinessHours());
+  const [originalBusinessHours, setOriginalBusinessHours] = useState<BusinessHours>(getDefaultBusinessHours());
 
   const { businesses, isLoading: isBusinessLoading, refetchBusinesses } = useFetchBusinesses({
     id,
@@ -92,6 +98,12 @@ const EditBusiness: React.FC = () => {
         if (business.keywords) {
           setKeywords(business.keywords);
           setOriginalKeywords(business.keywords);
+        }
+
+        // Load existing business hours
+        if (business.businessHours && Array.isArray(business.businessHours)) {
+          setBusinessHours(business.businessHours as BusinessHours);
+          setOriginalBusinessHours(business.businessHours as BusinessHours);
         }
       }
     }
@@ -221,8 +233,42 @@ const EditBusiness: React.FC = () => {
     setKeywords(keywords.filter((k) => k !== keyword));
   };
 
+  const handleSaveBusinessHours = async () => {
+    if (!id) return;
+
+    setIsSaving(true);
+    setSuccessMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("businessHours", JSON.stringify(businessHours));
+
+      const response = await businessService.update(id, formData);
+
+      if (response.success) {
+        addToast({
+          title: "Succès",
+          description: "Les horaires ont été mis à jour avec succès",
+          color: "success",
+        });
+        setSuccessMessage("Les horaires ont été mis à jour avec succès");
+        refetchBusinesses();
+        setOriginalBusinessHours([...businessHours]);
+      }
+    } catch (error: any) {
+      addToast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue lors de la mise à jour",
+        color: "danger",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const hasServiceChanges = JSON.stringify(services) !== JSON.stringify(originalServices);
   const hasKeywordChanges = JSON.stringify(keywords) !== JSON.stringify(originalKeywords);
+  const hasBusinessHoursChanges = JSON.stringify(businessHours) !== JSON.stringify(originalBusinessHours);
 
   if (isAuthLoading || isBusinessLoading) {
     return (
@@ -592,6 +638,43 @@ const EditBusiness: React.FC = () => {
                       isDisabled={!hasServiceChanges}
                     >
                       Enregistrer les prestations
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+            </Tab>
+
+            <Tab key="hours" title="Horaires">
+              <Card className="mt-4">
+                <CardBody className="p-4">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold mb-1">Horaires d'ouverture</h3>
+                    <p className="text-sm text-default-500">
+                      Définissez vos jours et heures d'ouverture
+                    </p>
+                  </div>
+
+                  <BusinessHoursInput
+                    value={businessHours}
+                    onChange={setBusinessHours}
+                  />
+
+                  <Divider className="my-6" />
+
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      variant="ghost"
+                      onClick={() => navigate(`/business/${id}`)}
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      color="primary"
+                      onClick={handleSaveBusinessHours}
+                      isLoading={isSaving}
+                      isDisabled={!hasBusinessHoursChanges}
+                    >
+                      Enregistrer les horaires
                     </Button>
                   </div>
                 </CardBody>

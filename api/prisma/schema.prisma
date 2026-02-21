@@ -43,21 +43,20 @@ model Profile {
 }
 
 model Business {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  account     Account   @relation(fields: [accountId], references: [id])
-  accountId   String    @unique @db.ObjectId
-  name        String
-  description String?
-  image       String?
-  address     String?
-  latitude    Float?
-  longitude   Float?
-  keywords    String[]
-  services    Service[]
-  openingTime String?
-  closingTime String?
-  createDate  DateTime  @default(now())
-  updateDate  DateTime?
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  account       Account   @relation(fields: [accountId], references: [id])
+  accountId     String    @unique @db.ObjectId
+  name          String
+  description   String?
+  image         String?
+  address       String?
+  latitude      Float?
+  longitude     Float?
+  keywords      String[]
+  services      Service[]
+  businessHours Json?     // Array of {day: number, openTime: string, closeTime: string, closed: boolean}
+  createDate    DateTime  @default(now())
+  updateDate    DateTime?
 
   @@map("business")
 }
