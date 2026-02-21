@@ -19,7 +19,11 @@ import { useNavigate } from "react-router-dom";
 import Container from "../../components/Container";
 import BusinessCalendar from "./BusinessCalendar";
 import { useAuth } from "../../contexts/UserContext";
-import { BsGeoAlt, BsPencil } from "react-icons/bs";
+import { BsGeoAlt, BsPencil, BsClock, BsChevronDown, BsChevronUp } from "react-icons/bs";
+import type { BusinessHours } from "../../components/BusinessHoursInput";
+import React from "react";
+
+const DAYS_FR = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
 
 const Business = () => {
   const { id } = useParams();
@@ -27,6 +31,7 @@ const Business = () => {
   const location = useLocation();
   const isCalendarView = location.pathname.includes("/calendar");
   const { user } = useAuth();
+  const [showHours, setShowHours] = React.useState(false);
 
   const { businesses, isLoading: isLoadingBusiness, isError, error } = useFetchBusinesses({
     id,
@@ -124,80 +129,137 @@ const Business = () => {
 
   return (
       <Container>
-        <div className="relative">
-          <Card className="border-none ">
-            <CardBody className="text-center p-0 m-0">
-              <Image
-                removeWrapper
-                src={businessToDisplay.image ?? "/images/topform_banner.jpg"}
-                className="object-cover max-h-[500px] "
-              />
-            </CardBody>
-            <CardFooter className=" flex-col bg-black/70 before:bg-white/20 border-white/20 border-1 overflow-hidden absolute bottom-0 w-full shadow-small z-10">
-              <div>
-                <p className="font-bold text-large">{businessToDisplay.name}</p>
-                <p className="text-tiny font-bold">
-                  Ouvert du Lundi au Samedi - de 10h à 18h
-                </p>
-                <p className="text-md my-3 hidden sm:block">
-                  {businessToDisplay.description}
-                </p>
-                {businessToDisplay.keywords && businessToDisplay.keywords.length > 0 && (
-                  <div className="flex flex-wrap gap-1 justify-center my-2">
-                    {businessToDisplay.keywords.map((keyword: string, index: number) => (
-                      <Chip key={`${keyword}-${index}`} size="sm" variant="flat" color="primary">
-                        {keyword}
-                      </Chip>
-                    ))}
-                  </div>
-                )}
-                {businessToDisplay.address && (
-                  <div className="flex items-center gap-2 my-2">
-                    <BsGeoAlt className="text-white" />
-                    <p className="text-sm text-white/90">{businessToDisplay.address}</p>
-                  </div>
-                )}
-              </div>
-              <div className="my-3 flex gap-3">
-                <Button
-                  size="lg"
-                  variant="solid"
-                  type="button"
-                  color="danger"
-                  className="font-bold"
-                  onClick={onClickTakeAppointment}
-                >
-                  Prendre un rendez-vous
-                </Button>
-                {businessToDisplay.address && (
-                  <Button
-                    size="lg"
-                    variant="bordered"
-                    type="button"
-                    className="font-bold border-white text-white"
-                    onClick={onClickGoThere}
-                    startContent={<BsGeoAlt />}
-                  >
-                    Y aller
-                  </Button>
-                )}
-              </div>
+        {/* Hero Image */}
+        <div className="relative w-full sm:rounded-xl overflow-hidden">
+          <div className="relative h-[200px] sm:h-[300px] md:h-[400px]">
+            <Image
+              removeWrapper
+              src={businessToDisplay.image ?? "/images/topform_banner.jpg"}
+              className="w-full h-full object-cover"
+            />
+            {/* Gradient overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          </div>
+        </div>
+
+        {/* Business Info Card */}
+        <Card className="-mt-16 relative z-10">
+          <CardBody className="p-4 sm:p-6">
+            {/* Title and Edit Button */}
+            <div className="flex items-start justify-between mb-3">
+              <h1 className="text-2xl sm:text-3xl font-bold flex-1">
+                {businessToDisplay.name}
+              </h1>
               {isOwner && (
-                <div className="mt-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    color="warning"
-                    onClick={onClickEdit}
-                    startContent={<BsPencil />}
-                  >
-                    Modifier
-                  </Button>
+                <Button
+                  size="sm"
+                  variant="flat"
+                  color="warning"
+                  onClick={onClickEdit}
+                  isIconOnly
+                  className="ml-2"
+                >
+                  <BsPencil size={16} />
+                </Button>
+              )}
+            </div>
+
+            {/* Description */}
+            <p className="text-default-600 text-sm sm:text-base mb-4">
+              {businessToDisplay.description}
+            </p>
+
+            {/* Keywords */}
+            {businessToDisplay.keywords && businessToDisplay.keywords.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {businessToDisplay.keywords.map((keyword: string, index: number) => (
+                  <Chip key={`${keyword}-${index}`} size="sm" variant="flat" color="primary">
+                    {keyword}
+                  </Chip>
+                ))}
+              </div>
+            )}
+
+            {/* Address */}
+            {businessToDisplay.address && (
+              <div className="flex items-start gap-2 mb-4 text-default-600">
+                <BsGeoAlt className="mt-1 flex-shrink-0" size={16} />
+                <p className="text-sm">{businessToDisplay.address}</p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 mt-6">
+              <Button
+                size="lg"
+                color="primary"
+                className="font-semibold py-6 flex-1"
+                onClick={onClickTakeAppointment}
+              >
+                Réserver
+              </Button>
+              {businessToDisplay.address && (
+                <Button
+                  size="sm"
+                  variant="light"
+                  className="text-primary underline underline-offset-2 hover:underline-offset-4 transition-all"
+                  onClick={onClickGoThere}
+                  startContent={<BsGeoAlt />}
+                >
+                  Voir l'itinéraire
+                </Button>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Business Hours Section */}
+        <div className="mt-6">
+          <Card>
+            <CardBody className="p-4">
+              <button
+                onClick={() => setShowHours(!showHours)}
+                className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity"
+              >
+                <div className="flex items-center gap-2">
+                  <BsClock className="text-primary" size={20} />
+                  <h3 className="text-lg font-semibold">Horaires d'ouverture</h3>
+                </div>
+                {showHours ? <BsChevronUp size={20} /> : <BsChevronDown size={20} />}
+              </button>
+              
+              {showHours && (
+                <div className="mt-4 space-y-2">
+                  {businessToDisplay.businessHours && Array.isArray(businessToDisplay.businessHours) && businessToDisplay.businessHours.length > 0 ? (
+                    // Sort days starting from Monday (1)
+                    [...(businessToDisplay.businessHours as BusinessHours)]
+                      .sort((a, b) => {
+                        const orderA = a.day === 0 ? 7 : a.day;
+                        const orderB = b.day === 0 ? 7 : b.day;
+                        return orderA - orderB;
+                      })
+                      .map((dayHours) => (
+                        <div
+                          key={dayHours.day}
+                          className="flex justify-between items-center py-2 border-b border-default-200 last:border-0"
+                        >
+                          <span className="font-medium text-default-700">
+                            {DAYS_FR[dayHours.day]}
+                          </span>
+                          <span className={dayHours.closed ? "text-default-400 italic" : "text-default-600"}>
+                            {dayHours.closed ? "Fermé" : `${dayHours.openTime} - ${dayHours.closeTime}`}
+                          </span>
+                        </div>
+                      ))
+                  ) : (
+                    <p className="text-default-400 italic">Horaires non configurés</p>
+                  )}
                 </div>
               )}
-            </CardFooter>
+            </CardBody>
           </Card>
         </div>
+
         <div className="mt-4">
           <Table>
             <TableHeader>

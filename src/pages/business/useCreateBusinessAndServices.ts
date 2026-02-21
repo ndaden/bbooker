@@ -143,7 +143,7 @@ const useCreateBusinessAndService = (form: FormMethods) => {
 
   const toDatabaseBusinessWithPrestations = (values: BusinessFormData) => {
     // TODO : implement image upload
-    // formData.append("image", values.businessImage);
+    // formData.append('image', values.businessImage);
 
     const prestationsToCreate = values.prestations
       .filter((p: Prestation) => !isEmptyPrestation(p))

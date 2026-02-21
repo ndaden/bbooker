@@ -91,6 +91,7 @@ const QNavbar = ({ links = [] }) => {
                 color="primary"
                 title="Votre profil"
                 size="md"
+                src={user.profile?.profileImage}
                 name={user.profile?.firstName ? user.profile.firstName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
                 classNames={{
                   base: "bg-gradient-to-br from-blue-600 to-indigo-600",

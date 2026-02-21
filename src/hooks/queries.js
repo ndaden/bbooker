@@ -2,7 +2,6 @@ const publicApiUrl = process.env.PUBLIC_API_URL;
 
 const getUserQuery = async () => {
   const fetchResult = await fetch(`${publicApiUrl}/auth/profile`, {
-    method: "GET",
     credentials: "include",
   });
 

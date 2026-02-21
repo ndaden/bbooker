@@ -11,12 +11,15 @@ import PreviewStep from "./steps/PreviewStep";
 import SuccessStep from "./steps/SuccessStep";
 import useMutateBusiness from "../../hooks/useMutateBusiness";
 import { useAuth } from "../../contexts/UserContext";
+import { businessService } from "../../lib/api/services";
+import { addToast } from "@heroui/react";
 
 interface BusinessFormData {
   businessName: string;
   businessDescription: string;
   businessAddress: string;
   keywords: string[];
+  businessImage: File | null;
 }
 
 const CreateBusinessNew: React.FC = () => {
@@ -26,6 +29,7 @@ const CreateBusinessNew: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     control,
@@ -41,6 +45,7 @@ const CreateBusinessNew: React.FC = () => {
       businessDescription: "",
       businessAddress: "",
       keywords: [],
+      businessImage: null,
     },
   });
 
@@ -106,48 +111,43 @@ const CreateBusinessNew: React.FC = () => {
     }
 
     const formData = getValues();
-    const businessData = {
-      name: formData.businessName,
-      description: formData.businessDescription,
-      address: formData.businessAddress,
-      keywords: keywords,
-      services: services.map((service) => ({
-        name: service.name,
-        description: service.description,
-        duration: Number.parseInt(service.durationInMinutes),
-        price: Number.parseFloat(service.price) * 100, // Convert to cents
-      })),
-    };
+    const formDataForUpload = new FormData();
+    formDataForUpload.append("name", formData.businessName);
+    formDataForUpload.append("description", formData.businessDescription);
+    formDataForUpload.append("address", formData.businessAddress);
+    formDataForUpload.append("keywords", JSON.stringify(keywords));
+    if (formData.businessImage) {
+      formDataForUpload.append("image", formData.businessImage);
+    }
+    formDataForUpload.append("services", JSON.stringify(services.map((service) => ({
+      name: service.name,
+      description: service.description,
+      duration: Number.parseInt(service.durationInMinutes),
+      price: Number.parseFloat(service.price) * 100,
+    }))));
 
-    mutateBusiness(businessData, {
-      onSuccess: async (response: any) => {
-        try {
-          // Check if response is valid
-          if (response?.ok) {
-            const responseData = await response.json();
-            console.log("Response data:", responseData);
-            
-            if (responseData?.success && responseData?.payload?.id) {
-              // Store the business ID and move to success step
-              setCreatedBusinessId(responseData.payload.id);
-              setCurrentStep(3); // Go to success step (step 3)
-            } else {
-              alert(responseData?.message || "Une erreur est survenue lors de la création de votre établissement");
-            }
-          } else {
-            const errorData = await response.json();
-            alert(errorData?.message || "Une erreur est survenue lors de la création de votre établissement");
-          }
-        } catch (error) {
-          console.error("Error parsing response:", error);
-          alert("Une erreur est survenue lors de la création de votre établissement");
-        }
-      },
-      onError: (error: any) => {
-        console.error("Error creating business:", error);
-        alert("Une erreur est survenue lors de la création de votre établissement");
-      },
-    });
+    setIsSubmitting(true);
+    try {
+      const response = await businessService.create(formDataForUpload);
+      
+      if (response?.success && response?.payload?.id) {
+        addToast({
+          title: "Succès",
+          description: "Votre établissement a été créé",
+          color: "success",
+        });
+        setCreatedBusinessId(response.payload.id);
+        setCurrentStep(3);
+      }
+    } catch (error: any) {
+      addToast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue lors de la création",
+        color: "danger",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isAuthLoading) {
@@ -268,12 +268,13 @@ const CreateBusinessNew: React.FC = () => {
                           <Button
                             color="primary"
                             onClick={handleCreateBusiness}
-                            isLoading={isCreating}
+                            isLoading={isSubmitting}
                             type="button"
                           >
                             Créer mon établissement
                           </Button>
-                        )}
+  )}
+
                       </div>
                     </div>
                   )}

@@ -3,7 +3,7 @@ import { isAuthenticated } from "../../middlewares/authentication";
 import { businessBodyType, businessUpdateBodyType } from "./types";
 import { prisma } from "../../libs/prisma";
 import { buildApiResponse } from "../../utils/api";
-import { uploadImageToFirebase } from "../../utils/upload";
+import { uploadImageToR2, deleteImageFromR2 } from "../../utils/upload";
 import { getErrorMessage } from "../../utils/errors";
 import { geocodeAddress } from "../../utils/geocoding";
 import { logger } from "../../utils/logger";
@@ -87,12 +87,36 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             await prisma.business.findFirst({ where: { id: id }, include: { services: true } }))
     }, { detail: { tags: ['business'] } })
     .use(isAuthenticated)
-    .post('/', async ({ body, set, account }) => {
+    .post(
+      "/",
+      async ({ body, set, account }) => {
         if (!account) {
             return buildApiResponse(false, "Unauthorized")
         }
 
-        const { name, description, services, address, keywords } = body as any
+        // Access form data from body (already parsed by Elysia as object)
+        const name = body.name as string | undefined;
+        const description = body.description as string | undefined;
+        const address = body.address as string | undefined;
+        const image = body.image as File | undefined;
+        const keywordsStr = body.keywords as string | undefined;
+        const servicesStr = body.services as string | undefined;
+        const businessHoursStr = body.businessHours as string | undefined;
+        const keywords = keywordsStr ? JSON.parse(keywordsStr) : [];
+        const services = servicesStr ? JSON.parse(servicesStr) : [];
+        const businessHours = businessHoursStr ? JSON.parse(businessHoursStr) : undefined;
+        
+        let imageUrl = ''
+
+        // Upload image if provided
+        if (image) {
+            const uploadResult = await uploadImageToR2(image, account.id, 'business-image')
+            if (!uploadResult.success) {
+                set.status = "Bad Request"
+                return buildApiResponse(false, uploadResult.error ?? '')
+            }
+            imageUrl = uploadResult.url ?? ''
+        }
 
         // Geocode address if provided
         let latitude: number | undefined
@@ -116,14 +140,18 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
                 latitude,
                 longitude,
                 keywords: keywords || [],
+                image: imageUrl || undefined,
+                businessHours,
                 services: { createMany: { data: services } }
             }, include: { services: true }
         })
 
         return buildApiResponse(true, "business and services created.", businessCreated)
 
-    }, { body: businessBodyType, detail: { tags: ['business'] } })
-    .patch('/:id', async ({ params, set, body, account }) => {
+    },
+    { body: t.Any(), detail: { tags: ['business'] } })
+    .patch('/:id', 
+      async ({ params, set, account, body }) => {
         const { id } = params
 
         if (!account) {
@@ -146,33 +174,28 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             return buildApiResponse(false, "Cannot update")
         }
 
-        const { name, description, image, services, address, keywords } = body as any
-        let imageUrl = 'dummy url'
+        // Access form data from body (already parsed by Elysia as object)
+        const name = body.name as string | undefined;
+        const description = body.description as string | undefined;
+        const address = body.address as string | undefined;
+        const image = body.image as File | undefined;
+        const keywordsStr = body.keywords as string | undefined;
+        const servicesStr = body.services as string | undefined;
+        const businessHoursStr = body.businessHours as string | undefined;
+        const keywords = keywordsStr ? JSON.parse(keywordsStr) : undefined;
+        const services = servicesStr ? JSON.parse(servicesStr) : undefined;
+        const businessHours = businessHoursStr ? JSON.parse(businessHoursStr) : undefined;
 
+        let imageUrl: string | undefined;
+
+        // Upload image if provided
         if (image) {
-            // upload profile image and get url
-            const uploadResult = await uploadImageToFirebase(image, account.id, 'business-image')
-
+            const uploadResult = await uploadImageToR2(image, account.id, 'business-image')
             if (!uploadResult.success) {
                 set.status = "Bad Request"
                 return buildApiResponse(false, uploadResult.error ?? '')
             }
-
             imageUrl = uploadResult.url ?? ''
-
-            const updatedBusinessImage = await prisma.business.update({
-                where: {
-                    id: id,
-                    AND: {
-                        accountId: account.id
-                    }
-                }, data: {
-                    image: imageUrl,
-                    updateDate: new Date()
-                }
-            })
-
-            return buildApiResponse(true, "business updated", updatedBusinessImage)
         }
 
         // Get current business to check if address changed
@@ -203,27 +226,34 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
             }
         }
 
+        // Build update data object - only include fields that were provided
+        const updateData: any = {}
+        if (name !== undefined) updateData.name = name
+        if (description !== undefined) updateData.description = description
+        if (address !== undefined) updateData.address = address
+        if (latitude !== undefined && currentBusiness?.latitude !== latitude) updateData.latitude = latitude
+        if (longitude !== undefined && currentBusiness?.longitude !== longitude) updateData.longitude = longitude
+        if (imageUrl) updateData.image = imageUrl
+        if (keywords) updateData.keywords = keywords
+        if (businessHours !== undefined) updateData.businessHours = businessHours
+        if (services) updateData.services = { createMany: { data: services } }
+        updateData.updateDate = new Date()
+
         const updatedBusiness = await prisma.business.update({
             where: {
                 id: id,
                 AND: {
                     accountId: account.id
                 }
-            }, data: {
-                name,
-                description,
-                address,
-                latitude,
-                longitude,
-                keywords,
-                services: services && { createMany: { data: services } },
-                updateDate: new Date()
-            }
+            },
+            data: updateData
         })
 
         return buildApiResponse(true, "business updated", updatedBusiness)
 
-    }, { body: businessUpdateBodyType, detail: { tags: ['business'] } })
+      },
+      { body: t.Any(), detail: { tags: ['business'] } }
+    )
     .delete('/:id', async ({ params, account }) => {
         const { id } = params
 
@@ -264,7 +294,11 @@ export const business = (app: Elysia) => app.group('/business', (app) =>
                 }
             })
 
-            // must also delete image from firebase
+            // Delete image from R2
+            const business = await prisma.business.findFirst({ where: { id: businessToDelete.id } });
+            if (business?.image) {
+                await deleteImageFromR2(business.image);
+            }
 
             return buildApiResponse(true, "deleted successfully.")
         } catch (error: any) {

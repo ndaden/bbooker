@@ -1,8 +1,9 @@
 import { Button, Card, CardBody } from "@heroui/react";
+import { addToast } from "@heroui/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLogin } from "../../hooks/useLogin";
 import { loginSchema, LoginFormData } from "../../schemas/auth";
@@ -11,6 +12,8 @@ import { FormField, PasswordField } from "../../components/form";
 const LoginForm = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = location.state?.returnTo || "/profile";
   
   const {
     control,
@@ -30,8 +33,20 @@ const LoginForm = () => {
   const { mutate: login, isPending } = useLogin({
     onSuccess: async (data) => {
       if (data?.success) {
+        addToast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur BeautyBooker",
+          color: "success",
+        });
         await queryClient.refetchQueries({ queryKey: ["AUTHENTICATED_USER"] });
-        navigate("/profile");
+        // Restore appointment state if coming from appointment page
+        const savedState = sessionStorage.getItem('appointmentState');
+        if (returnTo === '/appointment' && savedState) {
+          const { business } = JSON.parse(savedState);
+          navigate(returnTo, { state: { business } });
+        } else {
+          navigate(returnTo);
+        }
       } else {
         setErrorMessage(data?.message || "Les informations fournies ne nous permettent de vous identifier.");
       }

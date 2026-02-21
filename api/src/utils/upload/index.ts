@@ -1,24 +1,32 @@
-import { initializeApp } from "firebase/app"
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage"
-import { sha256hash } from "../crypto";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { sha256hash } from '../crypto';
 
 export const AUTHORIZED_FILE_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp']
 export const MAX_FILE_SIZE = 2_000_000 // 2MB
 export const MIN_FILE_SIZE = 1_000 // 1KB pour éviter fichiers vides
 
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_APIKEY,
-  authDomain: process.env.FIREBASE_AUTHDOMAIN,
-  projectId: process.env.FIREBASE_PROJECTID,
-  storageBucket: process.env.FIREBASE_STORAGEBUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGINGSENDERID,
-  appId: process.env.FIREBASE_APPID,
-  measurementId: process.env.FIREBASE_MEASUREMENTID,
-};
+// Initialize R2 (S3-compatible) client
+const r2Client = new S3Client({
+  region: 'auto',
+  endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
+  },
+});
 
-// Initialize Firebase and cloud storage
-const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
+const R2_BUCKET = process.env.CLOUDFLARE_R2_BUCKET!;
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL!;
+
+// Validate R2 config
+if (!process.env.CLOUDFLARE_ACCOUNT_ID || !R2_BUCKET || !process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || !process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY) {
+  console.error('⚠️  R2 config is missing required fields:', {
+    hasAccountId: !!process.env.CLOUDFLARE_ACCOUNT_ID,
+    hasBucket: !!R2_BUCKET,
+    hasAccessKeyId: !!process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    hasSecretAccessKey: !!process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+  });
+}
 
 // Valid extensions mapped to MIME types
 const ALLOWED_EXTENSIONS: Record<string, string> = {
@@ -57,7 +65,7 @@ const validateFileSignature = async (file: File, extension: string): Promise<boo
   return expectedSignature.every((byte, index) => bytes[index] === byte);
 };
 
-const uploadImageToFirebase = async (image: File, accountId: string, filename: string): Promise<{ success: boolean, error?: string, url?: string }> => {
+const uploadImageToR2 = async (image: File, accountId: string, filename: string): Promise<{ success: boolean, error?: string, url?: string }> => {
   // Extract and validate extension
   const originalName = image.name.toLowerCase();
   const extensionMatch = originalName.match(/\.([a-zA-Z0-9]+)$/);
@@ -94,13 +102,46 @@ const uploadImageToFirebase = async (image: File, accountId: string, filename: s
   }
   
   const timestamp = new Date().getTime();
-  // Use sanitized filename and validated extension
   const safeExtension = extension.toLowerCase();
-  const storagePath = `${accountId}/${sanitizedFilename}-${timestamp}.${safeExtension}`;
+  const objectKey = `${accountId}/${sanitizedFilename}-${timestamp}.${safeExtension}`;
   
-  const storageRef = ref(storage, storagePath);
-  const snapshot = await uploadBytes(storageRef, await image.arrayBuffer());
-  return { success: true, url: await getDownloadURL(snapshot.ref) };
+  try {
+    const buffer = await image.arrayBuffer();
+    await r2Client.send(
+      new PutObjectCommand({
+        Bucket: R2_BUCKET,
+        Key: objectKey,
+        Body: new Uint8Array(buffer),
+        ContentType: image.type,
+      })
+    );
+    
+    const url = `${R2_PUBLIC_URL}/${objectKey}`;
+    return { success: true, url };
+  } catch (error) {
+    console.error('R2 upload error:', error);
+    return { success: false, error: 'Échec du téléchargement de l\'image' };
+  }
 }
 
-export { app, storage, uploadImageToFirebase }
+const deleteImageFromR2 = async (imageUrl: string): Promise<{ success: boolean, error?: string }> => {
+  try {
+    // Extract object key from URL
+    const url = new URL(imageUrl);
+    const objectKey = url.pathname.slice(1); // Remove leading slash
+    
+    await r2Client.send(
+      new DeleteObjectCommand({
+        Bucket: R2_BUCKET,
+        Key: objectKey,
+      })
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('R2 delete error:', error);
+    return { success: false, error: 'Échec de la suppression de l\'image' };
+  }
+}
+
+export { r2Client, R2_BUCKET, R2_PUBLIC_URL, uploadImageToR2, deleteImageFromR2 }

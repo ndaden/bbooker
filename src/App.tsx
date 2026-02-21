@@ -20,6 +20,7 @@ import Pricing from "./pages/Pricing";
 import LoadingPage from "./components/LoadingPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
+import GuestRoute from "./GuestRoute";
 import { AppInitializer } from "./AppInitializer";
 
 const router = createBrowserRouter([{ path: "*", Component: Root }]);
@@ -65,8 +66,8 @@ function Root() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/professionnels" element={<Pricing />} />
         <Route path="/appointment" element={<Appointment />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<CreateAccount />} />
+        <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+        <Route path="/signup" element={<GuestRoute><CreateAccount /></GuestRoute>} />
         <Route path="/loading" element={<LoadingPage />} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/profile/security" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

@@ -1,5 +1,14 @@
 import { t } from "elysia";
 
+export interface DayHours {
+    day: number; // 0=Sunday, 1=Monday, ..., 6=Saturday
+    openTime: string; // "HH:MM" format
+    closeTime: string; // "HH:MM" format
+    closed: boolean;
+}
+
+export type BusinessHours = DayHours[];
+
 const serviceBodyType = t.Object({
     name: t.String(),
     description: t.String(),
@@ -13,6 +22,8 @@ const businessBodyType = t.Object({
     services: t.Array(serviceBodyType),
     address: t.Optional(t.String()),
     keywords: t.Optional(t.Array(t.String())),
+    image: t.Optional(t.File()),
+    businessHours: t.Optional(t.String()), // JSON string of BusinessHours array
   })
 
   const businessUpdateBodyType = t.Object({
@@ -22,6 +33,7 @@ const businessBodyType = t.Object({
     services: t.Optional(t.Array(t.Optional(serviceBodyType))),
     address: t.Optional(t.String()),
     keywords: t.Optional(t.Array(t.String())),
+    businessHours: t.Optional(t.String()), // JSON string of BusinessHours array
   })
 
 

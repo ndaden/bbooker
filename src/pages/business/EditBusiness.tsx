@@ -10,15 +10,22 @@ import {
   Divider,
   Chip,
 } from "@heroui/react";
+import { addToast } from "@heroui/react";
 import Container from "../../components/Container";
 import PageTitle from "../../components/PageTitle";
 import ControlledInput from "../../components/ControlledInput";
 import ControlledTextArea from "../../components/ControlledTextArea";
+import ControlledFileInput from "../../components/ControlledFileInput";
 import KeywordsInput from "../../components/form/KeywordsInput";
 import { useAuth } from "../../contexts/UserContext";
 import useFetchBusinesses from "../../hooks/useFetchBusinesses";
 import { Service } from "./steps/ServicesStep";
 import { BsArrowLeft, BsCheckCircle, BsClock, BsCurrencyEuro } from "react-icons/bs";
+import { businessService } from "../../lib/api/services";
+import BusinessHoursInput, {
+  BusinessHours,
+  getDefaultBusinessHours,
+} from "../../components/BusinessHoursInput";
 
 const publicApiUrl = process.env.PUBLIC_API_URL;
 
@@ -26,6 +33,7 @@ interface EditBusinessFormData {
   businessName: string;
   businessDescription: string;
   businessAddress: string;
+  businessImage: File | null;
 }
 
 const EditBusiness: React.FC = () => {
@@ -39,6 +47,8 @@ const EditBusiness: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [originalKeywords, setOriginalKeywords] = useState<string[]>([]);
+  const [businessHours, setBusinessHours] = useState<BusinessHours>(getDefaultBusinessHours());
+  const [originalBusinessHours, setOriginalBusinessHours] = useState<BusinessHours>(getDefaultBusinessHours());
 
   const { businesses, isLoading: isBusinessLoading, refetchBusinesses } = useFetchBusinesses({
     id,
@@ -89,6 +99,12 @@ const EditBusiness: React.FC = () => {
           setKeywords(business.keywords);
           setOriginalKeywords(business.keywords);
         }
+
+        // Load existing business hours
+        if (business.businessHours && Array.isArray(business.businessHours)) {
+          setBusinessHours(business.businessHours as BusinessHours);
+          setOriginalBusinessHours(business.businessHours as BusinessHours);
+        }
       }
     }
   }, [businesses, reset]);
@@ -109,33 +125,37 @@ const EditBusiness: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      const response = await fetch(`${publicApiUrl}/business/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          name: data.businessName,
-          description: data.businessDescription,
-          address: data.businessAddress,
-          keywords: keywords,
-        }),
-      });
+      // Always use FormData when we have image or other file upload
+      const formData = new FormData();
+      formData.append("name", data.businessName);
+      formData.append("description", data.businessDescription);
+      formData.append("address", data.businessAddress);
+      formData.append("keywords", JSON.stringify(keywords));
+      if (data.businessImage) {
+        formData.append("image", data.businessImage);
+      }
 
-      if (response.ok) {
+      const response = await businessService.update(id, formData);
+      
+      if (response.success) {
+        addToast({
+          title: "Succès",
+          description: "Les informations ont été mises à jour avec succès",
+          color: "success",
+        });
         setSuccessMessage("Les informations ont été mises à jour avec succès");
         refetchBusinesses();
-        // Clear dirty state by resetting form with current values
-        reset(data);
+        // Clear dirty state by resetting form with current values, but don't reset image field
+        const { businessImage, ...restData } = data;
+        reset({ ...restData, businessImage: null });
         setOriginalKeywords([...keywords]);
-      } else {
-        const error = await response.json();
-        alert(error.message || "Une erreur est survenue lors de la mise à jour");
       }
-    } catch (error) {
-      console.error("Error updating business:", error);
-      alert("Une erreur est survenue lors de la mise à jour");
+    } catch (error: any) {
+      addToast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue lors de la mise à jour",
+        color: "danger",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -213,8 +233,42 @@ const EditBusiness: React.FC = () => {
     setKeywords(keywords.filter((k) => k !== keyword));
   };
 
+  const handleSaveBusinessHours = async () => {
+    if (!id) return;
+
+    setIsSaving(true);
+    setSuccessMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("businessHours", JSON.stringify(businessHours));
+
+      const response = await businessService.update(id, formData);
+
+      if (response.success) {
+        addToast({
+          title: "Succès",
+          description: "Les horaires ont été mis à jour avec succès",
+          color: "success",
+        });
+        setSuccessMessage("Les horaires ont été mis à jour avec succès");
+        refetchBusinesses();
+        setOriginalBusinessHours([...businessHours]);
+      }
+    } catch (error: any) {
+      addToast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue lors de la mise à jour",
+        color: "danger",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const hasServiceChanges = JSON.stringify(services) !== JSON.stringify(originalServices);
   const hasKeywordChanges = JSON.stringify(keywords) !== JSON.stringify(originalKeywords);
+  const hasBusinessHoursChanges = JSON.stringify(businessHours) !== JSON.stringify(originalBusinessHours);
 
   if (isAuthLoading || isBusinessLoading) {
     return (
@@ -357,6 +411,31 @@ const EditBusiness: React.FC = () => {
                         />
                       </div>
                     </div>
+
+                    <ControlledFileInput
+                      control={control as unknown as Control<FieldValues>}
+                      name="businessImage"
+                      type="file"
+                      label="Photo de couverture"
+                      rules={{
+                        validate: (value: File | null) => {
+                          if (!value || value.size === 0) return true;
+                          const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                          if (!validTypes.includes(value.type)) {
+                            return "Format non supporté. Utilisez JPG, PNG ou WEBP";
+                          }
+                          if (value.size > 2 * 1024 * 1024) {
+                            return "L'image ne doit pas dépasser 2MB";
+                          }
+                          return true;
+                        },
+                      }}
+                    />
+                    {business?.image && (
+                      <div className="text-sm text-gray-500 mb-6">
+                        Photo actuelle: <img src={business.image} alt="Photo de couverture" className="w-20 h-20 rounded-lg object-cover" />
+                      </div>
+                    )}
 
                     <Divider className="my-6" />
 
@@ -559,6 +638,43 @@ const EditBusiness: React.FC = () => {
                       isDisabled={!hasServiceChanges}
                     >
                       Enregistrer les prestations
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+            </Tab>
+
+            <Tab key="hours" title="Horaires">
+              <Card className="mt-4">
+                <CardBody className="p-4">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold mb-1">Horaires d'ouverture</h3>
+                    <p className="text-sm text-default-500">
+                      Définissez vos jours et heures d'ouverture
+                    </p>
+                  </div>
+
+                  <BusinessHoursInput
+                    value={businessHours}
+                    onChange={setBusinessHours}
+                  />
+
+                  <Divider className="my-6" />
+
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      variant="ghost"
+                      onClick={() => navigate(`/business/${id}`)}
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      color="primary"
+                      onClick={handleSaveBusinessHours}
+                      isLoading={isSaving}
+                      isDisabled={!hasBusinessHoursChanges}
+                    >
+                      Enregistrer les horaires
                     </Button>
                   </div>
                 </CardBody>

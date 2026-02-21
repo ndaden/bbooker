@@ -9,6 +9,8 @@ export interface User {
     lastName?: string;
     birthDate?: string;
     address?: string;
+    phoneNumber?: string;
+    profileImage?: string;
   };
   role: string;
 }
@@ -45,10 +47,28 @@ export interface SignupCredentials {
 
 // Profile Types
 export interface UpdateProfileData {
-  firstName: string;
-  lastName: string;
-  birthDate: string;
-  address: string;
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string;
+  address?: string;
+  phoneNumber?: string;
+  profileImage?: File;
+  password?: string;
+  newPassword?: string;
+  newPasswordAgain?: string;
+}
+
+export interface ProfileFormData {
+  profile?: {
+    firstName?: string;
+    lastName?: string;
+    address?: string;
+    phoneNumber?: string;
+  };
+  profileImage?: File;
+  password?: string;
+  newPassword?: string;
+  newPasswordAgain?: string;
 }
 
 export interface ChangePasswordData {
@@ -71,13 +91,17 @@ export const authService = {
   logout: (): Promise<AuthResponse> =>
     apiClient.get('/auth/logout'),
 
-  updateProfile: (data: UpdateProfileData): Promise<AuthResponse> => {
-    return apiClient.patch('/auth/profile', data);
-  },
+  updateProfile: (data: FormData): Promise<AuthResponse> => 
+    apiClient.uploadWithPatch('/auth/profile', data),
 
-  changePassword: (data: ChangePasswordData): Promise<AuthResponse> => {
-    return apiClient.patch('/auth/password', data);
-  },
+  deleteProfileImage: (): Promise<AuthResponse> =>
+    apiClient.request('/auth/profile/image', { 
+      method: 'DELETE',
+      body: JSON.stringify({})
+    }),
+
+  changePassword: (data: ChangePasswordData): Promise<AuthResponse> =>
+    apiClient.patch('/auth/password', data),
 };
 
 // Business Services
@@ -91,8 +115,11 @@ export const businessService = {
   getByOwner: (ownerid: string): Promise<{ payload: Business[] }> =>
     apiClient.get(`/business?ownerid=${ownerid}`),
 
-  create: (businessData: any) =>
-    apiClient.post('/business', businessData),
+  create: (data: FormData): Promise<AuthResponse> =>
+    apiClient.upload('/business', data),
+
+  update: (id: string, data: FormData): Promise<AuthResponse> =>
+    apiClient.uploadWithPatch(`/business/${id}`, data),
 };
 
 // Service Services

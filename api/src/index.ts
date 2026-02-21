@@ -23,6 +23,28 @@ const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstru
 // CORS Configuration - Load from environment variables
 const ALLOWED_ORIGINS = (Bun.env.CORS_ORIGINS || 'http://localhost:3001,http://127.0.0.1:3001').split(',').map(origin => origin.trim());
 
+// CORS handler function
+const corsHandler = ({ set, request }: { set: any; request: Request }) => {
+  const origin = request.headers.get('origin');
+  const requestMethod = request.method;
+  
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    set.headers['Access-Control-Allow-Origin'] = origin;
+    set.headers['Access-Control-Allow-Credentials'] = 'true';
+    set.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS';
+    set.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Cookie';
+    set.headers['Access-Control-Expose-Headers'] = 'Set-Cookie';
+    set.headers['Access-Control-Max-Age'] = '86400';
+    
+    // Return 204 for preflight OPTIONS requests
+    if (requestMethod === 'OPTIONS') {
+      set.status = 204;
+      return '';
+    }
+  }
+  return;
+};
+
 const app: Elysia = new Elysia()
   .use(
     jwt({
@@ -30,21 +52,7 @@ const app: Elysia = new Elysia()
       secret: Bun.env.JWT_SECRET!,
     })
   )
-  .use(swagger(swaggerConfig as ElysiaSwaggerConfig))
-  .onBeforeHandle(({ set, request }) => {
-    const origin = request.headers.get('origin');
-    if (origin && ALLOWED_ORIGINS.includes(origin)) {
-      set.headers['Access-Control-Allow-Origin'] = origin;
-      set.headers['Access-Control-Allow-Credentials'] = 'true';
-      set.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS';
-      set.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Cookie';
-      set.headers['Access-Control-Expose-Headers'] = 'Set-Cookie';
-    }
-  })
-  .options('*', ({ set }) => {
-    set.status = 204;
-    return '';
-  })
+  .onRequest(corsHandler)
  // .use(rateLimit())
   .use(requestLogger)
   .use(isMaintenance)
